@@ -1,9 +1,9 @@
 #pragma once
-#include <stdint.h>
 
-namespace nvc {
+namespace nvc
+{
 
-enum DataFormat : uint32_t
+enum class DataFormat : uint32_t
 {
 	Unknown,
 	Int,
