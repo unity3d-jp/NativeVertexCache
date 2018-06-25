@@ -108,7 +108,7 @@ Compiler( 'Compiler-x64-OSX' )
 //                            + ' /we4905' // wide string literal cast to 'LPSTR'
 //                            + ' /we4906' // string literal cast to 'LPWSTR'
 
-    .CompilerOptions        = '"%1" /Z7 /nologo /c /W4 /WX'
+    .CompilerOptions        = '"%1" /Z7 /nologo /c /W4'
                             + ' /Zc:inline'         // Remove unreferenced COMDATs at compile time (VS2013.2+)
                             + ' /Zc:strictStrings'  // Require const only usage of string literals (VS2013+)
 //                            + .AdditionalWarnings
@@ -551,8 +551,8 @@ Compiler( 'ResourceCompiler' )
 //------------------------------------------------------------------------------
 .ProjectCommon =
 [
-    .ProjectBuildCommand        = 'cd ^$(SolutionDir)..\..\ &amp; fbuild -vs -dist -monitor -fastcancel -cache ^$(ProjectName)-^$(Configuration)'
-    .ProjectRebuildCommand      = 'cd ^$(SolutionDir)..\..\ &amp; fbuild -vs -dist -monitor -fastcancel -cache -clean ^$(ProjectName)-^$(Configuration)'
+    .ProjectBuildCommand        = 'cd ^$(SolutionDir)..\.. &amp; Tools\FASTBuild-Windows-x64-v0.95\fbuild -vs -dist -monitor -fastcancel -cache ^$(ProjectName)-^$(Configuration)'
+    .ProjectRebuildCommand      = 'cd ^$(SolutionDir)..\.. &amp; Tools\FASTBuild-Windows-x64-v0.95\fbuild -vs -dist -monitor -fastcancel -cache -clean ^$(ProjectName)-^$(Configuration)'
     .OutputDirectory            = '^$(SolutionDir)..\tmp2'
     .IntermediateDirectory      = '^$(SolutionDir)..\tmp2'
     .BuildLogFile               = '^$(SolutionDir)..\tmp2\^$(ProjectName)-^$(Configuration).log'
