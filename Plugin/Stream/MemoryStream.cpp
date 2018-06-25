@@ -73,7 +73,7 @@ size_t MemoryStream::read(void* buffer, size_t length) const
 	if (readSize > 0)
 	{
 		memcpy(buffer, static_cast<int8_t*>(m_Data) + getPosition(), static_cast<size_t>(readSize));
-		const_cast<MemoryStream*>(this)->seek(readSize, SeekOrigin::Current);
+		const_cast<MemoryStream*>(this)->seek(static_cast<int>(readSize), SeekOrigin::Current);
 	}
 
 	return readSize;
@@ -94,7 +94,7 @@ size_t MemoryStream::write(const void* buffer, size_t length)
 	m_Length = __min(getCapacity(), __max(m_Length, newPosition));
 
 	memcpy(static_cast<int8_t*>(m_Data) + getPosition(), buffer, static_cast<size_t>(length));
-	seek(length, SeekOrigin::Current);
+	seek(static_cast<int>(length), SeekOrigin::Current);
 
 	return length;
 }
@@ -157,14 +157,11 @@ void MemoryStream::grow(uint64_t requestedSize)
 {
 	if (m_Managed && (getCapacity() < requestedSize))
 	{
-		m_Data = realloc(m_Data, static_cast<size_t>(requestedSize));
-		if (m_Data != nullptr)
+		void* grownData = realloc(m_Data, static_cast<size_t>(requestedSize));
+		if (grownData != nullptr)
 		{
+			m_Data = grownData;
 			m_Allocated = requestedSize;
-		}
-		else
-		{
-			m_Allocated = 0;
 		}
 	}
 }

@@ -56,12 +56,12 @@ public:
 	void setCurrentFrame(float currentTime);
 	// + function to get geometry data to render.
 
-	void assignCurrentDataToMesh(Mesh& mesh);
+	//void assignCurrentDataToMesh(Mesh& mesh);
 
 
-	// Sampling.
-	template<typename TDataType>
-	TDataType Sample<TDataType>(float time, const char* semantic);
+	//// Sampling.
+	//template<typename TDataType>
+	//TDataType Sample<TDataType>(float time, const char* semantic);
 
 	//...
 	GeomCache(const GeomCache&) = delete;
