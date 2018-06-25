@@ -1,30 +1,8 @@
 #pragma once
 #include <map>
+#include "DataFormat.h"
 
-enum DataFormat
-{
-	Unknown,
-	Int,
-	Int2,
-	Int3,
-	Int4,
-	Float,
-	Float2,
-	Float3,
-	Float4,
-	Half,
-	Half2,
-	Half3,
-	Half4,
-	SNorm16,
-	SNorm16x2,
-	SNorm16x3,
-	SNorm16x4,
-	UNorm16,
-	UNorm16x2,
-	UNorm16x3,
-	UNorm16x4,
-};
+using DataFormat = nvc::DataFormat;	// TODO : Should be removed.
 
 #define GEOM_CACHE_MAX_DESCRIPTOR_COUNT        (8)
 struct GeomCacheDesc

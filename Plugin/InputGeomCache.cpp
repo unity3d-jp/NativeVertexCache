@@ -72,32 +72,7 @@ size_t InputGeomCache::getDataSize() const
 	const GeomCacheDesc *currentDesc = m_Descriptor;
 	while (currentDesc->semantic != nullptr)
 	{
-		// TODO: 
-		size_t TypeSize[] =
-		{
-			0,
-			4,
-			8,
-			Int3,
-			Int4,
-			Float,
-			Float2,
-			Float3,
-			Float4,
-			Half,
-			Half2,
-			Half3,
-			Half4,
-			SNorm16,
-			SNorm16x2,
-			SNorm16x3,
-			SNorm16x4,
-			UNorm16,
-			UNorm16x2,
-			UNorm16x3,
-			UNorm16x4,
-		};
-		cacheDataSize += TypeSize[currentDesc->format];
+		cacheDataSize += getSizeOfDataFormat(currentDesc->format);
 	}
 
 	return cacheDataSize;
