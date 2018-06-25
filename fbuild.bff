@@ -718,7 +718,7 @@ ForEach( .Platform in .Platforms )
 //------------------------------------------------------------------------------
 VSSolution( 'solution' )
 {
-    .SolutionOutput     = './Solution/VisualStudio/Renderer.sln'
+    .SolutionOutput     = './Solution/VisualStudio/NativeVertexCache.sln'
     .SolutionProjects   = {
     						'All-proj',
                             'UpdateSolution-proj',
@@ -761,7 +761,7 @@ VSSolution( 'solution' )
 //------------------------------------------------------------------------------
 XCodeProject( 'xcode' )
 {
-    .ProjectOutput              = './Solution/XCode/Renderer.xcodeproj/project.pbxproj'
+    .ProjectOutput              = './Solution/XCode/NativeVertexCache.xcodeproj/project.pbxproj'
     .ProjectBasePath            = './Solution/XCode/Projects/'
 
     .XCodeBuildWorkingDir       = './'
