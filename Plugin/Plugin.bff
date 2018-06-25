@@ -1,9 +1,8 @@
-// Core
+// NativeVertexCache
 //------------------------------------------------------------------------------
 {
-    .ProjectName        = 'Plugin'
+    .ProjectName        = 'NativeVertexCache'
     .ProjectPath        = 'Plugin'
-    .PCHName            = 'PrecompiledHeader'
 
     // Unity
     //--------------------------------------------------------------------------
@@ -11,24 +10,20 @@
         // Common options
         .UnityInputPath             = '$ProjectPath$\'
         .UnityOutputPath            = '$OutputBase$\Unity\$ProjectPath$\'
-        //.UnityInputExcludePath      = '$ProjectPath$\CoreTest\' // Exclude Tests
 
         // Windows
         Unity( '$ProjectName$-Unity-Windows' )
         {
-            .UnityPCH               = '$ProjectPath$\$PCHName$.h'
         }
 
         // Linux
         Unity( '$ProjectName$-Unity-Linux' )
         {
-            // No PCH
         }
 
         // OSX
         Unity( '$ProjectName$-Unity-OSX' )
         {
-            // No PCH
         }
     }
 
@@ -39,14 +34,11 @@
         Using( .Config )
         .OutputBase + '\$Platform$-$Config$'
 
-        // Static Library
-        Library( '$ProjectName$-Lib-$Platform$-$Config$' )
+        // Objects
+        ObjectList( '$ProjectName$-Lib-$Platform$-$Config$' )
         {
-            // Precompiled Header Creation/Use
-            .PCHInputFile               = '$ProjectPath$\$PCHName$.cpp'
-            .PCHOutputFile              = '$OutputBase$\$ProjectName$\$PCHName$.pch'
-            .PCHOptions                 + ' /Yc"$ProjectPath$\$PCHName$.h"'
-            .CompilerOptions            + ' /Yu"$ProjectPath$\$PCHName$.h" /Fp"$PCHOutputFile$"'
+            // Test framework uses exceptions
+            .CompilerOptions            + .UseExceptions
 
             // Input (Unity)
             .CompilerInputUnity         = '$ProjectName$-Unity-Windows'
@@ -55,7 +47,24 @@
             .CompilerOutputPath         = '$OutputBase$\$ProjectName$\'
             .LibrarianOutput            = '$OutputBase$\$ProjectName$\$ProjectName$.lib'
         }
-        Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Lib-$Platform$-$Config$' }
+
+        // DLL
+        DLL( '$ProjectName$-Dll-$Platform$-$Config$' )
+        {
+            .LinkerOutput                   = '$OutputBase$\$ProjectName$\$ProjectName$.dll'
+            .LinkerOptions                  + ' /DLL'
+											// + ' kernel32.lib'
+                                            // + ' Ws2_32.lib'
+                                            // + ' LIBCMT.LIB'
+                                            // + ' User32.lib'
+                                            // + ' ucrt.lib'
+                                            // + ' vcruntime.lib'
+                                            // + ' MSVCPRTD.lib'
+            .Libraries                      = {
+												'NativeVertexCache-Lib-$Platform$-$Config$',
+                                              }
+        }
+        Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Dll-$Platform$-$Config$' }
     }
 
     // Windows (Clang)
@@ -95,7 +104,17 @@
             .CompilerOutputPath         = '$OutputBase$\$ProjectName$\'
             .LibrarianOutput            = '$OutputBase$\$ProjectName$\$ProjectName$.a'
         }
-        Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Lib-$Platform$-$Config$' }
+
+        // DLL
+        DLL( '$ProjectName$-Dll-$Platform$-$Config$' )
+        {
+            .Libraries                      = {
+												'NativeVertexCache-Lib-$Platform$-$Config$',
+                                              }
+            .LinkerOutput                   = '$OutputBase$\Plugin\NativeVertexCache'
+            .LinkerOptions                  + ' -pthread -lrt'
+        }
+        Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Dll-$Platform$-$Config$' }
     }
 
     // OSX (Clang)
@@ -115,7 +134,16 @@
             .CompilerOutputPath         = '$OutputBase$\$ProjectName$\'
             .LibrarianOutput            = '$OutputBase$\$ProjectName$\$ProjectName$.a'
         }
-        Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Lib-$Platform$-$Config$' }
+
+        // DLL
+        DLL( '$ProjectName$-Dll-$Platform$-$Config$' )
+        {
+            .Libraries                      = {
+												'NativeVertexCache-Lib-$Platform$-$Config$',
+                                              }
+            .LinkerOutput                   = '$OutputBase$\$ProjectName$'
+        }
+        Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Dll-$Platform$-$Config$' }
     }
 
     // Aliases
@@ -130,8 +158,7 @@
         .ProjectInputPaths          = '$ProjectPath$\'
         .ProjectBasePath            = '$ProjectPath$\'
 
-        // Exclude Tests
-        .ProjectInputPathsExclude   = '$ProjectPath$\CoreTest\'
+        .LocalDebuggerCommand       = '^$(SolutionDir)..\^$(Configuration)\Plugin\$ProjectName$.dll'
 
         .ProjectX86Debug        = [ Using( .ProjectX86Debug )           .Target = '$ProjectName$-X86-Debug' ]
         .ProjectX86Profile      = [ Using( .ProjectX86Profile )         .Target = '$ProjectName$-X86-Profile' ]
@@ -151,7 +178,7 @@
     //--------------------------------------------------------------------------
     XCodeProject( '$ProjectName$-xcodeproj' )
     {
-        .ProjectOutput              = './Solution/XCode/Projects/2_Libs/$ProjectName$.xcodeproj/project.pbxproj'
+        .ProjectOutput              = './Solution/XCode/Projects/1_Test/$ProjectName$.xcodeproj/project.pbxproj'
         .ProjectInputPaths          = '$ProjectPath$/'
         .ProjectBasePath            = '$ProjectPath$/'
 

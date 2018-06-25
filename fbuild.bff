@@ -121,8 +121,8 @@ Compiler( 'Compiler-x64-OSX' )
                             + ' /Fp"%2" /Fo"%3"'
     .CompilerOptions        + ' /Fo"%2"'
     .CompilerOptionsC       = .CompilerOptions
-    .LibrarianOptions       = '/NODEFAULTLIB /WX /NOLOGO /OUT:"%2" "%1"'
-    .LinkerOptions          = '/NODEFAULTLIB /WX /NOLOGO /INCREMENTAL:NO /OUT:"%2" "%1" /DEBUG'
+    .LibrarianOptions       = '/WX /NOLOGO /OUT:"%2" "%1"'
+    .LinkerOptions          = '/WX /NOLOGO /INCREMENTAL:NO /OUT:"%2" "%1" /DEBUG'
 
     // Optimizations
     .CompilerDebugOptimizations     = ' /MTd /Od /RTC1 /GS /Oy- /GR- /analyze'
@@ -637,7 +637,7 @@ ForEach( .Config in .Configs )
         					// tests
 
                             // executables
-                            'Plugin-$Platform$-$Config$',
+                            'NativeVertexCache-$Platform$-$Config$',
 
                             // Clang doesn't link at the moment, so we need list all the libs manually
 
@@ -751,7 +751,7 @@ VSSolution( 'solution' )
     .Folder_3_Plugins =
     [
         .Path           = '3. Plugins'
-        .Projects       = { 'Plugin-proj' }
+        .Projects       = { 'NativeVertexCache-proj' }
     ]
     .SolutionFolders    = { .Folder_0_External, .Folder_1_Test, .Folder_2_Modules, .Folder_3_Plugins }
 }
@@ -767,7 +767,7 @@ XCodeProject( 'xcode' )
     .XCodeBuildWorkingDir       = './'
 
     .ProjectFiles               = {
-                                    'Plugin-xcodeproj'
+                                    'NativeVertexCache-xcodeproj'
                                   }
 
     .ProjectOSXDebug        = [ .Config = 'Debug'   .Target = 'all-x64OSX-Debug' ]
