@@ -14,6 +14,9 @@ static void test0() {
 	const char* src_filename = "test_src.file";
 	const char* dst_filename = "test_dst.file";
 
+	AutoPrepareCleanFile apcfSrc { src_filename };
+	AutoPrepareCleanFile apcfDst { dst_filename };
+
 	FileStream msSrc(
 		  src_filename
 		, FileStream::OpenModes::Random_ReadWrite
@@ -60,6 +63,9 @@ static void test0() {
 }
 
 static void test1() {
+	const char* filename = "fs_test_benchmark.file";
+	AutoPrepareCleanFile apcfFilename { filename };
+
 	for(int iBufSize = 1; iBufSize <= 256; iBufSize *= 2) {
 		ByteArray buf(1024*64 * iBufSize);
 		FillRandom(buf, 0x1234, 0x4321);
@@ -67,7 +73,6 @@ static void test1() {
 
 		const auto t0 = GetHighResolutionClock();
 		{
-			const char* filename = "fs_test_benchmark.file";
 			FileStream fs(
 				  filename
 				, FileStream::OpenModes::Random_ReadWrite
