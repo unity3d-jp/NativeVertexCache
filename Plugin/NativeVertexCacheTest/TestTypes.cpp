@@ -1,22 +1,6 @@
 #include "Plugin/PrecompiledHeader.h"
 #include "Plugin/Types.h"
-
-static bool near_equals(float a, float b, float eps)
-{
-    return std::abs(a - b) <= std::abs(eps);
-}
-
-static void test_failed(const char *format, ...)
-{
-    char buf[1024];
-
-    va_list args;
-    va_start(args, format);
-    vsprintf(buf, format, args);
-    va_end(args);
-
-    throw std::runtime_error(buf);
-}
+#include "./TestUtil.h"
 
 
 void RunTest_Types()
@@ -50,8 +34,8 @@ void RunTest_Types()
         };
         for (float v : test_data) {
             half h(v);
-            if (!near_equals(v, h.to_float(), 0.001f)) {
-                test_failed("%f : %f\n", v, h.to_float());
+            if (!NearEqual(v, h.to_float(), 0.001f)) {
+                ThrowError("%f : %f\n", v, h.to_float());
             }
         }
     }
@@ -73,8 +57,8 @@ void RunTest_Types()
         };
         for (float v : test_data) {
             snorm16 h(v);
-            if (!near_equals(v, h.to_float(), 0.001f)) {
-                test_failed("%f : %f\n", v, h.to_float());
+            if (!NearEqual(v, h.to_float(), 0.001f)) {
+                ThrowError("%f : %f\n", v, h.to_float());
             }
         }
     }
@@ -90,8 +74,8 @@ void RunTest_Types()
         };
         for (float v : test_data) {
             unorm16 h(v);
-            if (!near_equals(v, h.to_float(), 0.001f)) {
-                test_failed("%f : %f\n", v, h.to_float());
+            if (!NearEqual(v, h.to_float(), 0.001f)) {
+                ThrowError("%f : %f\n", v, h.to_float());
             }
         }
     }

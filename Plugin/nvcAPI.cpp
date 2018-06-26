@@ -14,9 +14,9 @@ static inline void copy(const std::vector<T>& src, T *dst)
 
 } // namespace nvc
 
-nvcAPI nvc::InputGeomCache* nvcIGCCreate(const nvc::GeomCacheDesc *descs)
+nvcAPI nvc::InputGeomCache* nvcIGCCreate(const char *path, const nvc::GeomCacheDesc *descs)
 {
-    return new nvc::InputGeomCache(descs);
+    return new nvc::InputGeomCache(path, descs);
 }
 nvcAPI void nvcIGCRelease(nvc::InputGeomCache *self)
 {

@@ -19,7 +19,7 @@ class OutputGeomCache;
 class GeomCache;
 } // namespace nvc
 
-nvcAPI nvc::InputGeomCache* nvcIGCCreate(const nvc::GeomCacheDesc *descs);
+nvcAPI nvc::InputGeomCache* nvcIGCCreate(const char *path, const nvc::GeomCacheDesc *descs);
 nvcAPI void nvcIGCRelease(nvc::InputGeomCache *self);
 nvcAPI void nvcIGCAddData(nvc::InputGeomCache *self, float time, const nvc::GeomCacheData *data);
 
