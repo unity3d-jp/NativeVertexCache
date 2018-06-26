@@ -61,8 +61,11 @@ void MemoryStream::setLength(size_t length)
 
 void MemoryStream::copyTo(Stream* stream, size_t nSize)
 {
-	const uint64_t readSize = __min(getLength(), nSize);
-	stream->write(m_Data, readSize);
+	const uint64_t readSize = __min(getLength() - getPosition(), nSize);
+	if(readSize > 0) {
+		stream->write(static_cast<int8_t*>(m_Data) + getPosition(), readSize);
+		seek(readSize, SeekOrigin::Current);
+	}
 }
 
 size_t MemoryStream::read(void* buffer, size_t length) const
@@ -73,9 +76,10 @@ size_t MemoryStream::read(void* buffer, size_t length) const
 	if (readSize > 0)
 	{
 		memcpy(buffer, static_cast<int8_t*>(m_Data) + getPosition(), static_cast<size_t>(readSize));
-		const_cast<MemoryStream*>(this)->seek(static_cast<int>(readSize), SeekOrigin::Current);
+		const_cast<MemoryStream*>(this)->seek(readSize, SeekOrigin::Current);
 	}
 
+	// note: should we take care about error case?
 	return readSize;
 }
 
