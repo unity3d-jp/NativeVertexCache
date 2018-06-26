@@ -591,8 +591,8 @@ VCXProject( 'UpdateSolution-proj' )
 
     .GenerateProjectsCommands =
     [
-        .ProjectBuildCommand        = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild solution -vs'
-        .ProjectRebuildCommand      = 'cd ^$(SolutionDir)\..\..\ &amp; fbuild solution -vs -clean'
+        .ProjectBuildCommand        = 'cd ^$(SolutionDir)\..\..\ &amp; Tools\FASTBuild-Windows-x64-v0.95\fbuild solution -vs'
+        .ProjectRebuildCommand      = 'cd ^$(SolutionDir)\..\..\ &amp; Tools\FASTBuild-Windows-x64-v0.95\fbuild solution -vs -clean'
     ]
 
     .ProjectX86Debug        = [ Using( .ProjectX86Debug )       Using( .GenerateProjectsCommands ) ]
