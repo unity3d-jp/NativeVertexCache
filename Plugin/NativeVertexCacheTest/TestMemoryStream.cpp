@@ -1,19 +1,10 @@
 ﻿//! PrecompiledHeader Include.
 #include "Plugin/PrecompiledHeader.h"
 #include "Plugin/Stream/MemoryStream.h"
-#include "Plugin/Pcg.h"
+#include "Plugin/NativeVertexCacheTest/TestUtil.h"
 
 using namespace nvc;
 using ByteArray = std::vector<uint8_t>;
-
-template<typename T>
-static void FillRandom(T& vec, uint64_t state = 0x900dbeef, uint64_t inc = 0x87654321) {
-	using ValueType = T::value_type;
-	Pcg pcg { state, inc };
-	for(auto& v : vec) {
-		v = static_cast<ValueType>(pcg.getUint32());
-	}
-}
 
 void RunTest_MemoryStream()
 {
