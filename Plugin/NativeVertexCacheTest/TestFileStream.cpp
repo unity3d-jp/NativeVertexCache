@@ -60,27 +60,29 @@ static void test0() {
 }
 
 static void test1() {
-	ByteArray buf(1024*1024);
-	FillRandom(buf, 0x1234, 0x4321);
-	size_t nLoop = 1024;
+	for(int iBufSize = 1; iBufSize <= 256; iBufSize *= 2) {
+		ByteArray buf(1024*64 * iBufSize);
+		FillRandom(buf, 0x1234, 0x4321);
+		size_t nLoop = 1024*1024*1024 / buf.size();
 
-	const auto t0 = GetHighResolutionClock();
-	{
-		const char* filename = "fs_test_benchmark.file";
-		FileStream fs(
-			  filename
-			, FileStream::OpenModes::Random_ReadWrite
-		);
+		const auto t0 = GetHighResolutionClock();
+		{
+			const char* filename = "fs_test_benchmark.file";
+			FileStream fs(
+				  filename
+				, FileStream::OpenModes::Random_ReadWrite
+			);
 
-		for(size_t iLoop = 0; iLoop < nLoop; ++iLoop) {
-			fs.write(buf.data(), buf.size());
+			for(size_t iLoop = 0; iLoop < nLoop; ++iLoop) {
+				fs.write(buf.data(), buf.size());
+			}
 		}
-	}
-	const auto t1 = GetHighResolutionClock();
+		const auto t1 = GetHighResolutionClock();
 
-	const auto dt = GetSeconds(t0, t1);
-	const auto totalBytes = (double) (buf.size() * nLoop);
-	printf("(%s): Sequential write speed is %f MB/sec\n", __FILE__, totalBytes / dt / 1024/1024);
+		const auto dt = GetSeconds(t0, t1);
+		const auto totalBytes = (double) (buf.size() * nLoop);
+		printf("TestFileStream: Sequential write speed is %f MB/sec (bufsize=%zdKB)\n", totalBytes / dt / 1024/1024, buf.size()/1024);
+	}
 }
 
 void RunTest_FileStream()
