@@ -22,9 +22,11 @@ struct GeomCacheData
 class InputGeomCache final
 {
 private:
+	using FrameDataType = std::pair<float, GeomCacheData>;
+
 	GeomCacheDesc m_Descriptor[GEOM_CACHE_MAX_DESCRIPTOR_COUNT] = {};
 
-	std::map<float, GeomCacheData> m_Data;
+	std::vector<FrameDataType> m_Data;
 
 public:
 	// last element of desc must be GEOM_CACHE_DESCRIPTOR_END (null terminator)
@@ -37,6 +39,7 @@ public:
 	size_t getDataSize() const;
 	// GeomCacheData::data can be nullptr. in that case, only count will be filled.
 	void getData(float time, GeomCacheData* data);
+	size_t getDataCount() const;
 
 	//...
 	InputGeomCache(const InputGeomCache&) = delete;

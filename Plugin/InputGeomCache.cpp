@@ -34,7 +34,13 @@ InputGeomCache::~InputGeomCache()
 
 void InputGeomCache::addData(float time, const GeomCacheData* data)
 {
-	if (m_Data.find(time) == m_Data.end())
+	const auto it = std::find_if(m_Data.begin(), m_Data.end(),
+						[time] (const FrameDataType& d)
+						{
+							return d.first == time;
+						});
+
+	if (it == m_Data.end())
 	{
 		void *currentData = nullptr;
 		if (data->data)
@@ -47,8 +53,15 @@ void InputGeomCache::addData(float time, const GeomCacheData* data)
 				memcpy(currentData, data->data, cacheDataSize * data->count);
 			}
 		}
-		
-		m_Data.insert(std::make_pair(time, GeomCacheData { currentData, data->count }));
+
+		// Insert sorted.
+		auto dataToInsert = std::make_pair(time, GeomCacheData{ currentData, data->count });
+		const auto itInsert = std::lower_bound(m_Data.begin(), m_Data.end(), dataToInsert,
+										[](const FrameDataType& lhs, const FrameDataType& rhs)
+										{
+											return lhs.first < rhs.first;
+										});
+		m_Data.insert(itInsert, dataToInsert);
 	}
 }
 
@@ -80,10 +93,20 @@ size_t InputGeomCache::getDataSize() const
 
 void InputGeomCache::getData(float time, GeomCacheData* data)
 {
-	const auto it = m_Data.find(time);
-	if (it != m_Data.end())
+	const auto it = std::find_if(m_Data.begin(), m_Data.end(),
+							[time](const FrameDataType& d)
+							{
+								return d.first == time;
+							});
+
+	if (it == m_Data.end())
 	{
 		data->data = it->second.data;
 		data->count = it->second.count;
 	}
+}
+
+size_t InputGeomCache::getDataCount() const
+{
+	return 0;
 }
