@@ -8,7 +8,7 @@
     //--------------------------------------------------------------------------
     {
         // Common options
-        .UnityInputPath             = '$ProjectPath$\'
+        .UnityInputPath             = '$ProjectPath$\..\'
         .UnityOutputPath            = '$OutputBase$\Unity\$ProjectPath$\'
 
         // Windows
