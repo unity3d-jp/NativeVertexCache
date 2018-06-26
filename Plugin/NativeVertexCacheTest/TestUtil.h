@@ -53,3 +53,29 @@ inline double GetSeconds(std::chrono::high_resolution_clock::time_point begin, s
     const auto d = static_cast<std::chrono::duration<double>>(end - begin);
     return d.count();
 }
+
+bool RemoveFile(const char* filename);
+bool IsFileExist(const char* filename);
+bool IsFileReadable(const char* filename);
+bool IsFileWritable(const char* filename);
+
+class AutoPrepareCleanFile {
+public:
+	AutoPrepareCleanFile(const char* filename, bool removeOnDestructor = true)
+		: filename { filename }
+		, removeOnDestructor { removeOnDestructor }
+	{
+		RemoveFile(filename);
+	}
+
+	~AutoPrepareCleanFile()
+	{
+		if(removeOnDestructor) {
+			RemoveFile(filename.c_str());
+		}
+	}
+
+protected:
+	std::string filename;
+	const bool removeOnDestructor;
+};
