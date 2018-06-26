@@ -4,6 +4,8 @@
 //! Header Include.
 #include "InputGeomCache.h"
 
+namespace nvc {
+
 InputGeomCache::InputGeomCache(const GeomCacheDesc *desc)
 {
 	uint32_t count = 0;
@@ -110,3 +112,5 @@ size_t InputGeomCache::getDataCount() const
 {
 	return 0;
 }
+
+} // namespace nvc

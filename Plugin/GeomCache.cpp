@@ -4,6 +4,8 @@
 //! Header Include.
 #include "GeomCache.h"
 
+namespace nvc {
+
 GeomCache::GeomCache()
 {
 }
@@ -11,3 +13,5 @@ GeomCache::GeomCache()
 GeomCache::~GeomCache()
 {
 }
+
+} // namespace nvc

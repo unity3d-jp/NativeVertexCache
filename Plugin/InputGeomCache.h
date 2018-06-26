@@ -2,7 +2,7 @@
 #include <map>
 #include "DataFormat.h"
 
-using DataFormat = nvc::DataFormat;	// TODO : Should be removed.
+namespace nvc {
 
 #define GEOM_CACHE_MAX_DESCRIPTOR_COUNT        (8)
 struct GeomCacheDesc
@@ -47,3 +47,5 @@ public:
 	InputGeomCache& operator=(const InputGeomCache&) = delete;
 	InputGeomCache& operator=(InputGeomCache&&) = delete;
 };
+
+} // namespace nvc
