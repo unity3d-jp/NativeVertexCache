@@ -1,9 +1,8 @@
-// NativeVertexCache
+// NativeVertexCacheTest
 //------------------------------------------------------------------------------
 {
-    .ProjectName        = 'NativeVertexCache'
-    .ProjectPath        = 'Plugin'
-    .PCHName            = 'PrecompiledHeader'
+    .ProjectName        = 'NativeVertexCacheTest'
+    .ProjectPath        = 'Plugin/NativeVertexCacheTest'
 
     // Unity
     //--------------------------------------------------------------------------
@@ -11,12 +10,10 @@
         // Common options
         .UnityInputPath             = '$ProjectPath$\'
         .UnityOutputPath            = '$OutputBase$\Unity\$ProjectPath$\'
-        .UnityInputExcludePath      = '$ProjectPath$\NativeVertexCacheTest\' // Exclude Tests
 
         // Windows
         Unity( '$ProjectName$-Unity-Windows' )
         {
-            .UnityPCH               = '$ProjectPath$\$PCHName$.h'
         }
 
         // Linux
@@ -51,23 +48,30 @@
             .LibrarianOutput            = '$OutputBase$\$ProjectName$\$ProjectName$.lib'
         }
 
-        // DLL
-        DLL( '$ProjectName$-Dll-$Platform$-$Config$' )
+        // Executable
+        Executable( '$ProjectName$-Exe-$Platform$-$Config$' )
         {
-            .LinkerOutput                   = '$OutputBase$\$ProjectName$\$ProjectName$.dll'
-            .LinkerOptions                  + ' /DLL'
-											// + ' kernel32.lib'
-                                            // + ' Ws2_32.lib'
-                                            // + ' LIBCMT.LIB'
-                                            // + ' User32.lib'
-                                            // + ' ucrt.lib'
-                                            // + ' vcruntime.lib'
-                                            // + ' MSVCPRTD.lib'
-            .Libraries                      = {
-												'NativeVertexCache-Lib-$Platform$-$Config$',
+            .Libraries                      = { 'NativeVertexCache-Dll-$Platform$-$Config$',
+                                                'NativeVertexCacheTest-Lib-$Platform$-$Config$',
                                               }
+            .LinkerOutput                   = '$OutputBase$\NativeVertexCache\NativeVertexCacheTest.exe'
+            .LinkerOptions                  + ' /SUBSYSTEM:CONSOLE'
+                                            //+ ' kernel32.lib'
+                                            //+ ' Ws2_32.lib'
+                                            //+ ' LIBCMT.LIB'
+                                            //+ ' User32.lib'
+                                            //+ ' ucrt.lib'
+                                            //+ ' vcruntime.lib'
         }
-        Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Dll-$Platform$-$Config$' }
+        Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Exe-$Platform$-$Config$' }
+
+        // Run Test
+        Test( "$ProjectName$-RunTest-$Platform$-$Config$" )
+        {
+            .TestExecutable                 = '$ProjectName$-Exe-$Platform$-$Config$'
+            .TestOutput                     = "$OutputBase$\$ProjectPath$\TestOutput.txt"
+            .TestTimeOut                    = 60
+        }
     }
 
     // Windows (Clang)
@@ -86,6 +90,9 @@
             // Output
             .CompilerOutputPath         = '$OutputBase$\$ProjectName$\'
             .LibrarianOutput            = '$OutputBase$\$ProjectName$\$ProjectName$.lib'
+
+            // TODO: Remove this when linking is working with Clang
+//            .LibrarianAdditionalInputs  = 'LZ4-$Platform$-$Config$'
         }
         Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Lib-$Platform$-$Config$' }
     }
@@ -108,16 +115,24 @@
             .LibrarianOutput            = '$OutputBase$\$ProjectName$\$ProjectName$.a'
         }
 
-        // DLL
-        DLL( '$ProjectName$-Dll-$Platform$-$Config$' )
+        // Executable
+        Executable( '$ProjectName$-Exe-$Platform$-$Config$' )
         {
             .Libraries                      = {
-												'NativeVertexCache-Lib-$Platform$-$Config$',
+                                                'NativeVertexCacheTest-Lib-$Platform$-$Config$'
+                                                'NativeVertexCache-Dll-$Platform$-$Config$'
                                               }
-            .LinkerOutput                   = '$OutputBase$\Plugin\NativeVertexCache'
+            .LinkerOutput                   = '$OutputBase$\NativeVertexCache\nativevertexcachetest'
             .LinkerOptions                  + ' -pthread -lrt'
         }
-        Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Dll-$Platform$-$Config$' }
+        Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Exe-$Platform$-$Config$' }
+
+        // Run Test
+        Test( "$ProjectName$-RunTest-$Platform$-$Config$" )
+        {
+            .TestExecutable                 = '$ProjectName$-Exe-$Platform$-$Config$'
+            .TestOutput                     = "$OutputBase$\$ProjectPath$\TestOutput.txt"
+        }
     }
 
     // OSX (Clang)
@@ -138,20 +153,28 @@
             .LibrarianOutput            = '$OutputBase$\$ProjectName$\$ProjectName$.a'
         }
 
-        // DLL
-        DLL( '$ProjectName$-Dll-$Platform$-$Config$' )
+        // Executable
+        Executable( '$ProjectName$-Exe-$Platform$-$Config$' )
         {
             .Libraries                      = {
-												'NativeVertexCache-Lib-$Platform$-$Config$',
+                                                'NativeVertexCacheTest-Lib-$Platform$-$Config$'
+                                                'NativeVertexCache-Dll-$Platform$-$Config$'
                                               }
-            .LinkerOutput                   = '$OutputBase$\$ProjectName$'
+            .LinkerOutput                   = '$OutputBase$\NativeVertexCache\NativeVertexCacheTest'
         }
-        Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Dll-$Platform$-$Config$' }
+        Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Exe-$Platform$-$Config$' }
+
+        // Run Test
+        Test( "$ProjectName$-RunTest-$Platform$-$Config$" )
+        {
+            .TestExecutable                 = '$ProjectName$-Exe-$Platform$-$Config$'
+            .TestOutput                     = "$OutputBase$\$ProjectPath$\TestOutput.txt"
+        }
     }
 
     // Aliases
     //--------------------------------------------------------------------------
-    #include "../gen_default_aliases.bff"
+    #include "../../gen_default_aliases.bff"
 
     // Visual Studio Project Generation
     //--------------------------------------------------------------------------
@@ -161,7 +184,7 @@
         .ProjectInputPaths          = '$ProjectPath$\'
         .ProjectBasePath            = '$ProjectPath$\'
 
-        .LocalDebuggerCommand       = '^$(SolutionDir)..\^$(Configuration)\Plugin\$ProjectName$.dll'
+        .LocalDebuggerCommand       = '^$(SolutionDir)..\^$(Configuration)\NativeVertexCache\NativeVertexCacheTest.exe'
 
         .ProjectX86Debug        = [ Using( .ProjectX86Debug )           .Target = '$ProjectName$-X86-Debug' ]
         .ProjectX86Profile      = [ Using( .ProjectX86Profile )         .Target = '$ProjectName$-X86-Profile' ]

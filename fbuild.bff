@@ -625,6 +625,9 @@ VCXProject( 'UpdateSolution-proj' )
 // Plugin
 #include "Plugin/Plugin.bff"
 
+// Tests
+#include "Plugin/NativeVertexCacheTest/NativeVertexCacheTest.bff"
+
 // Aliases : All-$Platform$-$Config$
 //------------------------------------------------------------------------------
 ForEach( .Config in .Configs )
@@ -635,6 +638,7 @@ ForEach( .Config in .Configs )
     {
         .Targets        = {
         					// tests
+                            'NativeVertexCacheTest-$Platform$-$Config$',
 
                             // executables
                             'NativeVertexCache-$Platform$-$Config$',
@@ -683,36 +687,44 @@ ForEach( .Platform in .Platforms )
     }
 #endif
 
-//// Aliases : Tests
-////------------------------------------------------------------------------------
-//#if __WINDOWS__
-//    Alias( 'Tests' )
-//    {
-//        .Targets        = {
-//                          }
-//    }
-//#endif
-//#if __OSX__
-//    Alias( 'Tests' )
-//    {
-//        .Targets        = {
-//                          }
-//    }
-//#endif
-//#if __LINUX__
-//    Alias( 'Tests' )
-//    {
-//        .Targets        = {
-//                          }
-//    }
-//#endif
+// Aliases : Tests
+//------------------------------------------------------------------------------
+#if __WINDOWS__
+    Alias( 'Tests' )
+    {
+        .Targets        = {        	
+                            'NativeVertexCacheTest-RunTest-x86-Debug',
+                            'NativeVertexCacheTest-RunTest-x86-Release',
+                            'NativeVertexCacheTest-RunTest-x64-Debug',
+                            'NativeVertexCacheTest-RunTest-x64-Release',
+                          }
+    }
+#endif
+#if __OSX__
+    Alias( 'Tests' )
+    {
+        .Targets        = {
+                            'NativeVertexCacheTest-RunTest-x64OSX-Debug',
+                            'NativeVertexCacheTest-RunTest-x64OSX-Release',
+                          }
+    }
+#endif
+#if __LINUX__
+    Alias( 'Tests' )
+    {
+        .Targets        = {
+                            'NativeVertexCacheTest-RunTest-x64Linux-Debug',
+                            'NativeVertexCacheTest-RunTest-x64Linux-Release',
+                          }
+    }
+#endif
 
-//// Aliases : All+Tests
-////------------------------------------------------------------------------------
-//Alias( 'All+Tests' )
-//{
-//    .Targets        = { 'All', 'Tests' }
-//}
+// Aliases : All+Tests
+//------------------------------------------------------------------------------
+Alias( 'All+Tests' )
+{
+    .Targets        = { 'All', 'Tests' }
+}
 
 // Visual Studio Solution
 //------------------------------------------------------------------------------
@@ -728,7 +740,7 @@ VSSolution( 'solution' )
 
     // Work around for Visual Studio F5 behaviour up-to-date check
     .Deps               = [
-                            .Projects = { }
+                            .Projects = { 'NativeVertexCacheTest-proj' }
                             .Dependencies = { 'All-proj' }
                           ]
     .SolutionDependencies = { .Deps }
@@ -741,7 +753,7 @@ VSSolution( 'solution' )
     .Folder_1_Test =
     [
         .Path           = '1. Test'
-        .Projects       = { }
+        .Projects       = { 'NativeVertexCacheTest-proj' }
     ]
     .Folder_2_Modules =
     [
@@ -768,6 +780,7 @@ XCodeProject( 'xcode' )
 
     .ProjectFiles               = {
                                     'NativeVertexCache-xcodeproj'
+                                    'NativeVertexCacheTest-xcodeproj'
                                   }
 
     .ProjectOSXDebug        = [ .Config = 'Debug'   .Target = 'all-x64OSX-Debug' ]
