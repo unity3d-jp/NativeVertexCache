@@ -39,7 +39,7 @@ namespace {
 		}
 
 		uint8_t* data() const {
-			return m_Map;
+			return m_Base;
 		}
 
 		int64_t size() const {
@@ -48,14 +48,30 @@ namespace {
 
 	protected:
 		void map() {
+			// @todo : align m_Offset to m_PageSize
+			// @todo : extend m_Length which covers entire window with aligned m_Offset
+			// @todo : tweak returned address of data()
+			const auto alignedOffset = [&]() {
+				return (m_Offset / m_PageSize) * m_PageSize;
+			} ();
+			const auto headDiff = [&]() {
+				return (m_Offset - alignedOffset);
+			} ();
+			const auto alignedLength = [&]() {
+				return headDiff + m_Length;
+			} ();
+
 			m_Map = static_cast<uint8_t*>(MapViewOfFileEx(
 				  m_Handle
 				, m_dwDesiredAccess
-				, DWORD_HI(m_Offset)
-				, DWORD_LO(m_Offset)
-				, m_Length
+				, DWORD_HI(alignedOffset)
+				, DWORD_LO(alignedOffset)
+				, alignedLength
 				, nullptr
 			));
+			assert(m_Map != nullptr);
+
+			m_Base = m_Map + headDiff;
 		}
 
 		void unmap() {
@@ -65,12 +81,17 @@ namespace {
 			}
 		}
 
+		int64_t alignToPageSize(int64_t size) const {
+			return ((size + m_PageSize - 1) / m_PageSize) * m_PageSize;
+		}
+
 		HANDLE m_Handle;
 		int64_t m_Offset;
 		int64_t m_Length;
 		DWORD m_dwDesiredAccess;
 		int64_t m_PageSize;
 		uint8_t* m_Map;
+		uint8_t* m_Base;
 	};
 } // Anonymous namespace
 
