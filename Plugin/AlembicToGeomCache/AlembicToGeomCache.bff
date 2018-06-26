@@ -50,16 +50,23 @@
             .LibrarianOutput            = '$OutputBase$\$ProjectName$\$ProjectName$.lib'
         }
 
+        Copy('CopyABCI-$Platform$-$Config$')
+        {
+            .Source = './External/abci/lib64/abci.dll'
+            .Dest = '$OutputBase$/NativeVertexCache/abci.dll'
+        }
+
         // DLL
         DLL( '$ProjectName$-Dll-$Platform$-$Config$' )
         {
-            .LinkerOutput                   = '$OutputBase$\$ProjectName$\$ProjectName$.dll'
+            .LinkerOutput                   = '$OutputBase$\NativeVertexCache\$ProjectName$.dll'
             .LibPaths                       = ' /LIBPATH:"^$(SolutionDir)..\..\External\abci\lib64"'
             .LinkerOptions                  + ' /DLL'
                                             + .LibPaths
             .Libraries                      = {
 												'AlembicToGeomCache-Lib-$Platform$-$Config$',
                                               }
+            .PreBuildDependencies          = 'CopyABCI-$Platform$-$Config$'
         }
         Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Dll-$Platform$-$Config$' }
     }
