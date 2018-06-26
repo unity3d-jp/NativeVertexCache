@@ -8,8 +8,11 @@
     //--------------------------------------------------------------------------
     {
         // Common options
-        .UnityInputPath             = '$ProjectPath$\'
+        .UnityInputPath             = '$ProjectPath$\..\'
         .UnityOutputPath            = '$OutputBase$\Unity\$ProjectPath$\'
+        .UnityInputExcludePath      = {
+            '$ProjectPath$\..\AlembicToGeomCache\'
+        }
 
         // Windows
         Unity( '$ProjectName$-Unity-Windows' )

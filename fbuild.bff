@@ -117,6 +117,7 @@ Compiler( 'Compiler-x64-OSX' )
                             + ' /D"_CRT_SECURE_NO_WARNINGS"' // don't warn about unsafe functions
                             + ' /D"_WINSOCK_DEPRECATED_NO_WARNINGS"' // don't warn about deprecated winsock functions - TODO:C Update API use
                             + ' /EHsc' 				// Use exception
+                            + ' /D"NVC_IMPL"'
     .PCHOptions             = .CompilerOptions
                             + ' /Fp"%2" /Fo"%3"'
     .CompilerOptions        + ' /Fo"%2"'
@@ -624,6 +625,7 @@ VCXProject( 'UpdateSolution-proj' )
 
 // Plugin
 #include "Plugin/Plugin.bff"
+#include "Plugin/AlembicToGeomCache/AlembicToGeomCache.bff"
 
 // Tests
 #include "Plugin/NativeVertexCacheTest/NativeVertexCacheTest.bff"
@@ -642,6 +644,7 @@ ForEach( .Config in .Configs )
 
                             // executables
                             'NativeVertexCache-$Platform$-$Config$',
+                            'AlembicToGeomCache-$Platform$-$Config$',
 
                             // Clang doesn't link at the moment, so we need list all the libs manually
 
@@ -763,7 +766,7 @@ VSSolution( 'solution' )
     .Folder_3_Plugins =
     [
         .Path           = '3. Plugins'
-        .Projects       = { 'NativeVertexCache-proj' }
+        .Projects       = { 'NativeVertexCache-proj', 'AlembicToGeomCache-proj' }
     ]
     .SolutionFolders    = { .Folder_0_External, .Folder_1_Test, .Folder_2_Modules, .Folder_3_Plugins }
 }
@@ -779,7 +782,8 @@ XCodeProject( 'xcode' )
     .XCodeBuildWorkingDir       = './'
 
     .ProjectFiles               = {
-                                    'NativeVertexCache-xcodeproj'
+                                    'NativeVertexCache-xcodeproj',
+                                    'AlembicToGeomCache-xcodeproj',
                                     'NativeVertexCacheTest-xcodeproj'
                                   }
 
