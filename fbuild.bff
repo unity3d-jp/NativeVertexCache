@@ -647,6 +647,7 @@ ForEach( .Config in .Configs )
                             'AlembicToGeomCache-$Platform$-$Config$',
 
                             // Clang doesn't link at the moment, so we need list all the libs manually
+                            'NativeVertexCache-Lib-$Platform$-$Config$',
 
                           }
     }
