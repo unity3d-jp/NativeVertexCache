@@ -1,23 +1,8 @@
 #pragma once
 
-#include "DataFormat.h"
+#include "GeomCacheData.h"
 
 namespace nvc {
-
-#define GEOM_CACHE_MAX_DESCRIPTOR_COUNT        (8)
-struct GeomCacheDesc
-{
-	const char *semantic;
-	DataFormat format;
-};
-#define GEOM_CACHE_DESCRIPTOR_END            { nullptr, DataFormat::Unknown }
-
-struct GeomCacheData
-{
-	const void *data;
-	size_t count;
-};
-
 
 class InputGeomCache final
 {

@@ -9,25 +9,6 @@ namespace nvc
 class NullCompressor final : public ICompressor
 {
 public:
-	struct FileHeader
-	{
-		uint64_t FrameCount;
-		uint64_t VertexAttributeCount;
-	};
-
-	enum class FrameType : uint32_t
-	{
-		IFrame,
-	};
-
-	struct FrameHeader
-	{
-		FrameType Type;
-		float Time;
-		uint64_t VertexCount;
-	};
-
-public:
 	NullCompressor() = default;
 	~NullCompressor() = default;
 

@@ -35,7 +35,7 @@ public:
 	virtual void close() = 0;
 
 	template <typename TData>
-	TData read() { TData d; read(&d, sizeof(TData)); }
+	TData read() { TData d; read(&d, sizeof(TData)); return d; }
 
 	template <typename TData>
 	void read(TData& d) { read(&d, sizeof(TData)); }

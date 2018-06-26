@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma warning(disable : 4201)
+
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
@@ -7,8 +9,7 @@
 #include <cstdio>
 #include <cstdarg>
 #include <functional>
-#include <string>
-#include <vector>
 #include <map>
 #include <memory>
-#include <algorithm>
+#include <string>
+#include <vector>

@@ -96,22 +96,22 @@ Compiler( 'Compiler-x64-OSX' )
 //------------------------------------------------------------------------------
 .MSVCBaseConfig =
 [
-//    .AdditionalWarnings     = ' /we4062' // enumerator 'identifier' in a switch of enum 'enumeration' is not handled
-//                            + ' /we4263' // 'function' : member function does not override any base class virtual member function
-//                            + ' /we4265' // 'class': class has virtual functions, but destructor is not virtual
-//                            + ' /we4296' // 'operator': expression is always false
-//                            + ' /we4555' // expression has no effect; expected expression with side-effect
-//                            + ' /we4619' // #pragma warning : there is no warning number 'number'
-//                            + ' /we4640' // 'instance' : construction of local static object is not thread-safe
-//                            + ' /we4826' // Conversion from 'type1 ' to 'type_2' is sign-extended. This may cause unexpected runtime behavior.
-//                            + ' /we4836' // nonstandard extension used : 'type' : local types or unnamed types cannot be used as template arguments
-//                            + ' /we4905' // wide string literal cast to 'LPSTR'
-//                            + ' /we4906' // string literal cast to 'LPWSTR'
+    .AdditionalWarnings     = ' /we4062' // enumerator 'identifier' in a switch of enum 'enumeration' is not handled
+                            + ' /we4263' // 'function' : member function does not override any base class virtual member function
+                            + ' /we4265' // 'class': class has virtual functions, but destructor is not virtual
+                            + ' /we4296' // 'operator': expression is always false
+                            + ' /we4555' // expression has no effect; expected expression with side-effect
+                            + ' /we4619' // #pragma warning : there is no warning number 'number'
+                            + ' /we4640' // 'instance' : construction of local static object is not thread-safe
+                            + ' /we4826' // Conversion from 'type1 ' to 'type_2' is sign-extended. This may cause unexpected runtime behavior.
+                            + ' /we4836' // nonstandard extension used : 'type' : local types or unnamed types cannot be used as template arguments
+                            + ' /we4905' // wide string literal cast to 'LPSTR'
+                            + ' /we4906' // string literal cast to 'LPWSTR'
 
     .CompilerOptions        = '"%1" /Z7 /nologo /c /W4'
                             + ' /Zc:inline'         // Remove unreferenced COMDATs at compile time (VS2013.2+)
                             + ' /Zc:strictStrings'  // Require const only usage of string literals (VS2013+)
-//                            + .AdditionalWarnings
+                            + .AdditionalWarnings
                             + ' /fp:fast'
                             + ' /D"WIN32_LEAN_AND_MEAN" /D_WIN32 /D__WINDOWS__'
                             + ' /D"_CRT_SECURE_NO_WARNINGS"' // don't warn about unsafe functions
@@ -279,8 +279,8 @@ Compiler( 'Compiler-x64-OSX' )
     .Librarian              = '$ToolsBasePath$\bin\llvm-ar.exe'
     .Linker                 = '$VSBasePath$\VC\bin\link.exe' //'$ToolsBasePath$\lld.exe'
 
-    .WindowsUCRTLibPaths        = '$WindowsSDKBasePath$/lib/10.0.17134.0/ucrt'
-    .WindowsUMLibPaths        = '$WindowsSDKBasePath$/lib/10.0.17134.0/um'
+    .WindowsUCRTLibPaths    = '$WindowsSDKBasePath$/lib/10.0.17134.0/ucrt'
+    .WindowsUMLibPaths      = '$WindowsSDKBasePath$/lib/10.0.17134.0/um'
 
     .BaseCompilerOptions    = '-o"%2" "%1" -c -g'
                             + ' -Wall -Werror -Wfatal-errors'   // warnings as errors

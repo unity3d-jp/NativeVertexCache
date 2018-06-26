@@ -5,42 +5,12 @@
 #include "NullCompressor.h"
 
 //! Project Includes.
+#include "NullTypes.h"
 #include "Plugin/InputGeomCache.h"
 #include "Plugin/Stream/Stream.h"
 
 namespace nvc
 {
-
-//-----------------------------
-// File
-//-----------------------------
-// Header
-//  Descriptor
-//    uint32_t itemCount;
-//	  char[80] semantic;
-//    DataFormat type;
-//	  char[80] semantic;
-//    DataFormat type;
-//    ...
-//  uint32_t frameCount;
-//  uint32_t windowSize;
-//
-//-----------------------------
-// Frame0: uint32_t offset;
-// Frame[1*windowSize]: uint32_t offset;
-// ...
-// Frame[n*windowSize]: uint32_t offset;
-//-----------------------------
-// Frames:
-//   I-Frame
-//     FrameType Type;
-//     uint32_t Count;
-//     [DataBlob]
-//   I-Frame
-//     FrameType Type;
-//     uint32_t Count;
-//     [DataBlob]
-// ...
 
 void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 {
@@ -55,32 +25,65 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 	}
 
 	// Write header.
-	FileHeader header
+	const null_compression::FileHeader header
 	{
-		header.FrameCount = static_cast<uint64_t>(geomCache.getDataCount()),
-		header.VertexAttributeCount = vertexAttributeCount,
+		static_cast<uint64_t>(geomCache.getDataCount()),
+		10,
+		vertexAttributeCount,
 	};
 
 	pStream->write(header);
 	pStream->write(geomDesc, sizeof(GeomCacheDesc) * vertexAttributeCount);
 
+	// Calculate frame offsets and write a dummy entry in the stream to hold the value later.
+	const size_t frameSeekTableOffset = pStream->getPosition();
+	const size_t frameSeekTableSize = (header.FrameCount + header.FrameSeekWindowCount - 1) / header.FrameSeekWindowCount + 1;
+	for (uint64_t iEntry = 0; iEntry < frameSeekTableSize; ++iEntry)
+	{
+		pStream->write(static_cast<uint64_t>(0));
+	}
+
+	// Write frames.
+	std::vector<uint64_t> frameSeekTableValues;
+
+	// Write time array.
+	for (uint64_t iFrame = 0; iFrame < header.FrameCount; ++iFrame)
+	{
+		float time = 0.0f;
+		GeomCacheData frameData{};
+		geomCache.getData(iFrame, time, &frameData);
+
+		pStream->write(time);
+	}
+
 	// Write frames.
 	const uint64_t vertexDataSize = geomCache.getDataSize();
 	for (uint64_t iFrame = 0; iFrame < header.FrameCount; ++iFrame)
 	{
+		if ((iFrame % header.FrameSeekWindowCount) == 0)
+		{
+			frameSeekTableValues.push_back(pStream->getPosition());
+		}
+
 		float time = 0.0f;
 		GeomCacheData frameData {};
 		geomCache.getData(iFrame, time, &frameData);
 
-		FrameHeader frameHeader 
+		const null_compression::FrameHeader frameHeader 
 		{
-			frameHeader.Type = FrameType::IFrame,
-			frameHeader.Time = time,
-			frameHeader.VertexCount = frameData.count,
+			static_cast<uint8_t>(null_compression::FrameType::IFrame),
+			frameData.count,
 		};
 
 		pStream->write(frameHeader);
 		pStream->write(frameData.data, vertexDataSize * frameData.count);
+	}
+
+	// Update the frame seek table with the real offsets.
+	pStream->seek(frameSeekTableOffset, Stream::SeekOrigin::Begin);
+	for (uint64_t iEntry = 0; iEntry < frameSeekTableSize; ++iEntry)
+	{
+		pStream->write(frameSeekTableValues[iEntry]);
 	}
 }
 

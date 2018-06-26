@@ -47,17 +47,17 @@ void InputGeomCache::addData(float time, const GeomCacheData* data)
 		void *currentData = nullptr;
 		if (data->data)
 		{
-			const size_t cacheDataSize = getDataSize();
+			const size_t dataSize = getDataSize() * data->count;
 
-			currentData = malloc(cacheDataSize);
+			currentData = malloc(dataSize);
 			if (currentData != nullptr)
 			{
-				memcpy(currentData, data->data, cacheDataSize * data->count);
+				memcpy(currentData, data->data, dataSize);
 			}
 		}
 
 		// Insert sorted.
-		auto dataToInsert = std::make_pair(time, GeomCacheData{ currentData, data->count });
+		const auto dataToInsert = std::make_pair(time, GeomCacheData{ currentData, data->count });
 		const auto itInsert = std::lower_bound(m_Data.begin(), m_Data.end(), dataToInsert,
 										[](const FrameDataType& lhs, const FrameDataType& rhs)
 										{

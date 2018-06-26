@@ -1,44 +1,9 @@
 #pragma once
-#include "Plugin/InputGeomCache.h"
+
 #include "Plugin/OutputGeomCache.h"
 
 namespace nvc {
 
-enum FrameType
-{
-	IFrame,
-};
-
-//-----------------------------
-// File
-//-----------------------------
-// Header
-//  Descriptor
-//    uint32_t itemCount;
-//	  char[80] semantic;
-//    DataFormat type;
-//	  char[80] semantic;
-//    DataFormat type;
-//    ...
-//  uint32_t frameCount;
-//  uint32_t windowSize;
-//
-//-----------------------------
-// Frame0: uint32_t offset;
-// Frame[1*windowSize]: uint32_t offset;
-// ...
-// Frame[n*windowSize]: uint32_t offset;
-//-----------------------------
-// Frames:
-//   I-Frame
-//     FrameType Type;
-//     uint32_t Count;
-//     [DataBlob]
-//   I-Frame
-//     FrameType Type;
-//     uint32_t Count;
-//     [DataBlob]
-// ...
 class GeomCache final
 {
 
