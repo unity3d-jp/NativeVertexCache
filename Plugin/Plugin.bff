@@ -51,6 +51,24 @@
             .LibrarianOutput            = '$OutputBase$\$ProjectName$\$ProjectName$.lib'
         }
 
+		// Static Library
+        Library( '$ProjectName$-Lib-$Platform$-$Config$' )
+        {
+            // Precompiled Header Creation/Use
+            .PCHInputFile               = '$ProjectPath$\$PCHName$.cpp'
+            .PCHOutputFile              = '$OutputBase$\$ProjectName$\$PCHName$.pch'
+            .PCHOptions                 + ' /Yc"$ProjectPath$\$PCHName$.h"'
+            .CompilerOptions            + ' /Yu"$ProjectPath$\$PCHName$.h" /Fp"$PCHOutputFile$"'
+
+            // Input (Unity)
+            .CompilerInputUnity         = '$ProjectName$-Unity-Windows'
+
+            // Output
+            .CompilerOutputPath         = '$OutputBase$\$ProjectName$\'
+            .LibrarianOutput            = '$OutputBase$\$ProjectName$\$ProjectName$.lib'
+        }
+        //Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Lib-$Platform$-$Config$' }
+
         // DLL
         DLL( '$ProjectName$-Dll-$Platform$-$Config$' )
         {
@@ -64,7 +82,7 @@
                                             // + ' vcruntime.lib'
                                             // + ' MSVCPRTD.lib'
             .Libraries                      = {
-												'NativeVertexCache-Lib-$Platform$-$Config$',
+												'NativeVertexCache-Objs-$Platform$-$Config$',
                                               }
         }
         Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Dll-$Platform$-$Config$' }
