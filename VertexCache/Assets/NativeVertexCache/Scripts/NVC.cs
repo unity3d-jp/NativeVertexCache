@@ -10,25 +10,25 @@ namespace NaiveVertexCache
         public IntPtr self;
         public static implicit operator bool(OutputGeomCache v) { return v.self != IntPtr.Zero; }
 
-        public int vertexCount { get { return nvcGetVertexCount(self); } }
-        public int indexCount { get { return nvcGetIndexCount(self); } }
+        public int vertexCount { get { return nvcOGCGetVertexCount(self); } }
+        public int indexCount { get { return nvcOGCGetIndexCount(self); } }
 
-        public void FillIndices(PinnedList<int> dst) { dst.ResizeDiscard(indexCount); nvcFillIndices(self, dst); }
-        public void FillPoints(PinnedList<Vector3> dst) { dst.ResizeDiscard(vertexCount); nvcFillPoints(self, dst); }
-        public void FillNormals(PinnedList<Vector3> dst) { dst.ResizeDiscard(vertexCount); nvcFillNormals(self, dst); }
-        public void FillTangents(PinnedList<Vector4> dst) { dst.ResizeDiscard(vertexCount); nvcFillTangents(self, dst); }
-        public void FillUVs(PinnedList<Vector2> dst) { dst.ResizeDiscard(vertexCount); nvcFillUVs(self, dst); }
-        public void FillUVs(PinnedList<Color> dst) { dst.ResizeDiscard(vertexCount); nvcFillColors(self, dst); }
+        public void FillIndices(PinnedList<int> dst) { dst.ResizeDiscard(indexCount); nvcOGCGetIndices(self, dst); }
+        public void FillPoints(PinnedList<Vector3> dst) { dst.ResizeDiscard(vertexCount); nvcOGCGetPoints(self, dst); }
+        public void FillNormals(PinnedList<Vector3> dst) { dst.ResizeDiscard(vertexCount); nvcOGCGetNormals(self, dst); }
+        public void FillTangents(PinnedList<Vector4> dst) { dst.ResizeDiscard(vertexCount); nvcOGCGetTangents(self, dst); }
+        public void FillUVs(PinnedList<Vector2> dst) { dst.ResizeDiscard(vertexCount); nvcOGCGetUVs(self, dst); }
+        public void FillUVs(PinnedList<Color> dst) { dst.ResizeDiscard(vertexCount); nvcOGCGetColors(self, dst); }
 
         #region internal
-        [DllImport("NativeVertexCache")] static extern int nvcGetVertexCount(IntPtr self);
-        [DllImport("NativeVertexCache")] static extern int nvcGetIndexCount(IntPtr self);
-        [DllImport("NativeVertexCache")] static extern void nvcFillIndices(IntPtr self, IntPtr dst);
-        [DllImport("NativeVertexCache")] static extern void nvcFillPoints(IntPtr self, IntPtr dst);
-        [DllImport("NativeVertexCache")] static extern void nvcFillNormals(IntPtr self, IntPtr dst);
-        [DllImport("NativeVertexCache")] static extern void nvcFillTangents(IntPtr self, IntPtr dst);
-        [DllImport("NativeVertexCache")] static extern void nvcFillUVs(IntPtr self, IntPtr dst);
-        [DllImport("NativeVertexCache")] static extern void nvcFillColors(IntPtr self, IntPtr dst);
+        [DllImport("NativeVertexCache")] static extern int nvcOGCGetVertexCount(IntPtr self);
+        [DllImport("NativeVertexCache")] static extern int nvcOGCGetIndexCount(IntPtr self);
+        [DllImport("NativeVertexCache")] static extern void nvcOGCGetIndices(IntPtr self, IntPtr dst);
+        [DllImport("NativeVertexCache")] static extern void nvcOGCGetPoints(IntPtr self, IntPtr dst);
+        [DllImport("NativeVertexCache")] static extern void nvcOGCGetNormals(IntPtr self, IntPtr dst);
+        [DllImport("NativeVertexCache")] static extern void nvcOGCGetTangents(IntPtr self, IntPtr dst);
+        [DllImport("NativeVertexCache")] static extern void nvcOGCGetUVs(IntPtr self, IntPtr dst);
+        [DllImport("NativeVertexCache")] static extern void nvcOGCGetColors(IntPtr self, IntPtr dst);
         #endregion
     }
 

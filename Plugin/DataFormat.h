@@ -28,6 +28,20 @@ enum class DataFormat : uint32_t
 	UNorm16x4,
 };
 
+#define GEOM_CACHE_MAX_DESCRIPTOR_COUNT        (8)
+struct GeomCacheDesc
+{
+	const char *semantic;
+	DataFormat format;
+};
+#define GEOM_CACHE_DESCRIPTOR_END            { nullptr, DataFormat::Unknown }
+
+struct GeomCacheData
+{
+	const void *data;
+	size_t count;
+};
+
 size_t getSizeOfDataFormat(DataFormat dataFormat);
 
 } // namespace nvc
