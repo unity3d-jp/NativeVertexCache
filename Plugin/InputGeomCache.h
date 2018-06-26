@@ -2,6 +2,9 @@
 #include <map>
 #include "DataFormat.h"
 
+namespace nvc
+{
+
 using DataFormat = nvc::DataFormat;	// TODO : Should be removed.
 
 #define GEOM_CACHE_MAX_DESCRIPTOR_COUNT        (8)
@@ -38,7 +41,7 @@ public:
 	void getDesc(GeomCacheDesc *desc) const;
 	size_t getDataSize() const;
 	// GeomCacheData::data can be nullptr. in that case, only count will be filled.
-	void getData(float time, GeomCacheData* data);
+	void getData(size_t frameIndex, float& frameTime, GeomCacheData* data) const;
 	size_t getDataCount() const;
 
 	//...
@@ -47,3 +50,5 @@ public:
 	InputGeomCache& operator=(const InputGeomCache&) = delete;
 	InputGeomCache& operator=(InputGeomCache&&) = delete;
 };
+
+} //namespace nvc
