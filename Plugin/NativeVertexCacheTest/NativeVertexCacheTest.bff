@@ -184,7 +184,7 @@
         .ProjectInputPaths          = '$ProjectPath$\'
         .ProjectBasePath            = '$ProjectPath$\'
 
-        .LocalDebuggerCommand       = '^$(SolutionDir)..\^$(Configuration)\NativeVertexCache\NativeVertexCacheTest.exe'
+        .LocalDebuggerCommand       = '^$(SolutionDir)../../Build/^$(Configuration)\NativeVertexCache\NativeVertexCacheTest.exe'
 
         .ProjectX86Debug        = [ Using( .ProjectX86Debug )           .Target = '$ProjectName$-X86-Debug' ]
         .ProjectX86Profile      = [ Using( .ProjectX86Profile )         .Target = '$ProjectName$-X86-Profile' ]
