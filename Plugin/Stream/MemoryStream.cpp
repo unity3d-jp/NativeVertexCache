@@ -69,7 +69,7 @@ size_t MemoryStream::read(void* buffer, size_t length) const
 {
 	assert(m_Closed == false);
 
-	const size_t readSize = __min(getLength() - getPosition() - 1, length);
+	const size_t readSize = __min(getLength() - getPosition(), length);
 	if (readSize > 0)
 	{
 		memcpy(buffer, static_cast<int8_t*>(m_Data) + getPosition(), static_cast<size_t>(readSize));
