@@ -26,7 +26,7 @@ MemoryStream::MemoryStream(size_t length, bool resizable)
 	,	m_Writable(true)
 	,	m_Closed(false)
 {
-	grow(length);
+	setLength(length);
 }
 
 MemoryStream::MemoryStream(void* buffer, size_t length, bool writable, bool managed)
