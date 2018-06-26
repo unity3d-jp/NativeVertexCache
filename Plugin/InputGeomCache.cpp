@@ -4,8 +4,7 @@
 //! Header Include.
 #include "InputGeomCache.h"
 
-namespace nvc
-{
+namespace nvc {
 
 InputGeomCache::InputGeomCache(const GeomCacheDesc *desc)
 {
@@ -112,7 +111,7 @@ size_t InputGeomCache::getDataSize() const
 void InputGeomCache::getData(size_t frameIndex, float& frameTime, GeomCacheData* data) const
 {
 	if (frameIndex < getDataCount())
-	{
+							{
 		auto& frameData = m_Data.at(frameIndex);
 
 		frameTime = frameData.first;
@@ -126,4 +125,4 @@ size_t InputGeomCache::getDataCount() const
 	return m_Data.size();
 }
 
-} //namespace nvc
+} // namespace nvc

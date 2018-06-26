@@ -1,4 +1,8 @@
 #pragma once
+#include "Plugin/InputGeomCache.h"
+#include "Plugin/OutputGeomCache.h"
+
+namespace nvc {
 
 enum FrameType
 {
@@ -56,7 +60,7 @@ public:
 	void setCurrentFrame(float currentTime);
 	// + function to get geometry data to render.
 
-	//void assignCurrentDataToMesh(Mesh& mesh);
+	void assignCurrentDataToMesh(OutputGeomCache& mesh);
 
 
 	//// Sampling.
@@ -69,3 +73,5 @@ public:
 	GeomCache& operator=(const GeomCache&) = delete;
 	GeomCache& operator=(GeomCache&&) = delete;
 };
+
+} // namespace nvc
