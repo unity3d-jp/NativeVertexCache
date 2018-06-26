@@ -1,5 +1,5 @@
 #pragma once
-#include <map>
+
 #include "DataFormat.h"
 
 namespace nvc {
@@ -38,7 +38,7 @@ public:
 	void getDesc(GeomCacheDesc *desc) const;
 	size_t getDataSize() const;
 	// GeomCacheData::data can be nullptr. in that case, only count will be filled.
-	void getData(float time, GeomCacheData* data);
+	void getData(size_t frameIndex, float& frameTime, GeomCacheData* data) const;
 	size_t getDataCount() const;
 
 	//...

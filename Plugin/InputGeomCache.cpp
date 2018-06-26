@@ -93,24 +93,36 @@ size_t InputGeomCache::getDataSize() const
 	return cacheDataSize;
 }
 
-void InputGeomCache::getData(float time, GeomCacheData* data)
-{
-	const auto it = std::find_if(m_Data.begin(), m_Data.end(),
-							[time](const FrameDataType& d)
-							{
-								return d.first == time;
-							});
+//void InputGeomCache::getData(float time, GeomCacheData* data) const
+//{
+//	const auto it = std::find_if(m_Data.begin(), m_Data.end(),
+//		[time](const FrameDataType& d)
+//	{
+//		return d.first == time;
+//	});
+//
+//	if (it == m_Data.end())
+//	{
+//		data->data = it->second.data;
+//		data->count = it->second.count;
+//	}
+//}
 
-	if (it == m_Data.end())
-	{
-		data->data = it->second.data;
-		data->count = it->second.count;
+void InputGeomCache::getData(size_t frameIndex, float& frameTime, GeomCacheData* data) const
+{
+	if (frameIndex < getDataCount())
+							{
+		auto& frameData = m_Data.at(frameIndex);
+
+		frameTime = frameData.first;
+		data->data = frameData.second.data;
+		data->count = frameData.second.count;
 	}
 }
 
 size_t InputGeomCache::getDataCount() const
 {
-	return 0;
+	return m_Data.size();
 }
 
 } // namespace nvc
