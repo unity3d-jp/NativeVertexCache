@@ -5,8 +5,9 @@ namespace nvc {
 
 // vertex arrays holder to update Mesh
 // this struct will be removed when integrate this plugin into Unity engine (in that case we can update Mesh directly)
-struct OutputGeomCache
+class OutputGeomCache
 {
+public:
     std::vector<int> indices;
     std::vector<float3> points;
     std::vector<float3> normals;

@@ -10,9 +10,6 @@
         // Common options
         .UnityInputPath             = '$ProjectPath$\'
         .UnityOutputPath            = '$OutputBase$\Unity\$ProjectPath$\'
-        .UnityInputExcludePath      = {
-            '$ProjectPath$\..\AlembicToGeomCache\'
-        }
 
         // Windows
         Unity( '$ProjectName$-Unity-Windows' )
@@ -57,14 +54,12 @@
             .Libraries                      = { 'NativeVertexCache-Lib-$Platform$-$Config$',
                                                 'NativeVertexCacheTest-Lib-$Platform$-$Config$',
                                               }
+            .LibPaths                       = ' /LIBPATH:"^$(SolutionDir)..\..\External\abci\lib64"'
             .LinkerOutput                   = '$OutputBase$\NativeVertexCache\NativeVertexCacheTest.exe'
             .LinkerOptions                  + ' /SUBSYSTEM:CONSOLE'
-                                            //+ ' kernel32.lib'
-                                            //+ ' Ws2_32.lib'
-                                            //+ ' LIBCMT.LIB'
-                                            //+ ' User32.lib'
-                                            //+ ' ucrt.lib'
-                                            //+ ' vcruntime.lib'
+                                            + .LibPaths
+
+            .PreBuildDependencies          = 'CopyABCI-$Platform$-$Config$'
         }
         Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Exe-$Platform$-$Config$' }
 

@@ -6,7 +6,8 @@
 
 namespace nvc {
 
-InputGeomCache::InputGeomCache(const GeomCacheDesc *desc)
+InputGeomCache::InputGeomCache(const char *path, const GeomCacheDesc *desc)
+    : m_Path(path)
 {
 	uint32_t count = 0;
 
@@ -65,6 +66,11 @@ void InputGeomCache::addData(float time, const GeomCacheData* data)
 										});
 		m_Data.insert(itInsert, dataToInsert);
 	}
+}
+
+const std::string & InputGeomCache::getPath() const
+{
+    return m_Path;
 }
 
 void InputGeomCache::getDesc(GeomCacheDesc* desc) const
