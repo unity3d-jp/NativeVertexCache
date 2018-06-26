@@ -16,8 +16,8 @@ public:
 	virtual void close() = 0;
 	virtual void prefetch(size_t frameIndex, size_t range) = 0;
 
-	virtual bool getData(size_t frameIndex, float& time, const GeomCacheData& data) = 0;
-	virtual bool getData(float time, const GeomCacheData& data) = 0;
+	virtual bool getData(size_t frameIndex, float& time, GeomCacheData& data) = 0;
+	virtual bool getData(float time, GeomCacheData& data) = 0;
 
 	//...
 	IDecompressor(const IDecompressor&) = delete;

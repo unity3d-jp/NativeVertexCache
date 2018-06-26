@@ -37,8 +37,8 @@ public:
 	void close() override;
 	void prefetch(size_t frameIndex, size_t range) override;
 
-	bool getData(size_t frameIndex, float& time, const GeomCacheData& data) override;
-	bool getData(float time, const GeomCacheData& data) override;
+	bool getData(size_t frameIndex, float& time, GeomCacheData& data) override;
+	bool getData(float time, GeomCacheData& data) override;
 
 	//...
 	NullDecompressor(const NullDecompressor&) = delete;
@@ -64,6 +64,21 @@ private:
 
 		assert(false);
 		return ~0u;
+	}
+
+	float getFrameTime(size_t frameIndex) const
+	{
+		if (frameIndex < getFrameCount())
+		{
+			return m_FrameTimeTable[frameIndex];
+		}
+
+		return HUGE_VALF;
+	}
+
+	size_t getFrameCount() const
+	{
+		return m_Header.FrameCount;
 	}
 
 	size_t getDataSize() const;

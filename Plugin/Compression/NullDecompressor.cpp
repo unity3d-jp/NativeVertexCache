@@ -85,13 +85,31 @@ void NullDecompressor::prefetch(size_t frameIndex, size_t range)
 	}
 }
 
-bool NullDecompressor::getData(size_t /*frameIndex*/, float& /*time*/, const GeomCacheData& /*data*/)
+bool NullDecompressor::getData(size_t frameIndex, float& time, GeomCacheData& data)
 {
+	time = getFrameTime(frameIndex);
+	if (std::isfinite(time))
+	{
+		return getData(time, data);
+	}
+
 	return false;
 }
 
-bool NullDecompressor::getData(float /*time*/, const GeomCacheData& /*data*/)
+bool NullDecompressor::getData(float time, GeomCacheData& data)
 {
+	const auto it = std::find_if(m_LoadedFrames.begin(), m_LoadedFrames.end(),
+		[time](const FrameDataType& d)
+	{
+		return d.first == time;
+	});
+
+	if (it == m_LoadedFrames.end())
+	{
+		data = it->second;
+		return true;
+	}
+
 	return false;
 }
 
