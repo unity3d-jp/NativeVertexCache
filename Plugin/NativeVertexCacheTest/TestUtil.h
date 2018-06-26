@@ -1,4 +1,5 @@
 #include "Plugin/Pcg.h"
+#include <chrono>
 
 template<class T>
 inline bool NearEqual(T a, T b, T eps)
@@ -35,4 +36,20 @@ static void FillSequence(T& vec) {
         v = x;
         ++x;
     }
+}
+
+// usage:
+//    const auto start_time = GetHighResolutionClock();
+//    ... do something ...
+//    const auto end_time = GetHighResolutionClock();
+//    const double diff_time_in_seconds = GetSeconds(start_time, end_time);
+//    printf("%f seconds\n", diff_time_in_seconds);
+//
+inline std::chrono::high_resolution_clock::time_point GetHighResolutionClock() {
+    return std::chrono::high_resolution_clock::now();
+}
+
+inline double GetSeconds(std::chrono::high_resolution_clock::time_point begin, std::chrono::high_resolution_clock::time_point end) {
+    const auto d = static_cast<std::chrono::duration<double>>(end - begin);
+    return d.count();
 }
