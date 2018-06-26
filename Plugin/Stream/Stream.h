@@ -1,5 +1,4 @@
 #pragma once
-#include <cstdint>
 
 class Stream
 {
@@ -30,7 +29,7 @@ public:
 	virtual size_t read(void* buffer, size_t length) const = 0;
 	virtual size_t write(const void* buffer, size_t length) = 0;
 
-	virtual void seek(int offset, SeekOrigin origin) = 0;
+	virtual void seek(int64_t offset, SeekOrigin origin) = 0;
 
 	virtual void flush() = 0;
 	virtual void close() = 0;
@@ -43,4 +42,10 @@ public:
 
 	template <typename TData>
 	void write(const TData& d) { write(&d, sizeof(TData)); }
+
+	//...
+	Stream(const Stream&) = delete;
+	Stream(Stream&&) = delete;
+	Stream& operator=(const Stream&) = delete;
+	Stream& operator=(Stream&&) = delete;
 };

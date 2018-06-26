@@ -99,7 +99,7 @@ size_t MemoryStream::write(const void* buffer, size_t length)
 	return length;
 }
 
-void MemoryStream::seek(int offset, SeekOrigin origin)
+void MemoryStream::seek(int64_t offset, SeekOrigin origin)
 {
 	assert(m_Closed == false);
 

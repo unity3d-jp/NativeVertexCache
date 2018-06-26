@@ -62,7 +62,7 @@ size_t FileStream::write(const void* buffer, size_t length)
 	return 0;
 }
 
-void FileStream::seek(int offset, SeekOrigin origin)
+void FileStream::seek(int64_t offset, SeekOrigin origin)
 {
 }
 

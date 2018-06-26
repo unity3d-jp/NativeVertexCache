@@ -24,7 +24,7 @@ public:
 	size_t read(void* buffer, size_t length) const override;
 	size_t write(const void* buffer, size_t length) override;
 
-	void seek(int offset, SeekOrigin origin) override;
+	void seek(int64_t offset, SeekOrigin origin) override;
 
 	void flush() override;
 	void close() override;
