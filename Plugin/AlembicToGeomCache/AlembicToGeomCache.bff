@@ -1,8 +1,8 @@
-// NativeVertexCache
+// AlembicToGeomCache
 //------------------------------------------------------------------------------
 {
-    .ProjectName        = 'NativeVertexCache'
-    .ProjectPath        = 'Plugin'
+    .ProjectName        = 'AlembicToGeomCache'
+    .ProjectPath        = 'Plugin/AlembicToGeomCache'
     .PCHName            = 'PrecompiledHeader'
 
     // Unity
@@ -11,10 +11,6 @@
         // Common options
         .UnityInputPath             = '$ProjectPath$\'
         .UnityOutputPath            = '$OutputBase$\Unity\$ProjectPath$\'
-        .UnityInputExcludePath      = {
-            '$ProjectPath$\NativeVertexCacheTest\', // Exclude Tests
-            '$ProjectPath$\AlembicToGeomCache\', // Exclude AlembicToGeomCache
-        }
 
         // Windows
         Unity( '$ProjectName$-Unity-Windows' )
@@ -58,16 +54,11 @@
         DLL( '$ProjectName$-Dll-$Platform$-$Config$' )
         {
             .LinkerOutput                   = '$OutputBase$\$ProjectName$\$ProjectName$.dll'
+            .LibPaths                       = ' /LIBPATH:"^$(SolutionDir)..\..\External\abci\lib64"'
             .LinkerOptions                  + ' /DLL'
-											// + ' kernel32.lib'
-                                            // + ' Ws2_32.lib'
-                                            // + ' LIBCMT.LIB'
-                                            // + ' User32.lib'
-                                            // + ' ucrt.lib'
-                                            // + ' vcruntime.lib'
-                                            // + ' MSVCPRTD.lib'
+                                            + .LibPaths
             .Libraries                      = {
-												'NativeVertexCache-Lib-$Platform$-$Config$',
+												'AlembicToGeomCache-Lib-$Platform$-$Config$',
                                               }
         }
         Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Dll-$Platform$-$Config$' }
@@ -115,9 +106,9 @@
         DLL( '$ProjectName$-Dll-$Platform$-$Config$' )
         {
             .Libraries                      = {
-												'NativeVertexCache-Lib-$Platform$-$Config$',
+												'AlembicToGeomCache-Lib-$Platform$-$Config$',
                                               }
-            .LinkerOutput                   = '$OutputBase$\Plugin\NativeVertexCache'
+            .LinkerOutput                   = '$OutputBase$\Plugin\AlembicToGeomCache'
             .LinkerOptions                  + ' -pthread -lrt'
         }
         Alias( '$ProjectName$-$Platform$-$Config$' ) { .Targets = '$ProjectName$-Dll-$Platform$-$Config$' }
@@ -145,7 +136,7 @@
         DLL( '$ProjectName$-Dll-$Platform$-$Config$' )
         {
             .Libraries                      = {
-												'NativeVertexCache-Lib-$Platform$-$Config$',
+												'AlembicToGeomCache-Lib-$Platform$-$Config$',
                                               }
             .LinkerOutput                   = '$OutputBase$\$ProjectName$'
         }
@@ -154,7 +145,7 @@
 
     // Aliases
     //--------------------------------------------------------------------------
-    #include "../gen_default_aliases.bff"
+    #include "../../gen_default_aliases.bff"
 
     // Visual Studio Project Generation
     //--------------------------------------------------------------------------
