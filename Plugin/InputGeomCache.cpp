@@ -12,18 +12,18 @@ const char* InputGeomCache::SUBMESH_ID_SEMANTIC = "SubMeshId";
 InputGeomCache::InputGeomCache(const char *path, const GeomCacheDesc *desc)
     : m_Path(path)
 {
-	memcpy(m_Descriptor, desc, sizeof(GeomCacheDesc) * GetAttributeCount(desc));
+	memcpy(m_Descriptor, desc, sizeof(GeomCacheDesc) * getAttributeCount(desc));
 }
 
 InputGeomCache::~InputGeomCache()
 {
+	const size_t attributeCount = getAttributeCount(m_Descriptor);
+
 	auto it = m_Data.begin();
 	const auto itEnd = m_Data.end();
 	while (it != itEnd)
 	{
-		void *data = const_cast<void*>(it->second.data);
-		free(data);
-
+		freeGeomCacheData(it->second, attributeCount);
 		++it;
 	}
 
@@ -40,20 +40,44 @@ void InputGeomCache::addData(float time, const GeomCacheData* data)
 
 	if (it == m_Data.end())
 	{
-		void *currentData = nullptr;
-		if (data->data)
-		{
-			const size_t dataSize = getDataSize() * data->count;
+		GeomCacheData cacheData = {};
+		cacheData.indexCount = data->indexCount;
+		cacheData.vertexCount = data->vertexCount;
 
-			currentData = malloc(dataSize);
-			if (currentData != nullptr)
+		if (data->indices)
+		{
+			const size_t dataSize = sizeof(int) * data->indexCount;
+
+			void *indices = malloc(dataSize);
+			if (indices != nullptr)
 			{
-				memcpy(currentData, data->data, dataSize);
+				memcpy(indices, data->indices, dataSize);
+			}
+
+			cacheData.indices = indices;
+		}
+
+		if (data->vertices)
+		{
+			const size_t attributeCount = getAttributeCount(m_Descriptor);
+			cacheData.vertices = new const void*[attributeCount];
+
+			for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
+			{
+				const size_t dataSize = getSizeOfDataFormat(m_Descriptor[iAttribute].format) * data->vertexCount;
+
+				void *vertexData = malloc(dataSize);
+				if (vertexData != nullptr)
+				{
+					memcpy(vertexData, data->vertices[iAttribute], dataSize);
+				}
+
+				cacheData.vertices[iAttribute] = vertexData;
 			}
 		}
 
 		// Insert sorted.
-		const auto dataToInsert = std::make_pair(time, GeomCacheData{ currentData, data->count });
+		const auto dataToInsert = std::make_pair(time, cacheData);
 		const auto itInsert = std::lower_bound(m_Data.begin(), m_Data.end(), dataToInsert,
 										[](const FrameDataType& lhs, const FrameDataType& rhs)
 										{
@@ -70,36 +94,8 @@ const std::string & InputGeomCache::getPath() const
 
 void InputGeomCache::getDesc(GeomCacheDesc* desc) const
 {
-	memcpy(desc, m_Descriptor, sizeof(GeomCacheDesc) * GetAttributeCount(desc));
+	memcpy(desc, m_Descriptor, sizeof(GeomCacheDesc) * getAttributeCount(desc));
 }
-
-size_t InputGeomCache::getDataSize() const
-{
-	size_t cacheDataSize = 0;
-
-	const GeomCacheDesc *currentDesc = m_Descriptor;
-	while (currentDesc->semantic != nullptr)
-	{
-		cacheDataSize += getSizeOfDataFormat(currentDesc->format);
-	}
-
-	return cacheDataSize;
-}
-
-//void InputGeomCache::getData(float time, GeomCacheData* data) const
-//{
-//	const auto it = std::find_if(m_Data.begin(), m_Data.end(),
-//		[time](const FrameDataType& d)
-//	{
-//		return d.first == time;
-//	});
-//
-//	if (it == m_Data.end())
-//	{
-//		data->data = it->second.data;
-//		data->count = it->second.count;
-//	}
-//}
 
 void InputGeomCache::getData(size_t frameIndex, float& frameTime, GeomCacheData* data) const
 {
@@ -108,8 +104,10 @@ void InputGeomCache::getData(size_t frameIndex, float& frameTime, GeomCacheData*
 		auto& frameData = m_Data.at(frameIndex);
 
 		frameTime = frameData.first;
-		data->data = frameData.second.data;
-		data->count = frameData.second.count;
+		data->indices = frameData.second.indices;
+		data->indexCount = frameData.second.indexCount;
+		data->vertices = frameData.second.vertices;
+		data->vertexCount = frameData.second.vertexCount;
 	}
 }
 
@@ -120,7 +118,7 @@ size_t InputGeomCache::getDataCount() const
 
 int InputGeomCache::getVertexIdIndex() const
 {
-	const int itemCount = GetAttributeCount(m_Descriptor);
+	const int itemCount = getAttributeCount(m_Descriptor);
 	for (int iItem = 0; iItem < itemCount; ++iItem)
 	{
 		if (_stricmp(m_Descriptor[iItem].semantic, VERTEX_ID_SEMANTIC) != 0)
@@ -139,7 +137,7 @@ bool InputGeomCache::hasVertexId() const
 
 int InputGeomCache::getSubMeshIdIndex() const
 {
-	const int itemCount = GetAttributeCount(m_Descriptor);
+	const int itemCount = getAttributeCount(m_Descriptor);
 	for (int iItem = 0; iItem < itemCount; ++iItem)
 	{
 		if (_stricmp(m_Descriptor[iItem].semantic, SUBMESH_ID_SEMANTIC) != 0)

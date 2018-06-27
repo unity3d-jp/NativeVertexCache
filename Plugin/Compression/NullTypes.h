@@ -15,22 +15,10 @@ namespace null_compression
 		uint32_t VertexAttributeCount;
 	};
 
-	enum class FrameType : uint32_t
-	{
-		IFrame,
-	};
-
 	struct FrameHeader
 	{
-		union
-		{
-			struct  
-			{
-				uint64_t Type : 8;
-				uint64_t VertexCount : 56;
-			};
-			uint64_t DataValue;
-		};
+		uint32_t IndexCount;
+		uint32_t VertexCount;
 	};
 }
 

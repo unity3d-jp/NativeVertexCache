@@ -50,19 +50,20 @@ void NullDecompressor::open(Stream* pStream)
 
 void NullDecompressor::close()
 {
-	m_Header = {};
-	m_pStream = nullptr;
-	memset(m_Descriptor, 0, sizeof(m_Descriptor));
-	m_SeekTable.clear();
+	const size_t attributeCount = getAttributeCount(m_Descriptor);
 
 	auto it = m_LoadedFrames.begin();
 	const auto itEnd = m_LoadedFrames.end();
 	while (it != itEnd)
 	{
-		void *data = const_cast<void*>(it->second.data);
-		free(data);
+		freeGeomCacheData(it->second, attributeCount);
 		++it;
 	}
+
+	m_Header = {};
+	m_pStream = nullptr;
+	memset(m_Descriptor, 0, sizeof(m_Descriptor));
+	m_SeekTable.clear();
 
 	m_LoadedFrames.clear();
 	m_IsFrameLoaded.clear();
@@ -113,7 +114,59 @@ bool NullDecompressor::getData(float time, GeomCacheData& data)
 	return false;
 }
 
-void NullDecompressor::addLoadedData(size_t frameIndex, const GeomCacheData& data)
+void NullDecompressor::loadFrame(size_t frameIndex)
+{
+	null_compression::FrameHeader frameHeader{};
+	m_pStream->read(frameHeader);
+
+	GeomCacheData cacheData = {};
+	cacheData.indexCount = frameHeader.IndexCount;
+	cacheData.vertexCount = frameHeader.VertexCount;
+
+	if (frameHeader.IndexCount > 0)
+	{
+		const size_t dataSize = sizeof(int) * frameHeader.IndexCount;
+
+		void *indices = malloc(dataSize);
+		if (indices != nullptr)
+		{
+			m_pStream->read(indices, dataSize);
+		}
+		else
+		{
+			m_pStream->seek(dataSize, Stream::SeekOrigin::Current);
+		}
+
+		cacheData.indices = indices;
+	}
+
+	if (frameHeader.VertexCount > 0)
+	{
+		const size_t attributeCount = getAttributeCount(m_Descriptor);
+		cacheData.vertices = new const void*[attributeCount];
+
+		for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
+		{
+			const size_t dataSize = getSizeOfDataFormat(m_Descriptor[iAttribute].format) * cacheData.vertexCount;
+
+			void *vertexData = malloc(dataSize);
+			if (vertexData != nullptr)
+			{
+				m_pStream->write(vertexData, dataSize);
+			}
+			else
+			{
+				m_pStream->seek(dataSize, Stream::SeekOrigin::Current);
+			}
+
+			cacheData.vertices[iAttribute] = vertexData;
+		}
+	}
+
+	insertLoadedData(frameIndex, cacheData);
+}
+
+void NullDecompressor::insertLoadedData(size_t frameIndex, const GeomCacheData& data)
 {
 	float time = m_FrameTimeTable[frameIndex];
 
@@ -135,40 +188,6 @@ void NullDecompressor::addLoadedData(size_t frameIndex, const GeomCacheData& dat
 
 		m_LoadedFrames.insert(itInsert, dataToInsert);
 		m_IsFrameLoaded[frameIndex] = true;
-	}
-}
-
-size_t NullDecompressor::getDataSize() const
-{
-	size_t cacheDataSize = 0;
-
-	const GeomCacheDesc *currentDesc = m_Descriptor;
-	while (currentDesc->semantic != nullptr)
-	{
-		cacheDataSize += getSizeOfDataFormat(currentDesc->format);
-	}
-
-	return cacheDataSize;
-}
-
-void NullDecompressor::loadFrame(size_t frameIndex)
-{
-	null_compression::FrameHeader frameHeader{};
-	m_pStream->read(frameHeader);
-
-	const size_t cacheDataSize = getDataSize() * frameHeader.VertexCount;
-	void* currentData = malloc(cacheDataSize);
-	if (currentData != nullptr)
-	{
-		const size_t readCount = m_pStream->read(currentData, cacheDataSize);
-		if (readCount > 0)
-		{
-			addLoadedData(frameIndex, GeomCacheData { currentData, frameHeader.VertexCount });
-		}
-		else
-		{
-			free(currentData);
-		}
 	}
 }
 
