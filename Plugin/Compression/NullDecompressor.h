@@ -74,6 +74,22 @@ private:
 		return HUGE_VALF;
 	}
 
+	size_t getFrameIndex(float time) const
+	{
+		const auto it = std::find_if(m_FrameTimeTable.begin(), m_FrameTimeTable.end(),
+			[time](float t)
+		{
+			return t == time;
+		});
+
+		if (it != m_FrameTimeTable.end())
+		{
+			return (it - m_FrameTimeTable.begin());
+		}
+
+		return ~0u;
+	}
+
 	size_t getFrameCount() const
 	{
 		return m_Header.FrameCount;

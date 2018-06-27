@@ -7,7 +7,7 @@
 namespace nvc {
 
 const char* InputGeomCache::VERTEX_ID_SEMANTIC = "VertexId";
-const char* InputGeomCache::SUBMESH_ID_SEMANTIC = "SubMeshId";
+const char* InputGeomCache::MESH_ID_SEMANTIC = "MeshId";
 
 InputGeomCache::InputGeomCache(const char *path, const GeomCacheDesc *desc)
     : m_Path(path)
@@ -118,12 +118,12 @@ size_t InputGeomCache::getDataCount() const
 
 int InputGeomCache::getVertexIdIndex() const
 {
-	const int itemCount = getAttributeCount(m_Descriptor);
-	for (int iItem = 0; iItem < itemCount; ++iItem)
+	const size_t itemCount = getAttributeCount(m_Descriptor);
+	for (size_t iItem = 0; iItem < itemCount; ++iItem)
 	{
 		if (_stricmp(m_Descriptor[iItem].semantic, VERTEX_ID_SEMANTIC) != 0)
 		{
-			return iItem;
+			return static_cast<int>(iItem);
 		}
 	}
 
@@ -135,23 +135,23 @@ bool InputGeomCache::hasVertexId() const
 	return getVertexIdIndex() > 0;
 }
 
-int InputGeomCache::getSubMeshIdIndex() const
+int InputGeomCache::getMeshIdIndex() const
 {
-	const int itemCount = getAttributeCount(m_Descriptor);
-	for (int iItem = 0; iItem < itemCount; ++iItem)
+	const size_t itemCount = getAttributeCount(m_Descriptor);
+	for (size_t iItem = 0; iItem < itemCount; ++iItem)
 	{
-		if (_stricmp(m_Descriptor[iItem].semantic, SUBMESH_ID_SEMANTIC) != 0)
+		if (_stricmp(m_Descriptor[iItem].semantic, MESH_ID_SEMANTIC) != 0)
 		{
-			return iItem;
+			return static_cast<int>(iItem);
 		}
 	}
 
 	return -1;
 }
 
-bool InputGeomCache::hasSubMeshId() const
+bool InputGeomCache::hasMeshId() const
 {
-	return getSubMeshIdIndex() > 0;
+	return getMeshIdIndex() > 0;
 }
 
 } // namespace nvc

@@ -9,6 +9,9 @@ namespace nvc
 class NullCompressor final : public ICompressor
 {
 public:
+	static const size_t DefaultSeekWindow = 10;
+
+public:
 	NullCompressor() = default;
 	~NullCompressor() = default;
 
