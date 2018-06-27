@@ -81,14 +81,16 @@ bool GeomCache::open(const char* nvcFilename) {
 	);
 	assert(m_InputFileStream && m_InputFileStream->canRead());
 
-	m_Decompressor = std::unique_ptr<IDecompressor>(
+	m_Decompressor = std::unique_ptr<NullDecompressor>(
 		new NullDecompressor()
 	);
 	assert(m_Decompressor);
 
+	m_Decompressor->open(m_InputFileStream.get());
+
 	{
 		const auto* d = m_Decompressor->getDescriptors();
-		memcpy(m_GeomCacheDescs, d, getAttributeCount(d));
+		memcpy(m_GeomCacheDescs, d, getAttributeCount(d) * sizeof(m_GeomCacheDescs[0]));
 	}
 
 	m_DescIndex_points   = getAttributeIndex(m_GeomCacheDescs, nvcSEMANTIC_POINTS  );
@@ -97,7 +99,13 @@ bool GeomCache::open(const char* nvcFilename) {
 	m_DescIndex_uv0      = getAttributeIndex(m_GeomCacheDescs, nvcSEMANTIC_UV0     );
 	m_DescIndex_colors   = getAttributeIndex(m_GeomCacheDescs, nvcSEMANTIC_COLORS  );
 
-	preload(0.0f, 1.0f);
+//	printf("m_DescIndex_points               =%d\n", m_DescIndex_points   );
+//	printf("m_DescIndex_normals              =%d\n", m_DescIndex_normals  );
+//	printf("m_DescIndex_tangents             =%d\n", m_DescIndex_tangents );
+//	printf("m_DescIndex_uv0                  =%d\n", m_DescIndex_uv0      );
+//	printf("m_DescIndex_colors               =%d\n", m_DescIndex_colors   );
+
+	prefetch(0, 1);
 	return good();
 }
 
@@ -119,9 +127,8 @@ bool GeomCache::good() const {
 	;
 }
 
-void GeomCache::preload(float currentTime, float range) {
-	///! @todo : implement
-	currentTime, range;
+void GeomCache::prefetch(size_t currentFrame, size_t range) {
+	m_Decompressor->prefetch(currentFrame, range);
 }
 
 // Playback.
@@ -154,6 +161,7 @@ bool GeomCache::assignCurrentDataToMesh(OutputGeomCache& outputGecomCache) {
 	}
 
 	// points
+//	printf("m_DescIndex_points=%d, geomCacheData.vertexCount=%zd\n", m_DescIndex_points, geomCacheData.vertexCount);
 	if(m_DescIndex_points >= 0) {
 		outputGecomCache.points.resize(geomCacheData.vertexCount);
 		const auto* p = geomCacheData.vertices[m_DescIndex_points];
@@ -213,7 +221,7 @@ bool GeomCache::assignCurrentDataToMesh(OutputGeomCache& outputGecomCache) {
 		);
 	}
 
-	freeGeomCacheData(geomCacheData, geomCacheData.vertexCount);
+//	freeGeomCacheData(geomCacheData, m_AttributeCount);
 	return true;
 }
 

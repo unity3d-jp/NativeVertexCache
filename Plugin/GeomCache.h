@@ -3,6 +3,7 @@
 #include "Plugin/OutputGeomCache.h"
 #include "Plugin/GeomCacheData.h"
 #include "Plugin/Compression/IDecompressor.h"
+#include "Plugin/Compression/NulLDecompressor.h"
 #include "Plugin/Stream/FileStream.h"
 
 namespace nvc {
@@ -26,7 +27,7 @@ public:
 	//  I           I                          I
 	// [X][o][o][o][o][o][o][][][][][][][][][][X][o][o][o][o]][o][o][][][][][][]
 	//              |-------------------|  <= skip
-	void preload(float currentTime, float range);
+	void prefetch(size_t currentTime, size_t range);
 
 	// Playback.
 	void setCurrentFrame(float currentTime);
@@ -34,6 +35,13 @@ public:
 
 	bool assignCurrentDataToMesh(OutputGeomCache& mesh);
 
+	size_t getFrameCount() const {
+		return m_Decompressor->getFrameCount();
+	}
+
+	size_t getFrameIndexByTime(float time) const {
+		return m_Decompressor->getFrameIndex(time);
+	}
 
 	//// Sampling.
 	//template<typename TDataType>
@@ -47,11 +55,13 @@ public:
 
 protected:
 	std::unique_ptr<IDecompressor> m_Decompressor {};
+//	std::unique_ptr<NullDecompressor> m_Decompressor {};
 	std::unique_ptr<FileStream> m_InputFileStream {};
 //	const GeomCacheDesc* m_GeomCacheDescs {};
 //	size_t m_GeomCacheDescsNum = 0;
 	GeomCacheDesc m_GeomCacheDescs[GEOM_CACHE_MAX_DESCRIPTOR_COUNT + 1] {};
 
+	size_t m_AttributeCount = 0;
 	int m_DescIndex_points = -1;
 	int m_DescIndex_normals = -1;
 	int m_DescIndex_tangents = -1;
