@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Plugin/OutputGeomCache.h"
+#include "Plugin/GeomCacheData.h"
 #include "Plugin/Compression/IDecompressor.h"
 #include "Plugin/Stream/FileStream.h"
 
@@ -47,7 +48,16 @@ public:
 protected:
 	std::unique_ptr<IDecompressor> m_Decompressor {};
 	std::unique_ptr<FileStream> m_InputFileStream {};
+	const GeomCacheDesc* m_GeomCacheDescs {};
+	size_t m_GeomCacheDescsNum = 0;
 //	GeomCacheDesc m_GeomCacheDesc[GEOM_CACHE_MAX_DESCRIPTOR_COUNT + 1] {};
+
+	int m_DescIndex_indices = -1;
+	int m_DescIndex_points = -1;
+	int m_DescIndex_normals = -1;
+	int m_DescIndex_tangents = -1;
+	int m_DescIndex_uvs = -1;
+	int m_DescIndex_colors = -1;
 
 	float m_CurrentTime = 0.0f;
 	size_t m_CurrentFrame = 0;

@@ -7,6 +7,60 @@
 
 namespace nvc {
 
+template<typename T>
+void convertDataArrayToFloat2(float2* dst, const T* src, size_t numberOfElements) {
+	for(size_t i = 0; i < numberOfElements; ++i) {
+		dst[i] = to_float(src[i]);
+	}
+}
+
+template<typename T>
+void convertDataArrayToFloat3(float3* dst, const T* src, size_t numberOfElements) {
+	for(size_t i = 0; i < numberOfElements; ++i) {
+		dst[i] = to_float(src[i]);
+	}
+}
+
+template<typename T>
+void convertDataArrayToFloat4(float4* dst, const T* src, size_t numberOfElements) {
+	for(size_t i = 0; i < numberOfElements; ++i) {
+		dst[i] = to_float(src[i]);
+	}
+}
+
+void convertDataArrayToFloat2(float2* dst, const void* src, size_t numberOfElements, DataFormat dataFormat) {
+	switch(dataFormat) {
+	default:		assert(false && "DataFormat must have 2 components");		break;
+//	case DataFormat::Int2:		convertDataArrayToFloat2(dst, static_cast<const int2*>     (src), numberOfElements);	break;
+	case DataFormat::Float2:	convertDataArrayToFloat2(dst, static_cast<const float2*>   (src), numberOfElements);	break;
+	case DataFormat::Half2:		convertDataArrayToFloat2(dst, static_cast<const half2*>    (src), numberOfElements);	break;
+	case DataFormat::SNorm16x2:	convertDataArrayToFloat2(dst, static_cast<const snorm16x2*>(src), numberOfElements);	break;
+	case DataFormat::UNorm16x2:	convertDataArrayToFloat2(dst, static_cast<const unorm16x2*>(src), numberOfElements);	break;
+	}
+}
+
+void convertDataArrayToFloat3(float3* dst, const void* src, size_t numberOfElements, DataFormat dataFormat) {
+	switch(dataFormat) {
+	default:		assert(false && "DataFormat must have 3 components");		break;
+//	case DataFormat::Int3:		convertDataArrayToFloat3(dst, static_cast<const int3*>     (src), numberOfElements);	break;
+	case DataFormat::Float3:	convertDataArrayToFloat3(dst, static_cast<const float3*>   (src), numberOfElements);	break;
+	case DataFormat::Half3:		convertDataArrayToFloat3(dst, static_cast<const half3*>    (src), numberOfElements);	break;
+	case DataFormat::SNorm16x3:	convertDataArrayToFloat3(dst, static_cast<const snorm16x3*>(src), numberOfElements);	break;
+	case DataFormat::UNorm16x3:	convertDataArrayToFloat3(dst, static_cast<const unorm16x3*>(src), numberOfElements);	break;
+	}
+}
+
+void convertDataArrayToFloat4(float4* dst, const void* src, size_t numberOfElements, DataFormat dataFormat) {
+	switch(dataFormat) {
+	default:		assert(false && "DataFormat must have 4 components");		break;
+//	case DataFormat::Int4:		convertDataArrayToFloat4(dst, static_cast<const int4*>     (src), numberOfElements);	break;
+	case DataFormat::Float4:	convertDataArrayToFloat4(dst, static_cast<const float4*>   (src), numberOfElements);	break;
+	case DataFormat::Half4:		convertDataArrayToFloat4(dst, static_cast<const half4*>    (src), numberOfElements);	break;
+	case DataFormat::SNorm16x4:	convertDataArrayToFloat4(dst, static_cast<const snorm16x4*>(src), numberOfElements);	break;
+	case DataFormat::UNorm16x4:	convertDataArrayToFloat4(dst, static_cast<const unorm16x4*>(src), numberOfElements);	break;
+	}
+}
+
 GeomCache::GeomCache()
 {
 	close();
@@ -17,6 +71,8 @@ GeomCache::~GeomCache()
 }
 
 bool GeomCache::open(const char* nvcFilename) {
+	close();
+
 	m_InputFileStream = std::unique_ptr<FileStream>(
 		new FileStream(
 			  nvcFilename
@@ -30,6 +86,19 @@ bool GeomCache::open(const char* nvcFilename) {
 	);
 	assert(m_Decompressor);
 
+	m_GeomCacheDescs = m_Decompressor->getDescriptors();
+	m_GeomCacheDescsNum = getAttributeCount(m_GeomCacheDescs);
+
+	for(int iDesc = 0; iDesc < m_GeomCacheDescsNum; ++iDesc) {
+		const GeomCacheDesc* desc = &m_GeomCacheDescs[iDesc];
+		     if(strcmp(desc->semantic, "indices" ) == 0) { m_DescIndex_indices  = iDesc; }  // ?? is indices desc needed??
+		else if(strcmp(desc->semantic, "ponits"  ) == 0) { m_DescIndex_points   = iDesc; }
+		else if(strcmp(desc->semantic, "normals" ) == 0) { m_DescIndex_normals  = iDesc; }
+		else if(strcmp(desc->semantic, "tangents") == 0) { m_DescIndex_tangents = iDesc; }
+		else if(strcmp(desc->semantic, "uvs"     ) == 0) { m_DescIndex_uvs      = iDesc; }
+		else if(strcmp(desc->semantic, "colors"  ) == 0) { m_DescIndex_colors   = iDesc; }
+	}
+
 	preload(0.0f, 1.0f);
 	return good();
 }
@@ -37,6 +106,13 @@ bool GeomCache::open(const char* nvcFilename) {
 bool GeomCache::close() {
 	m_Decompressor.release();
 	m_InputFileStream.release();
+	m_DescIndex_indices  = -1;
+	m_DescIndex_points   = -1;
+	m_DescIndex_normals  = -1;
+	m_DescIndex_tangents = -1;
+	m_DescIndex_uvs      = -1;
+	m_DescIndex_colors   = -1;
+
 	return true;
 }
 
@@ -67,30 +143,74 @@ bool GeomCache::assignCurrentDataToMesh(OutputGeomCache& outputGecomCache) {
 		return false;
 	}
 
-//	class OutputGeomCache
-//	{
-//	public:
-//	    std::vector<int> indices;
-//	    std::vector<float3> points;
-//	    std::vector<float3> normals;
-//	    std::vector<float4> tangents;
-//	    std::vector<float2> uvs;
-//	    std::vector<float4> colors;
-//	};
-///! @TODO:	@@@ copy geomCacheData to outputGecomCache @@@
-
 	// indices
-	outputGecomCache.indices.resize(geomCacheData.indexCount);
+	{
+		outputGecomCache.indices.resize(geomCacheData.indexCount);
+		const auto* p = static_cast<const int32_t*>(geomCacheData.indices);
+		if(p) {
+			memcpy(outputGecomCache.indices.data(), p, outputGecomCache.indices.size() * sizeof(outputGecomCache.indices[0]));
+		}
+	}
 
 	// points
-	{
-		
+	if(m_DescIndex_points >= 0) {
+		outputGecomCache.points.resize(geomCacheData.vertexCount);
+		const auto* p = geomCacheData.vertices[m_DescIndex_points];
+		convertDataArrayToFloat3(
+			  outputGecomCache.points.data()
+			, p
+			, outputGecomCache.points.size()
+			, m_GeomCacheDescs[m_DescIndex_points].format
+		);
 	}
 
 	// normals
+	if(m_DescIndex_normals >= 0) {
+		outputGecomCache.normals.resize(geomCacheData.vertexCount);
+		const auto* p = geomCacheData.vertices[m_DescIndex_normals];
+		convertDataArrayToFloat3(
+			  outputGecomCache.normals.data()
+			, p
+			, outputGecomCache.normals.size()
+			, m_GeomCacheDescs[m_DescIndex_normals].format
+		);
+	}
+
 	// tangents
+	if(m_DescIndex_tangents >= 0) {
+		outputGecomCache.tangents.resize(geomCacheData.vertexCount);
+		const auto* p = geomCacheData.vertices[m_DescIndex_tangents];
+		convertDataArrayToFloat4(
+			  outputGecomCache.tangents.data()
+			, p
+			, outputGecomCache.tangents.size()
+			, m_GeomCacheDescs[m_DescIndex_tangents].format
+		);
+	}
+
 	// uvs
+	if(m_DescIndex_uvs >= 0) {
+		outputGecomCache.uvs.resize(geomCacheData.vertexCount);
+		const auto* p = geomCacheData.vertices[m_DescIndex_uvs];
+		convertDataArrayToFloat2(
+			  outputGecomCache.uvs.data()
+			, p
+			, outputGecomCache.uvs.size()
+			, m_GeomCacheDescs[m_DescIndex_uvs].format
+		);
+	}
+
 	// colors
+	if(m_DescIndex_colors >= 0) {
+		outputGecomCache.colors.resize(geomCacheData.vertexCount);
+		const auto* p = geomCacheData.vertices[m_DescIndex_colors];
+		convertDataArrayToFloat4(
+			  outputGecomCache.colors.data()
+			, p
+			, outputGecomCache.colors.size()
+			, m_GeomCacheDescs[m_DescIndex_colors].format
+		);
+	}
 
 	freeGeomCacheData(geomCacheData, geomCacheData.vertexCount);
 	return true;
