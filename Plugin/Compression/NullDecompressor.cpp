@@ -6,7 +6,6 @@
 
 //! Project Includes.
 #include "Plugin/Stream/Stream.h"
-#include "NullTypes.h"
 
 namespace nvc
 {
@@ -131,7 +130,7 @@ void NullDecompressor::loadFrame(size_t frameIndex)
 	frameData.Data.vertexCount = frameHeader.VertexCount;
 
 	frameData.MeshCount = m_pStream->read<uint64_t>();
-	frameData.pMeshes = new null_compression::MeshDesc[];
+	frameData.pMeshes = new null_compression::MeshDesc[frameData.MeshCount];
 	for (size_t iMesh = 0; iMesh < frameData.MeshCount; ++iMesh)
 	{
 		m_pStream->read(frameData.pMeshes[iMesh]);
@@ -183,10 +182,13 @@ void NullDecompressor::loadFrame(size_t frameIndex)
 	}
 }
 
-void NullDecompressor::freeFrame(FrameDataType& data)
+void NullDecompressor::freeFrame(FrameDataType& data) const
 {
 	freeGeomCacheData(data.Data, getAttributeCount(m_Descriptor));
+	data.Data = GeomCacheData{};
+
 	delete[] data.pMeshes;
+	data.pMeshes = nullptr;
 }
 
 bool NullDecompressor::insertLoadedData(size_t frameIndex, const FrameDataType& data)
