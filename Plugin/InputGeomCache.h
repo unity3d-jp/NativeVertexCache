@@ -26,7 +26,6 @@ public:
 
     const std::string& getPath() const;
 	void getDesc(GeomCacheDesc *desc) const;
-	size_t getDataSize() const;
 	// GeomCacheData::data can be nullptr. in that case, only count will be filled.
 	void getData(size_t frameIndex, float& frameTime, GeomCacheData* data) const;
 	size_t getDataCount() const;
@@ -41,19 +40,6 @@ public:
 	InputGeomCache(InputGeomCache&&) = delete;
 	InputGeomCache& operator=(const InputGeomCache&) = delete;
 	InputGeomCache& operator=(InputGeomCache&&) = delete;
-
-	static int GetAttributeCount(const GeomCacheDesc* desc)
-	{
-		uint32_t count = 0;
-
-		const GeomCacheDesc *currentDesc = desc;
-		while (currentDesc->semantic != nullptr)
-		{
-			++count;
-		}
-
-		return count;
-	}
 };
 
 } // namespace nvc

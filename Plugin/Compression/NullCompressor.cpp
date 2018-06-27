@@ -22,7 +22,7 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 	{
 		static_cast<uint64_t>(geomCache.getDataCount()),
 		10,
-		InputGeomCache::GetAttributeCount(geomDesc),
+		getAttributeCount(geomDesc),
 	};
 
 	pStream->write(header);
@@ -50,7 +50,8 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 	}
 
 	// Write frames.
-	const uint64_t vertexDataSize = geomCache.getDataSize();
+	const size_t attributeCount = getAttributeCount(geomDesc);
+
 	for (uint64_t iFrame = 0; iFrame < header.FrameCount; ++iFrame)
 	{
 		if ((iFrame % header.FrameSeekWindowCount) == 0)
@@ -64,12 +65,24 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 
 		const null_compression::FrameHeader frameHeader
 		{
-			static_cast<uint8_t>(null_compression::FrameType::IFrame),
-			frameData.count,
+			frameData.indexCount,
+			frameData.vertexCount,
 		};
 
 		pStream->write(frameHeader);
-		pStream->write(frameData.data, vertexDataSize * frameData.count);
+		if (frameData.indices)
+		{
+			pStream->write(frameData.indices, sizeof(int) * frameData.indexCount);
+		}
+
+		if (frameData.vertices)
+		{
+			for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
+			{
+				const size_t dataSize = getSizeOfDataFormat(geomDesc[iAttribute].format) * frameData.vertexCount;
+				pStream->write(frameData.vertices[iAttribute], dataSize);
+			}
+		}
 	}
 
 	// Update the frame seek table with the real offsets.

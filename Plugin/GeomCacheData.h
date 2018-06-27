@@ -37,10 +37,15 @@ struct GeomCacheDesc
 
 struct GeomCacheData
 {
-	const void *data;
-	size_t count;
+	const void* indices;
+	size_t indexCount;
+
+	const void **vertices;
+	size_t vertexCount;
 };
+void freeGeomCacheData(GeomCacheData& cacheData, size_t attributeCount);
 
 size_t getSizeOfDataFormat(DataFormat dataFormat);
+size_t getAttributeCount(const GeomCacheDesc* desc);
 
 } // namespace nvc

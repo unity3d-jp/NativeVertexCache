@@ -10,6 +10,20 @@
 namespace nvc 
 {
 
+void freeGeomCacheData(GeomCacheData& cacheData, size_t attributeCount)
+{
+	void *data = const_cast<void*>(cacheData.indices);
+	free(data);
+
+	for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
+	{
+		void *vertexData = const_cast<void*>(cacheData.vertices[iAttribute]);
+		free(vertexData);
+	}
+
+	delete[] cacheData.vertices;
+}
+
 size_t getSizeOfDataFormat(DataFormat dataFormat)
 {
 	switch (dataFormat)
@@ -37,6 +51,20 @@ size_t getSizeOfDataFormat(DataFormat dataFormat)
 	case DataFormat::UNorm16x3:	return 3 * sizeof(unorm16);
 	case DataFormat::UNorm16x4:	return 4 * sizeof(unorm16);
 	}
+}
+
+size_t getAttributeCount(const GeomCacheDesc* desc)
+{
+	size_t count = 0;
+
+	const GeomCacheDesc *currentDesc = desc;
+	while (currentDesc->semantic != nullptr)
+	{
+		++currentDesc;
+		++count;
+	}
+
+	return count;
 }
 
 } // namespace nvc

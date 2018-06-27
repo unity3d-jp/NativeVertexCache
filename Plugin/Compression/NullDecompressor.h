@@ -47,8 +47,6 @@ public:
 	NullDecompressor& operator=(NullDecompressor&&) = delete;
 
 private:
-	void addLoadedData(size_t frameIndex, const GeomCacheData& data);
-
 	size_t getSeekTableIndex(size_t frameIndex) const
 	{
 		return frameIndex / m_Header.FrameSeekWindowCount;
@@ -81,9 +79,8 @@ private:
 		return m_Header.FrameCount;
 	}
 
-	size_t getDataSize() const;
-
 	void loadFrame(size_t frameIndex);
+	void insertLoadedData(size_t frameIndex, const GeomCacheData& data);
 };
 
 } // namespace nvc

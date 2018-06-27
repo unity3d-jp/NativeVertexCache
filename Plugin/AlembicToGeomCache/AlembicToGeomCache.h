@@ -3,7 +3,7 @@
 #include "../Types.h"
 #include "../nvcAPI.h"
 
-namespace nvc {
+namespace nvcabc {
 
 struct AlembicImportOptions
 {
@@ -21,4 +21,4 @@ struct AlembicGeometries
 
 bool AlembicToGeomCache(const char *path_to_abc, const AlembicImportOptions& options, AlembicGeometries& result);
 
-} // namespace nvc
+} // namespace nvcabc
