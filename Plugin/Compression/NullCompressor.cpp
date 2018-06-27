@@ -21,8 +21,8 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 	const null_compression::FileHeader header
 	{
 		static_cast<uint64_t>(geomCache.getDataCount()),
-		10,
-		getAttributeCount(geomDesc),
+		static_cast<uint32_t>(DefaultSeekWindow),
+		static_cast<uint32_t>(getAttributeCount(geomDesc)),
 	};
 
 	pStream->write(header);
@@ -65,8 +65,8 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 
 		const null_compression::FrameHeader frameHeader
 		{
-			frameData.indexCount,
-			frameData.vertexCount,
+			static_cast<uint32_t>(frameData.indexCount),
+			static_cast<uint32_t>(frameData.vertexCount),
 		};
 
 		pStream->write(frameHeader);

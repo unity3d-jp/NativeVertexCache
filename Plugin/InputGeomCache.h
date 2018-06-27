@@ -8,7 +8,7 @@ class InputGeomCache final
 {
 public:
 	static const char* VERTEX_ID_SEMANTIC;
-	static const char* SUBMESH_ID_SEMANTIC;
+	static const char* MESH_ID_SEMANTIC;
 
 private:
 	using FrameDataType = std::pair<float, GeomCacheData>;
@@ -32,8 +32,8 @@ public:
 
 	int getVertexIdIndex() const;
 	bool hasVertexId() const;
-	int getSubMeshIdIndex() const;
-	bool hasSubMeshId() const;
+	int getMeshIdIndex() const;
+	bool hasMeshId() const;
 
 	//...
 	InputGeomCache(const InputGeomCache&) = delete;
