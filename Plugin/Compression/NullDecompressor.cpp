@@ -183,7 +183,7 @@ void NullDecompressor::loadFrame(size_t frameIndex)
 	}
 }
 
-void NullDecompressor::freeFrame(FrameDataType& data)
+void NullDecompressor::freeFrame(FrameDataType& data) const
 {
 	freeGeomCacheData(data.Data, getAttributeCount(m_Descriptor));
 	delete[] data.pMeshes;
