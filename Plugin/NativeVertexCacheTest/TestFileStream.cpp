@@ -11,8 +11,8 @@ static void test0() {
 //	FillRandom(ba, 0x1234, 0x4321);
 	FillSequence(ba);
 
-	const char* src_filename = "test_src.file";
-	const char* dst_filename = "test_dst.file";
+	const char* src_filename = "../../../Data/TestOutput/test_src.file";
+	const char* dst_filename = "../../../Data/TestOutput/test_dst.file";
 
 	AutoPrepareCleanFile apcfSrc { src_filename };
 	AutoPrepareCleanFile apcfDst { dst_filename };
@@ -63,7 +63,7 @@ static void test0() {
 }
 
 static void test1() {
-	const char* filename = "fs_test_benchmark.file";
+	const char* filename = "../../../Data/TestOutput/fs_test_benchmark.file";
 	AutoPrepareCleanFile apcfFilename { filename };
 
 	for(int iBufSize = 1; iBufSize <= 256; iBufSize *= 2) {
@@ -91,7 +91,7 @@ static void test1() {
 }
 
 static void test2() {
-	const char* filename = "fs_test_randomaccess.file";
+	const char* filename = "../../../Data/TestOutput/fs_test_randomaccess.file";
 
 	const size_t totalSize	= 10 * 1024ull * 1024ull * 1024ull;
 	const size_t nBlock		= 65536;

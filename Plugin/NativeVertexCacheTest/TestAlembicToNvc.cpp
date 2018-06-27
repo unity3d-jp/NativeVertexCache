@@ -10,7 +10,7 @@ void RunTest_AlembicToNvc()
     using namespace nvcabc;
 
     const char* abcFilename = "../../../Data/Cloth-1frame.abc";
-    const char* nvcFilename = "../../../Data/Cloth-1frame.nvc";
+    const char* nvcFilename = "../../../Data/TestOutput/Cloth-1frame.nvc";
 
     assert(IsFileExist(abcFilename));
     RemoveFile(nvcFilename);
