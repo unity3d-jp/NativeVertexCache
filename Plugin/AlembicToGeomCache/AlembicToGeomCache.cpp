@@ -6,6 +6,20 @@ namespace nvcabc {
 
 using namespace nvc;
 
+class ImportContext
+{
+public:
+    void gatherMeshes(aiObject *obj);
+
+private:
+    std::vector<aiPolyMesh*> meshes;
+    std::vector<int> indices;
+    std::vector<nvc::float2> uv0, uv1;
+    std::vector<nvc::float3> points, normals, velocities;
+    std::vector<nvc::float4> colors;
+
+};
+
 static void WriteGeometry(aiPolyMesh *poly, AlembicGeometries& result)
 {
     const char *path = aiObjectGetFullName((aiObject*)poly);
@@ -42,8 +56,8 @@ static void WriteGeometry(aiPolyMesh *poly, AlembicGeometries& result)
         });
         tasks_write.push_back([&]() {
             auto& d = odata[id_indices];
-            d.count = indices.size();
-            d.data = indices.data();
+            //d.count = indices.size();
+            //d.data = indices.data();
         });
     }
 
@@ -58,8 +72,8 @@ static void WriteGeometry(aiPolyMesh *poly, AlembicGeometries& result)
         });
         tasks_write.push_back([&]() {
             auto& d = odata[id_points];
-            d.count = points.size();
-            d.data = points.data();
+            //d.count = points.size();
+            //d.data = points.data();
         });
     }
 
@@ -74,8 +88,8 @@ static void WriteGeometry(aiPolyMesh *poly, AlembicGeometries& result)
         });
         tasks_write.push_back([&]() {
             auto& d = odata[id_velocities];
-            d.count = velocities.size();
-            d.data = velocities.data();
+            //d.count = velocities.size();
+            //d.data = velocities.data();
         });
     }
 
@@ -90,8 +104,8 @@ static void WriteGeometry(aiPolyMesh *poly, AlembicGeometries& result)
         });
         tasks_write.push_back([&]() {
             auto& d = odata[id_normals];
-            d.count = normals.size();
-            d.data = normals.data();
+            //d.count = normals.size();
+            //d.data = normals.data();
         });
     }
 
@@ -106,8 +120,8 @@ static void WriteGeometry(aiPolyMesh *poly, AlembicGeometries& result)
         });
         tasks_write.push_back([&]() {
             auto& d = odata[id_uv0];
-            d.count = uv0.size();
-            d.data = uv0.data();
+            //d.count = uv0.size();
+            //d.data = uv0.data();
         });
     }
 
@@ -122,8 +136,8 @@ static void WriteGeometry(aiPolyMesh *poly, AlembicGeometries& result)
         });
         tasks_write.push_back([&]() {
             auto& d = odata[id_uv1];
-            d.count = uv1.size();
-            d.data = uv1.data();
+            //d.count = uv1.size();
+            //d.data = uv1.data();
         });
     }
 
@@ -138,8 +152,8 @@ static void WriteGeometry(aiPolyMesh *poly, AlembicGeometries& result)
         });
         tasks_write.push_back([&]() {
             auto& d = odata[id_colors];
-            d.count = colors.size();
-            d.data = colors.data();
+            //d.count = colors.size();
+            //d.data = colors.data();
         });
     }
 
@@ -167,7 +181,7 @@ static void WriteGeometry(aiPolyMesh *poly, AlembicGeometries& result)
         nvcIGCAddData(igc, (float)t, odata.data());
     }
 
-    result.geometries.push_back(AlembicGeometries::GeomPtr(igc, nvcIGCRelease));
+    //result.geometries.push_back(AlembicGeometries::GeomPtr(igc, nvcIGCRelease));
 }
 
 static void ProcessAbcObject(aiContext *ctx, aiObject *obj, AlembicGeometries& result)
