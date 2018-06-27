@@ -23,6 +23,7 @@ public:
     aiPolyMesh * m_mesh;
     aiMeshSummary m_summary;
     aiMeshSampleSummary m_sample_summary;
+    std::vector<aiSubmeshSummary> m_submesh_summaries;
     std::vector<aiSubmeshData> m_submeshes;
     aiPolyMeshData m_vdata;
     size_t index_offset = 0;
@@ -76,8 +77,13 @@ MeshSegment::MeshSegment(ImportContext * ctx, aiPolyMesh * abc)
 void MeshSegment::onUpdateSample()
 {
     aiSchemaSync(m_mesh);
-    aiPolyMeshGetSampleSummary(aiSchemaGetSample(m_mesh), &m_sample_summary);
+
+    auto *sample = aiSchemaGetSample(m_mesh);
+    aiPolyMeshGetSampleSummary(sample, &m_sample_summary);
+
     m_submeshes.resize(m_sample_summary.submesh_count);
+    m_submesh_summaries.resize(m_sample_summary.submesh_count);
+    aiPolyMeshGetSubmeshSummaries(sample, m_submesh_summaries.data());
 }
 
 void MeshSegment::getCounts(size_t& icount, size_t& vcount)
@@ -152,6 +158,12 @@ void MeshSegment::fillVertexBuffersBegin()
             std::fill(&m_ctx->m_colors[voffset], &m_ctx->m_colors[voffset] + vcount, zero4);
     }
 
+    size_t sm_offset = 0;
+    for (size_t smi = 0; smi < m_submeshes.size(); ++smi) {
+        m_submeshes[smi].indices = m_vdata.indices + sm_offset;
+        sm_offset += m_submesh_summaries[smi].index_count;
+    }
+
     aiPolyMeshFillVertexBuffer(aiSchemaGetSample(m_mesh), &m_vdata, m_submeshes.data());
 }
 
@@ -184,6 +196,11 @@ void ImportContext::gatherTimes()
     m_timesamples.erase(
         std::unique(m_timesamples.begin(), m_timesamples.end()),
         m_timesamples.end());
+
+    size_t count = m_timesamples.size();
+    m_result->timesamples.resize(count);
+    for (size_t i = 0; i < count; ++i)
+        m_result->timesamples[i] = (float)m_timesamples[i];
 }
 
 
