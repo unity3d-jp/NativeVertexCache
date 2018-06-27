@@ -77,12 +77,14 @@ static void dump(const nvc::InputGeomCache& igc) {
 	const int descIndex_normals  = getAttributeIndex(geomCacheDescs, nvcSEMANTIC_NORMALS );
 	const int descIndex_tangents = getAttributeIndex(geomCacheDescs, nvcSEMANTIC_TANGENTS);
 	const int descIndex_uv0      = getAttributeIndex(geomCacheDescs, nvcSEMANTIC_UV0     );
+	const int descIndex_uv1      = getAttributeIndex(geomCacheDescs, nvcSEMANTIC_UV1     );
 	const int descIndex_colors   = getAttributeIndex(geomCacheDescs, nvcSEMANTIC_COLORS  );
 
 	printf("GeomCacheDesc.descIndex_points   = %d\n", descIndex_points   );
 	printf("GeomCacheDesc.descIndex_normals  = %d\n", descIndex_normals  );
 	printf("GeomCacheDesc.descIndex_tangents = %d\n", descIndex_tangents );
 	printf("GeomCacheDesc.descIndex_uv0      = %d\n", descIndex_uv0      );
+	printf("GeomCacheDesc.descIndex_uv1      = %d\n", descIndex_uv1      );
 	printf("GeomCacheDesc.descIndex_colors   = %d\n", descIndex_colors   );
 
 	printf("nFrame(%zd)\n", nFrame);
@@ -117,6 +119,24 @@ static void dump(const nvc::InputGeomCache& igc) {
 				printf("points[%zd]={", points.size());
 				for(const auto& v : points) {
 					printf("{%+5.3f,%+5.3f,%+5.3f}, ", v[0], v[1], v[2]);
+				}
+				printf("}\n");
+			}
+		}
+
+		if(descIndex_uv1 >= 0 && geomCacheData.vertices != nullptr) {
+			std::vector<float2> uv1s(geomCacheData.vertexCount);
+			const auto* p = geomCacheData.vertices[descIndex_uv1];
+			if(p != nullptr) {
+				convertDataArrayToFloat2(
+					  uv1s.data()
+					, p
+					, uv1s.size()
+					, geomCacheDescs[descIndex_uv1].format
+				);
+				printf("uv1s[%zd]={", uv1s.size());
+				for(const auto& v : uv1s) {
+					printf("{%+5.3f,%+5.3f}, ", v[0], v[1]);
 				}
 				printf("}\n");
 			}
