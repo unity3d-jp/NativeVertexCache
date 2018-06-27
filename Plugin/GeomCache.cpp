@@ -86,18 +86,17 @@ bool GeomCache::open(const char* nvcFilename) {
 	);
 	assert(m_Decompressor);
 
-	m_GeomCacheDescs = m_Decompressor->getDescriptors();
-	m_GeomCacheDescsNum = getAttributeCount(m_GeomCacheDescs);
-
-	for(int iDesc = 0; iDesc < m_GeomCacheDescsNum; ++iDesc) {
-		const GeomCacheDesc* desc = &m_GeomCacheDescs[iDesc];
-		     if(strcmp(desc->semantic, "indices" ) == 0) { m_DescIndex_indices  = iDesc; }  // ?? is indices desc needed??
-		else if(strcmp(desc->semantic, "ponits"  ) == 0) { m_DescIndex_points   = iDesc; }
-		else if(strcmp(desc->semantic, "normals" ) == 0) { m_DescIndex_normals  = iDesc; }
-		else if(strcmp(desc->semantic, "tangents") == 0) { m_DescIndex_tangents = iDesc; }
-		else if(strcmp(desc->semantic, "uvs"     ) == 0) { m_DescIndex_uvs      = iDesc; }
-		else if(strcmp(desc->semantic, "colors"  ) == 0) { m_DescIndex_colors   = iDesc; }
+	{
+		const auto* d = m_Decompressor->getDescriptors();
+		memcpy(m_GeomCacheDescs, d, getAttributeCount(d));
 	}
+
+	m_DescIndex_indices  = getAttributeIndex(m_GeomCacheDescs, "indices" );  // ?? is indices desc needed??
+	m_DescIndex_points   = getAttributeIndex(m_GeomCacheDescs, "ponits"  );
+	m_DescIndex_normals  = getAttributeIndex(m_GeomCacheDescs, "normals" );
+	m_DescIndex_tangents = getAttributeIndex(m_GeomCacheDescs, "tangents");
+	m_DescIndex_uvs      = getAttributeIndex(m_GeomCacheDescs, "uvs"     );
+	m_DescIndex_colors   = getAttributeIndex(m_GeomCacheDescs, "colors"  );
 
 	preload(0.0f, 1.0f);
 	return good();
@@ -140,6 +139,10 @@ bool GeomCache::assignCurrentDataToMesh(OutputGeomCache& outputGecomCache) {
 
 	GeomCacheData geomCacheData {};
 	if(! m_Decompressor->getData(m_CurrentTime, geomCacheData)) {
+		return false;
+	}
+	if(geomCacheData.vertices == nullptr) {
+		freeGeomCacheData(geomCacheData, geomCacheData.vertexCount);
 		return false;
 	}
 
