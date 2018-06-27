@@ -21,7 +21,7 @@ namespace null_compression
 		uint32_t VertexCount;
 	};
 
-	struct MeshHeader
+	struct MeshDesc
 	{
 		uint32_t MeshId;
 		uint32_t vertexStart;
