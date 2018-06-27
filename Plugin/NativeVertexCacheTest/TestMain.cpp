@@ -5,6 +5,7 @@ void RunTest_Types();
 void RunTest_MemoryStream();
 void RunTest_FileStream();
 void RunTest_Alembic();
+void RunTest_AlembicToNvc();
 
 
 int main(int argc, char *argv[])
@@ -12,9 +13,11 @@ int main(int argc, char *argv[])
     std::map<std::string, std::function<void()>> tests{
         { "Types", RunTest_Types },
         { "MemoryStream", RunTest_MemoryStream },
-        { "FileStream", RunTest_FileStream },
+        { "+FileStream", RunTest_FileStream },
         { "Alembic", RunTest_Alembic },
+        { "+AlembicToNvc", RunTest_AlembicToNvc },
 
+        // If first char of the argument name is '+', it means "opt-in" option.
         // add new test here
     };
 
@@ -30,8 +33,11 @@ int main(int argc, char *argv[])
         }
     }
     else {
-        for (auto& kvp : tests)
-            kvp.second();
+        for (auto& kvp : tests) {
+            if(kvp.first[0] != '+') {
+                kvp.second();
+            }
+        }
     }
 
     return 0;

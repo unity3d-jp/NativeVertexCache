@@ -24,12 +24,12 @@ inline void FillRandom(T& vec, uint64_t state = 0x900dbeef, uint64_t inc = 0x876
     using ValueType = T::value_type;
     Pcg pcg { state, inc };
     for(auto& v : vec) {
-        v = static_cast<ValueType>(pcg.getUint32());
+        v = static_cast<ValueType>(pcg.getUint64());
     }
 }
 
 template<typename T>
-static void FillSequence(T& vec) {
+inline void FillSequence(T& vec) {
     using ValueType = T::value_type;
     auto x = static_cast<ValueType>(0);
     for(auto& v : vec) {
@@ -79,3 +79,18 @@ protected:
 	std::string filename;
 	const bool removeOnDestructor;
 };
+
+inline uint64_t hash64(uint64_t x) {
+	// The finalizer from MurmerHash3
+	// https://stackoverflow.com/a/6867612
+	x ^= x >> 33;
+	x *= 0xff51afd7ed558ccd;
+	x ^= x >> 33;
+	x *= 0xc4ceb9fe1a85ec53;
+	x ^= x >> 33;
+	return x;
+}
+
+inline int64_t hash64(int64_t x) {
+	return static_cast<int64_t>(hash64(static_cast<uint64_t>(x)));
+}

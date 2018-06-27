@@ -9,8 +9,7 @@ namespace nvc {
 const char* InputGeomCache::VERTEX_ID_SEMANTIC = "VertexId";
 const char* InputGeomCache::MESH_ID_SEMANTIC = "MeshId";
 
-InputGeomCache::InputGeomCache(const char *path, const GeomCacheDesc *desc)
-    : m_Path(path)
+InputGeomCache::InputGeomCache(const GeomCacheDesc *desc)
 {
 	memcpy(m_Descriptor, desc, sizeof(GeomCacheDesc) * getAttributeCount(desc));
 }
@@ -85,11 +84,6 @@ void InputGeomCache::addData(float time, const GeomCacheData* data)
 										});
 		m_Data.insert(itInsert, dataToInsert);
 	}
-}
-
-const std::string & InputGeomCache::getPath() const
-{
-    return m_Path;
 }
 
 void InputGeomCache::getDesc(GeomCacheDesc* desc) const
