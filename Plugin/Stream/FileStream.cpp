@@ -266,7 +266,8 @@ bool FileStream::open(const char* filename, OpenModes openModes) {
 
 	switch(openModes) {
 	default:	break;
-	case FileStream::OpenModes::Random_ReadOnly:		oflag = _O_RANDOM     | _O_RDONLY;						m_flProtect = PAGE_READONLY;	m_dwDesiredAccess = FILE_MAP_READ;		break;
+//	case FileStream::OpenModes::Random_ReadOnly:		oflag = _O_RANDOM     | _O_RDONLY;						m_flProtect = PAGE_READONLY;	m_dwDesiredAccess = FILE_MAP_READ;		break;
+	case FileStream::OpenModes::Random_ReadOnly:		oflag = _O_RANDOM     | _O_RDONLY;						m_flProtect = PAGE_READWRITE;	m_dwDesiredAccess = FILE_MAP_ALL_ACCESS;	break;
 	case FileStream::OpenModes::Sequential_ReadOnly:	oflag = _O_SEQUENTIAL | _O_RDONLY;						m_flProtect = PAGE_READONLY;	m_dwDesiredAccess = FILE_MAP_READ;		break;
 	case FileStream::OpenModes::Random_WriteOnly:		oflag = _O_RANDOM     | _O_WRONLY | _O_TRUNC;			m_flProtect = PAGE_READWRITE;	m_dwDesiredAccess = FILE_MAP_ALL_ACCESS;	break;
 	case FileStream::OpenModes::Sequential_WriteOnly:	oflag = _O_SEQUENTIAL | _O_WRONLY | _O_TRUNC;			m_flProtect = PAGE_READWRITE;	m_dwDesiredAccess = FILE_MAP_ALL_ACCESS;	break;
@@ -300,14 +301,27 @@ bool FileStream::open(const char* filename, OpenModes openModes) {
 
 	m_Capacity = alignToPageSize(m_Length + m_PageSize * 16);
 
-	m_HandleMap = CreateFileMapping(
-		  reinterpret_cast<HANDLE>(_get_osfhandle(m_Fd))
-		, NULL
-		, m_flProtect
-		, DWORD_HI(m_Capacity)
-		, DWORD_LO(m_Capacity)
-		, NULL
-	);
+	if((m_OpenModes & OpenModes::Write) != 0) {
+		m_HandleMap = CreateFileMapping(
+			  reinterpret_cast<HANDLE>(_get_osfhandle(m_Fd))
+			, NULL
+			, m_flProtect
+			, DWORD_HI(m_Capacity)
+			, DWORD_LO(m_Capacity)
+			, NULL
+		);
+	} else {
+		m_flProtect = PAGE_READONLY;
+		m_dwDesiredAccess = FILE_MAP_READ;
+		m_HandleMap = CreateFileMapping(
+			  reinterpret_cast<HANDLE>(_get_osfhandle(m_Fd))
+			, NULL
+			, m_flProtect
+			, 0
+			, 0
+			, NULL
+		);
+	}
 	if(m_HandleMap == INVALID_HANDLE_VALUE) {
 		return false;
 	}
