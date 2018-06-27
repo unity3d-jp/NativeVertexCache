@@ -39,6 +39,15 @@ enum class DataFormat : uint32_t
 	UNorm16x4,
 };
 
+enum class Topology : uint32_t
+{
+    Points,
+    Lines,
+    Triangles,
+    Quads,
+};
+
+
 #define GEOM_CACHE_MAX_DESCRIPTOR_COUNT        (8)
 struct GeomCacheDesc
 {
@@ -47,6 +56,18 @@ struct GeomCacheDesc
 };
 #define GEOM_CACHE_DESCRIPTOR_END            { nullptr, DataFormat::Unknown }
 
+struct GeomSubmesh
+{
+    size_t indexOffset, indexCount;
+    Topology topology;
+};
+
+struct GeomMesh
+{
+    size_t vertexOffset, vertexCount;
+    size_t submeshCount;
+};
+
 struct GeomCacheData
 {
 	const void* indices;
@@ -54,6 +75,12 @@ struct GeomCacheData
 
 	const void **vertices;
 	size_t vertexCount;
+
+    const GeomMesh *segments;
+    size_t segmentCount;
+
+    const GeomSubmesh *submeshes;
+    size_t submeshCount;
 };
 void freeGeomCacheData(GeomCacheData& cacheData, size_t attributeCount);
 
