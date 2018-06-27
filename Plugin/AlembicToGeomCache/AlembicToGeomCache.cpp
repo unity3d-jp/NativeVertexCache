@@ -15,7 +15,8 @@ public:
     void onUpdateSample();
     void getCounts(size_t& index_count, size_t& vertex_count);
     void setOffsets(size_t index_offset, size_t vertex_offset);
-    void fillVertexBuffers();
+    void fillVertexBuffersBegin();
+    void fillVertexBuffersEnd();
 
 public:
     ImportContext * m_ctx;
@@ -23,6 +24,7 @@ public:
     aiMeshSummary m_summary;
     aiMeshSampleSummary m_sample_summary;
     std::vector<aiSubmeshData> m_submeshes;
+    aiPolyMeshData m_vdata;
     size_t index_offset = 0;
     size_t vertex_offset = 0;
 };
@@ -74,7 +76,7 @@ MeshSegment::MeshSegment(ImportContext * ctx, aiPolyMesh * abc)
 void MeshSegment::onUpdateSample()
 {
     aiSchemaSync(m_mesh);
-    aiPolyMeshGetSampleSummary(m_mesh, &m_sample_summary);
+    aiPolyMeshGetSampleSummary(aiSchemaGetSample(m_mesh), &m_sample_summary);
     m_submeshes.resize(m_sample_summary.submesh_count);
 }
 
@@ -90,7 +92,7 @@ void MeshSegment::setOffsets(size_t ioffset, size_t voffset)
     vertex_offset = voffset;
 }
 
-void MeshSegment::fillVertexBuffers()
+void MeshSegment::fillVertexBuffersBegin()
 {
     const nvc::float2 zero2{ 0.0f, 0.0f };
     const nvc::float3 zero3{ 0.0f, 0.0f, 0.0f };
@@ -99,14 +101,13 @@ void MeshSegment::fillVertexBuffers()
     int vcount = m_sample_summary.vertex_count;
     int voffset = (int)vertex_offset;
 
-    aiPolyMeshData vdata;
-    vdata.indices = &m_ctx->m_indices[index_offset];
-    vdata.points = (abcV3*)&m_ctx->m_points[voffset];
+    m_vdata.indices = &m_ctx->m_indices[index_offset];
+    m_vdata.points = (abcV3*)&m_ctx->m_points[voffset];
 
     // velocities
     if (m_ctx->m_id_velocities != -1) {
         if (m_summary.has_velocities)
-            vdata.velocities = (abcV3*)&m_ctx->m_velocities[voffset];
+            m_vdata.velocities = (abcV3*)&m_ctx->m_velocities[voffset];
         else
             std::fill(&m_ctx->m_velocities[voffset], &m_ctx->m_velocities[voffset] + vcount, zero3);
     }
@@ -114,7 +115,7 @@ void MeshSegment::fillVertexBuffers()
     // normals
     if (m_ctx->m_id_normals != -1) {
         if (m_summary.has_normals)
-            vdata.normals = (abcV3*)&m_ctx->m_normals[voffset];
+            m_vdata.normals = (abcV3*)&m_ctx->m_normals[voffset];
         else
             std::fill(&m_ctx->m_normals[voffset], &m_ctx->m_normals[voffset] + vcount, zero3);
     }
@@ -122,7 +123,7 @@ void MeshSegment::fillVertexBuffers()
     // tangents
     if (m_ctx->m_id_tangents != -1) {
         if (m_summary.has_tangents)
-            vdata.tangents = (abcV4*)&m_ctx->m_tangents[voffset];
+            m_vdata.tangents = (abcV4*)&m_ctx->m_tangents[voffset];
         else
             std::fill(&m_ctx->m_tangents[voffset], &m_ctx->m_tangents[voffset] + vcount, zero4);
     }
@@ -130,7 +131,7 @@ void MeshSegment::fillVertexBuffers()
     // uv0
     if (m_ctx->m_id_uv0 != -1) {
         if (m_summary.has_uv0)
-            vdata.uv0 = (abcV2*)&m_ctx->m_uv0[voffset];
+            m_vdata.uv0 = (abcV2*)&m_ctx->m_uv0[voffset];
         else
             std::fill(&m_ctx->m_uv0[voffset], &m_ctx->m_uv0[voffset] + vcount, zero2);
     }
@@ -138,7 +139,7 @@ void MeshSegment::fillVertexBuffers()
     // uv1
     if (m_ctx->m_id_uv1 != -1) {
         if (m_summary.has_uv1)
-            vdata.uv1 = (abcV2*)&m_ctx->m_uv1[voffset];
+            m_vdata.uv1 = (abcV2*)&m_ctx->m_uv1[voffset];
         else
             std::fill(&m_ctx->m_uv1[voffset], &m_ctx->m_uv1[voffset] + vcount, zero2);
     }
@@ -146,12 +147,17 @@ void MeshSegment::fillVertexBuffers()
     // colors
     if (m_ctx->m_id_colors != -1) {
         if (m_summary.has_colors)
-            vdata.colors = (abcV4*)&m_ctx->m_colors[voffset];
+            m_vdata.colors = (abcV4*)&m_ctx->m_colors[voffset];
         else
             std::fill(&m_ctx->m_colors[voffset], &m_ctx->m_colors[voffset] + vcount, zero4);
     }
 
-    aiPolyMeshFillVertexBuffer(m_mesh, &vdata, m_submeshes.data());
+    aiPolyMeshFillVertexBuffer(aiSchemaGetSample(m_mesh), &m_vdata, m_submeshes.data());
+}
+
+void MeshSegment::fillVertexBuffersEnd()
+{
+    aiSampleSync(aiSchemaGetSample(m_mesh));
 }
 
 
@@ -280,9 +286,11 @@ void ImportContext::gatherSamples(double time, nvc::InputGeomCache *igc)
         m_data_pointers[m_id_colors] = m_colors.data();
     }
 
-    for (auto& seg : m_segments) {
-        seg.fillVertexBuffers();
-    }
+    for (auto& seg : m_segments)
+        seg.fillVertexBuffersBegin();
+
+    for (auto& seg : m_segments)
+        seg.fillVertexBuffersEnd();
 
     nvc::GeomCacheData odata;
     odata.indexCount = m_indices.size();
@@ -302,9 +310,14 @@ void ImportContext::gatherSamples()
 }
 
 
-bool AlembicToGeomCache(const char *path_to_abc, const AlembicImportOptions& /*options*/, AlembicGeometries& result)
+bool AlembicToGeomCache(const char *path_to_abc, const AlembicImportOptions& options, AlembicGeometries& result)
 {
     aiContext* ctx = aiContextCreate(1);
+    {
+        aiConfig conf;
+        conf.async_load = options.multithreading;
+        aiContextSetConfig(ctx, &conf);
+    }
     if (!aiContextLoad(ctx, path_to_abc)) {
         aiContextDestroy(ctx);
         return false;
