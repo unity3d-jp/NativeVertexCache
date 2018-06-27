@@ -29,7 +29,7 @@ inline void FillRandom(T& vec, uint64_t state = 0x900dbeef, uint64_t inc = 0x876
 }
 
 template<typename T>
-static void FillSequence(T& vec) {
+inline void FillSequence(T& vec) {
     using ValueType = T::value_type;
     auto x = static_cast<ValueType>(0);
     for(auto& v : vec) {
