@@ -5,6 +5,7 @@ class Stream;
 namespace nvc
 {
 struct GeomCacheData;
+struct GeomCacheDesc;
 
 class IDecompressor
 {
@@ -18,6 +19,7 @@ public:
 
 	virtual bool getData(size_t frameIndex, float& time, GeomCacheData& data) = 0;
 	virtual bool getData(float time, GeomCacheData& data) = 0;
+	virtual const GeomCacheDesc* getDescriptors() const = 0;
 
 	//...
 	IDecompressor(const IDecompressor&) = delete;
