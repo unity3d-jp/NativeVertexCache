@@ -2,7 +2,7 @@
 #include "Plugin/PrecompiledHeader.h"
 
 //! Header Include.
-#include "NullDecompressor.h"
+#include "QuantisationDecompressor.h"
 
 //! Project Includes.
 #include "Plugin/Stream/Stream.h"
@@ -10,12 +10,12 @@
 namespace nvc
 {
 
-NullDecompressor::~NullDecompressor()
+QuantisationDecompressor::~QuantisationDecompressor()
 {
 	close();
 }
 
-void NullDecompressor::open(Stream* pStream)
+void QuantisationDecompressor::open(Stream* pStream)
 {
 	close();
 
@@ -27,7 +27,7 @@ void NullDecompressor::open(Stream* pStream)
 	// Read the descriptor.
 	for (uint32_t iElement = 0; iElement < m_Header.VertexAttributeCount; ++iElement)
 	{
-		m_pStream->read(m_Semantics[iElement], sizeof(char) * null_compression::SEMANTIC_STRING_LENGTH);
+		m_pStream->read(m_Semantics[iElement], sizeof(char) * quantisation_compression::SEMANTIC_STRING_LENGTH);
 
 		uint32_t format = 0;
 		m_pStream->read(format);
@@ -54,7 +54,7 @@ void NullDecompressor::open(Stream* pStream)
 	m_IsFrameLoaded.resize(m_Header.FrameCount, false);
 }
 
-void NullDecompressor::close()
+void QuantisationDecompressor::close()
 {
 	auto it = m_LoadedFrames.begin();
 	const auto itEnd = m_LoadedFrames.end();
@@ -74,7 +74,7 @@ void NullDecompressor::close()
 	m_FramesOffset = 0;
 }
 
-void NullDecompressor::prefetch(size_t frameIndex, size_t range)
+void QuantisationDecompressor::prefetch(size_t frameIndex, size_t range)
 {
 	const size_t frameSeekIndex = getSeekTableIndex(frameIndex);
 	const size_t startFrame = frameSeekIndex * m_Header.FrameSeekWindowCount;
@@ -90,7 +90,7 @@ void NullDecompressor::prefetch(size_t frameIndex, size_t range)
 	}
 }
 
-bool NullDecompressor::getData(size_t frameIndex, float& time, GeomCacheData& data)
+bool QuantisationDecompressor::getData(size_t frameIndex, float& time, GeomCacheData& data)
 {
 	time = getFrameTime(frameIndex);
 	if (std::isfinite(time))
@@ -101,7 +101,7 @@ bool NullDecompressor::getData(size_t frameIndex, float& time, GeomCacheData& da
 	return false;
 }
 
-bool NullDecompressor::getData(float time, GeomCacheData& data)
+bool QuantisationDecompressor::getData(float time, GeomCacheData& data)
 {
 	const auto it = std::find_if(m_LoadedFrames.begin(), m_LoadedFrames.end(),
 		[time](const FrameDataType& d)
@@ -118,9 +118,9 @@ bool NullDecompressor::getData(float time, GeomCacheData& data)
 	return false;
 }
 
-void NullDecompressor::loadFrame(size_t frameIndex)
+void QuantisationDecompressor::loadFrame(size_t frameIndex)
 {
-	null_compression::FrameHeader frameHeader{};
+	quantisation_compression::FrameHeader frameHeader{};
 	m_pStream->read(frameHeader);
 
 
@@ -130,7 +130,7 @@ void NullDecompressor::loadFrame(size_t frameIndex)
 	frameData.Data.vertexCount = frameHeader.VertexCount;
 
 	frameData.MeshCount = m_pStream->read<uint64_t>();
-	frameData.pMeshes = new null_compression::MeshDesc[frameData.MeshCount];
+	frameData.pMeshes = new quantisation_compression::MeshDesc[frameData.MeshCount];
 	for (size_t iMesh = 0; iMesh < frameData.MeshCount; ++iMesh)
 	{
 		m_pStream->read(frameData.pMeshes[iMesh]);
@@ -182,7 +182,7 @@ void NullDecompressor::loadFrame(size_t frameIndex)
 	}
 }
 
-void NullDecompressor::freeFrame(FrameDataType& data) const
+void QuantisationDecompressor::freeFrame(FrameDataType& data) const
 {
 	freeGeomCacheData(data.Data, getAttributeCount(m_Descriptor));
 	data.Data = GeomCacheData{};
@@ -191,7 +191,7 @@ void NullDecompressor::freeFrame(FrameDataType& data) const
 	data.pMeshes = nullptr;
 }
 
-bool NullDecompressor::insertLoadedData(size_t frameIndex, const FrameDataType& data)
+bool QuantisationDecompressor::insertLoadedData(size_t frameIndex, const FrameDataType& data)
 {
 	float time = m_FrameTimeTable[frameIndex];
 

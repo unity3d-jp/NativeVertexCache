@@ -3,7 +3,7 @@
 namespace nvc
 {
 
-namespace null_compression
+namespace quantisation_compression
 {
 	struct FileHeader
 	{

@@ -45,7 +45,7 @@
         {
             // Precompiled Header Creation/Use
             .PCHInputFile               = '$ProjectPath$\$PCHName$.cpp'
-            .PCHOutputFile              = '$OutputBase$\$ProjectName$\$PCHName$.pch'
+            .PCHOutputFile              = '$OutputBase$\$ProjectName$\$PCHName$_static.pch'
             .PCHOptions                 + ' /Yc"$ProjectPath$\$PCHName$.h"'
             .CompilerOptions            + ' /Yu"$ProjectPath$\$PCHName$.h" /Fp"$PCHOutputFile$"'
 
