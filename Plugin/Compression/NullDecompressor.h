@@ -39,6 +39,7 @@ public:
 
 	bool getData(size_t frameIndex, float& time, GeomCacheData& data) override;
 	bool getData(float time, GeomCacheData& data) override;
+	const GeomCacheDesc* getDescriptors() const { return &m_Descriptor[0]; }
 
 	//...
 	NullDecompressor(const NullDecompressor&) = delete;
