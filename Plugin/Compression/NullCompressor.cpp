@@ -87,7 +87,7 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 
 		pStream->write(frameHeader);
 
-		std::vector<null_compression::MeshHeader> meshes;
+		std::vector<null_compression::MeshDesc> meshes;
 		const int meshIdIndex = getAttributeIndex(geomDesc, SEMANTIC_MESHID);
 		if (meshIdIndex > 0)
 		{
@@ -103,7 +103,7 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 				const int index = indices[i];
 				if (meshIds[index] != currentMeshId)
 				{
-					meshes.push_back(null_compression::MeshHeader
+					meshes.push_back(null_compression::MeshDesc
 						{
 							static_cast<uint32_t>(currentMeshId),
 							currentMeshVertexStart,
@@ -124,7 +124,7 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 		}
 		else
 		{
-			meshes.push_back(null_compression::MeshHeader
+			meshes.push_back(null_compression::MeshDesc
 				{ 
 					0u, 
 					static_cast<uint32_t>(frameData.vertexCount),
@@ -135,7 +135,7 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 
 		// Write mesh data.
 		pStream->write<uint64_t>(meshes.size());
-		pStream->write(meshes.data(), sizeof(null_compression::MeshHeader) * meshes.size());
+		pStream->write(meshes.data(), sizeof(null_compression::MeshDesc) * meshes.size());
 
 		// Write indices.
 		if (frameData.indices)

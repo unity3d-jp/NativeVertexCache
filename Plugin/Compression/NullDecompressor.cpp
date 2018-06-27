@@ -57,13 +57,11 @@ void NullDecompressor::open(Stream* pStream)
 
 void NullDecompressor::close()
 {
-	const size_t attributeCount = getAttributeCount(m_Descriptor);
-
 	auto it = m_LoadedFrames.begin();
 	const auto itEnd = m_LoadedFrames.end();
 	while (it != itEnd)
 	{
-		freeGeomCacheData(it->second, attributeCount);
+		freeFrame(*it);
 		++it;
 	}
 
@@ -109,12 +107,12 @@ bool NullDecompressor::getData(float time, GeomCacheData& data)
 	const auto it = std::find_if(m_LoadedFrames.begin(), m_LoadedFrames.end(),
 		[time](const FrameDataType& d)
 	{
-		return d.first == time;
+		return d.Time == time;
 	});
 
 	if (it == m_LoadedFrames.end())
 	{
-		data = it->second;
+		data = it->Data;
 		return true;
 	}
 
@@ -126,9 +124,18 @@ void NullDecompressor::loadFrame(size_t frameIndex)
 	null_compression::FrameHeader frameHeader{};
 	m_pStream->read(frameHeader);
 
-	GeomCacheData cacheData = {};
-	cacheData.indexCount = frameHeader.IndexCount;
-	cacheData.vertexCount = frameHeader.VertexCount;
+
+	FrameDataType frameData{};
+	frameData.Time = m_FrameTimeTable[frameIndex];
+	frameData.Data.indexCount = frameHeader.IndexCount;
+	frameData.Data.vertexCount = frameHeader.VertexCount;
+
+	frameData.MeshCount = m_pStream->read<uint64_t>();
+	frameData.pMeshes = new null_compression::MeshDesc[];
+	for (size_t iMesh = 0; iMesh < frameData.MeshCount; ++iMesh)
+	{
+		m_pStream->read(frameData.pMeshes[iMesh]);
+	}
 
 	if (frameHeader.IndexCount > 0)
 	{
@@ -144,17 +151,17 @@ void NullDecompressor::loadFrame(size_t frameIndex)
 			m_pStream->seek(dataSize, Stream::SeekOrigin::Current);
 		}
 
-		cacheData.indices = indices;
+		frameData.Data.indices = indices;
 	}
 
 	if (frameHeader.VertexCount > 0)
 	{
 		const size_t attributeCount = getAttributeCount(m_Descriptor);
-		cacheData.vertices = new const void*[attributeCount];
+		frameData.Data.vertices = new const void*[attributeCount];
 
 		for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
 		{
-			const size_t dataSize = getSizeOfDataFormat(m_Descriptor[iAttribute].format) * cacheData.vertexCount;
+			const size_t dataSize = getSizeOfDataFormat(m_Descriptor[iAttribute].format) * frameData.Data.vertexCount;
 
 			void *vertexData = malloc(dataSize);
 			if (vertexData != nullptr)
@@ -166,36 +173,48 @@ void NullDecompressor::loadFrame(size_t frameIndex)
 				m_pStream->seek(dataSize, Stream::SeekOrigin::Current);
 			}
 
-			cacheData.vertices[iAttribute] = vertexData;
+			frameData.Data.vertices[iAttribute] = vertexData;
 		}
 	}
 
-	insertLoadedData(frameIndex, cacheData);
+	if (!insertLoadedData(frameIndex, frameData))
+	{
+		freeFrame(frameData);
+	}
 }
 
-void NullDecompressor::insertLoadedData(size_t frameIndex, const GeomCacheData& data)
+void NullDecompressor::freeFrame(FrameDataType& data)
+{
+	freeGeomCacheData(data.Data, getAttributeCount(m_Descriptor));
+	delete[] data.pMeshes;
+}
+
+bool NullDecompressor::insertLoadedData(size_t frameIndex, const FrameDataType& data)
 {
 	float time = m_FrameTimeTable[frameIndex];
 
 	const auto it = std::find_if(m_LoadedFrames.begin(), m_LoadedFrames.end(),
 		[time](const FrameDataType& d)
 	{
-		return d.first == time;
+		return d.Time == time;
 	});
 
 	if (it == m_LoadedFrames.end())
 	{
 		// Insert sorted.
-		const auto dataToInsert = std::make_pair(time, data);
-		const auto itInsert = std::lower_bound(m_LoadedFrames.begin(), m_LoadedFrames.end(), dataToInsert,
+		const auto itInsert = std::lower_bound(m_LoadedFrames.begin(), m_LoadedFrames.end(), data,
 			[](const FrameDataType& lhs, const FrameDataType& rhs)
 		{
-			return lhs.first < rhs.first;
+			return lhs.Time < rhs.Time;
 		});
 
-		m_LoadedFrames.insert(itInsert, dataToInsert);
+		m_LoadedFrames.insert(itInsert, data);
 		m_IsFrameLoaded[frameIndex] = true;
+
+		return true;
 	}
+
+	return false;
 }
 
 } //namespace nvc

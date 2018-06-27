@@ -13,7 +13,7 @@ namespace nvc
 class NullDecompressor final : public IDecompressor
 {
 private:
-	using FrameDataType = std::pair<float, GeomCacheData>;
+	//using FrameDataType = std::pair<float, GeomCacheData>;
 
 	Stream* m_pStream = nullptr;
 
@@ -25,6 +25,14 @@ private:
 	std::vector<uint64_t> m_SeekTable;
 	std::vector<float> m_FrameTimeTable;
 	std::vector<bool> m_IsFrameLoaded;
+
+	struct FrameDataType 
+	{
+		float Time;
+		GeomCacheData Data;
+		uint64_t MeshCount;
+		null_compression::MeshDesc *pMeshes;
+	};
 
 	std::vector<FrameDataType> m_LoadedFrames;
 
@@ -98,7 +106,9 @@ private:
 	}
 
 	void loadFrame(size_t frameIndex);
-	void insertLoadedData(size_t frameIndex, const GeomCacheData& data);
+	void freeFrame(FrameDataType& data) const;
+
+	bool insertLoadedData(size_t frameIndex, const FrameDataType& data);
 };
 
 } // namespace nvc
