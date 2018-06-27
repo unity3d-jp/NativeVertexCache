@@ -48,9 +48,9 @@ public:
 protected:
 	std::unique_ptr<IDecompressor> m_Decompressor {};
 	std::unique_ptr<FileStream> m_InputFileStream {};
-	const GeomCacheDesc* m_GeomCacheDescs {};
-	size_t m_GeomCacheDescsNum = 0;
-//	GeomCacheDesc m_GeomCacheDesc[GEOM_CACHE_MAX_DESCRIPTOR_COUNT + 1] {};
+//	const GeomCacheDesc* m_GeomCacheDescs {};
+//	size_t m_GeomCacheDescsNum = 0;
+	GeomCacheDesc m_GeomCacheDescs[GEOM_CACHE_MAX_DESCRIPTOR_COUNT + 1] {};
 
 	int m_DescIndex_indices = -1;
 	int m_DescIndex_points = -1;
