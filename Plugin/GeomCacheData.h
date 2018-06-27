@@ -48,6 +48,17 @@ void freeGeomCacheData(GeomCacheData& cacheData, size_t attributeCount);
 size_t getSizeOfDataFormat(DataFormat dataFormat);
 size_t getAttributeCount(const GeomCacheDesc* desc);
 
+
+extern const char* SEMANTIC_POINTS;
+extern const char* SEMANTIC_VELOCITIES;
+extern const char* SEMANTIC_NORMALS;
+extern const char* SEMANTIC_TANGENTS;
+extern const char* SEMANTIC_UV0;
+extern const char* SEMANTIC_UV1;
+extern const char* SEMANTIC_COLORS;
+extern const char* SEMANTIC_VERTEXID;
+extern const char* SEMANTIC_MESHID;
+
 int getAttributeIndex(const GeomCacheDesc *desc, const char *semantic);
 bool hasAttribute(const GeomCacheDesc *desc, const char *semantic);
 
