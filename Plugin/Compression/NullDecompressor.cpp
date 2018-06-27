@@ -131,7 +131,7 @@ void NullDecompressor::loadFrame(size_t frameIndex)
 	frameData.Data.vertexCount = frameHeader.VertexCount;
 
 	frameData.MeshCount = m_pStream->read<uint64_t>();
-	frameData.pMeshes = new null_compression::MeshDesc[];
+	frameData.pMeshes = new null_compression::MeshDesc[frameData.MeshCount];
 	for (size_t iMesh = 0; iMesh < frameData.MeshCount; ++iMesh)
 	{
 		m_pStream->read(frameData.pMeshes[iMesh]);
