@@ -34,6 +34,12 @@ public:
 		return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
 	}
 
+	uint64_t getUint64() {
+		const auto v0 = static_cast<uint64_t>(getUint32());
+		const auto v1 = static_cast<uint64_t>(getUint32());
+		return (v0 << 32) | v1;
+	}
+
 protected:
 	uint64_t state = 1;
 	uint64_t inc = 1;
