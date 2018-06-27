@@ -81,7 +81,7 @@ int getAttributeIndex(const GeomCacheDesc *desc, const char *semantic)
 	const size_t itemCount = getAttributeCount(desc);
 	for (size_t iItem = 0; iItem < itemCount; ++iItem)
 	{
-		if (_stricmp(desc[iItem].semantic, semantic) != 0)
+		if (_stricmp(desc[iItem].semantic, semantic) == 0)
 		{
 			return static_cast<int>(iItem);
 		}
