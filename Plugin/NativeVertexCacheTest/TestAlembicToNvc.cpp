@@ -71,16 +71,11 @@ static void dump(const nvc::InputGeomCache& igc) {
 	GeomCacheDesc geomCacheDescs[GEOM_CACHE_MAX_DESCRIPTOR_COUNT + 1] {};
 	igc.getDesc(&geomCacheDescs[0]);
 
-//	const int descIndex_points   = getAttributeIndex(geomCacheDescs, SEMANTIC_POINTS  );
-//	const int descIndex_normals  = getAttributeIndex(geomCacheDescs, SEMANTIC_NORMALS );
-//	const int descIndex_tangents = getAttributeIndex(geomCacheDescs, SEMANTIC_TANGENTS);
-//	const int descIndex_uv0      = getAttributeIndex(geomCacheDescs, SEMANTIC_UV0     );
-//	const int descIndex_colors   = getAttributeIndex(geomCacheDescs, SEMANTIC_COLORS  );
-	const int descIndex_points   = getAttributeIndex(geomCacheDescs, nvcSemantic_Points  );
-	const int descIndex_normals  = getAttributeIndex(geomCacheDescs, nvcSemantic_Normals );
-	const int descIndex_tangents = getAttributeIndex(geomCacheDescs, nvcSemantic_Tangents);
-	const int descIndex_uv0      = getAttributeIndex(geomCacheDescs, nvcSemantic_UV0     );
-	const int descIndex_colors   = getAttributeIndex(geomCacheDescs, nvcSemantic_Colors  );
+	const int descIndex_points   = getAttributeIndex(geomCacheDescs, nvcSEMANTIC_POINTS  );
+	const int descIndex_normals  = getAttributeIndex(geomCacheDescs, nvcSEMANTIC_NORMALS );
+	const int descIndex_tangents = getAttributeIndex(geomCacheDescs, nvcSEMANTIC_TANGENTS);
+	const int descIndex_uv0      = getAttributeIndex(geomCacheDescs, nvcSEMANTIC_UV0     );
+	const int descIndex_colors   = getAttributeIndex(geomCacheDescs, nvcSEMANTIC_COLORS  );
 
 	printf("GeomCacheDesc.descIndex_points   = %d\n", descIndex_points   );
 	printf("GeomCacheDesc.descIndex_normals  = %d\n", descIndex_normals  );

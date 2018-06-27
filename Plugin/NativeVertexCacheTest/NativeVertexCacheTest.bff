@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 {
     .ProjectName        = 'NativeVertexCacheTest'
-    .ProjectPath        = 'Plugin/NativeVertexCacheTest'
+    .ProjectPath        = 'Plugin'
 
     // Unity
     //--------------------------------------------------------------------------
@@ -39,6 +39,8 @@
         {
             // Test framework uses exceptions
             .CompilerOptions            + .UseExceptions
+                                        + ' /D"NVC_IMPL"'
+                                        + ' /D"NVCABC_IMPL"'
 
             // Input (Unity)
             .CompilerInputUnity         = '$ProjectName$-Unity-Windows'
@@ -51,10 +53,7 @@
         // Executable
         Executable( '$ProjectName$-Exe-$Platform$-$Config$' )
         {
-            .Libraries                      = { 'NativeVertexCache-Lib-$Platform$-$Config$',
-                                                'AlembicToGeomCache-Lib-$Platform$-$Config$',
-                                                'NativeVertexCacheTest-Lib-$Platform$-$Config$',
-                                              }
+            .Libraries                      = { 'NativeVertexCacheTest-Lib-$Platform$-$Config$' }
             .LibPaths                       = ' /LIBPATH:"^$(SolutionDir)..\..\External\abci\lib64"'
             .LinkerOutput                   = '$OutputBase$\NativeVertexCache\NativeVertexCacheTest.exe'
             .LinkerOptions                  + ' /SUBSYSTEM:CONSOLE'

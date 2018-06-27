@@ -41,6 +41,7 @@
         {
             // Test framework uses exceptions
             .CompilerOptions            + .UseExceptions
+                                        + ' /D"NVCABC_IMPL"'
 
             // Input (Unity)
             .CompilerInputUnity         = '$ProjectName$-Unity-Windows'
@@ -65,7 +66,7 @@
                                             + .LibPaths
             .Libraries                      = {
 												'AlembicToGeomCache-Lib-$Platform$-$Config$',
-												'NativeVertexCache-Dll-$Platform$-$Config$'
+												'NativeVertexCache-Dll-$Platform$-$Config$',
                                               }
             .PreBuildDependencies          = 'CopyABCI-$Platform$-$Config$'
         }
