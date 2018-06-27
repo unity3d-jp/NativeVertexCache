@@ -85,7 +85,7 @@ void InputGeomCache::addData(float time, const GeomCacheData* data)
 
 void InputGeomCache::getDesc(GeomCacheDesc* desc) const
 {
-	memcpy(desc, m_Descriptor, sizeof(GeomCacheDesc) * getAttributeCount(desc));
+	memcpy(desc, m_Descriptor, sizeof(GeomCacheDesc) * getAttributeCount(m_Descriptor));
 }
 
 void InputGeomCache::getData(size_t frameIndex, float& frameTime, GeomCacheData* data) const
