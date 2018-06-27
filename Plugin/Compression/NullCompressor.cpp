@@ -17,23 +17,16 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 	GeomCacheDesc geomDesc[GEOM_CACHE_MAX_DESCRIPTOR_COUNT] = {};
 	geomCache.getDesc(geomDesc);
 	
-	uint32_t vertexAttributeCount = 0;
-	const GeomCacheDesc *currentDesc = geomDesc;
-	while (currentDesc->semantic != nullptr)
-	{
-		++vertexAttributeCount;
-	}
-
 	// Write header.
 	const null_compression::FileHeader header
 	{
 		static_cast<uint64_t>(geomCache.getDataCount()),
 		10,
-		vertexAttributeCount,
+		InputGeomCache::GetAttributeCount(geomDesc),
 	};
 
 	pStream->write(header);
-	pStream->write(geomDesc, sizeof(GeomCacheDesc) * vertexAttributeCount);
+	pStream->write(geomDesc, sizeof(GeomCacheDesc) * header.VertexAttributeCount);
 
 	// Calculate frame offsets and write a dummy entry in the stream to hold the value later.
 	const size_t frameSeekTableOffset = pStream->getPosition();
@@ -66,10 +59,10 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 		}
 
 		float time = 0.0f;
-		GeomCacheData frameData {};
+		GeomCacheData frameData{};
 		geomCache.getData(iFrame, time, &frameData);
 
-		const null_compression::FrameHeader frameHeader 
+		const null_compression::FrameHeader frameHeader
 		{
 			static_cast<uint8_t>(null_compression::FrameType::IFrame),
 			frameData.count,

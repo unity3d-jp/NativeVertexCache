@@ -6,18 +6,13 @@
 
 namespace nvc {
 
+const char* InputGeomCache::VERTEX_ID_SEMANTIC = "VertexId";
+const char* InputGeomCache::SUBMESH_ID_SEMANTIC = "SubMeshId";
+
 InputGeomCache::InputGeomCache(const char *path, const GeomCacheDesc *desc)
     : m_Path(path)
 {
-	uint32_t count = 0;
-
-	const GeomCacheDesc *currentDesc = desc;
-	while (currentDesc->semantic != nullptr)
-	{
-		++count;
-	}
-
-	memcpy(m_Descriptor, desc, sizeof(GeomCacheDesc) * count);
+	memcpy(m_Descriptor, desc, sizeof(GeomCacheDesc) * GetAttributeCount(desc));
 }
 
 InputGeomCache::~InputGeomCache()
@@ -75,15 +70,7 @@ const std::string & InputGeomCache::getPath() const
 
 void InputGeomCache::getDesc(GeomCacheDesc* desc) const
 {
-	uint32_t count = 0;
-
-	const GeomCacheDesc *currentDesc = m_Descriptor;
-	while (currentDesc->semantic != nullptr)
-	{
-		++count;
-	}
-
-	memcpy(desc, m_Descriptor, sizeof(GeomCacheDesc) * count);
+	memcpy(desc, m_Descriptor, sizeof(GeomCacheDesc) * GetAttributeCount(desc));
 }
 
 size_t InputGeomCache::getDataSize() const
@@ -117,7 +104,7 @@ size_t InputGeomCache::getDataSize() const
 void InputGeomCache::getData(size_t frameIndex, float& frameTime, GeomCacheData* data) const
 {
 	if (frameIndex < getDataCount())
-							{
+	{
 		auto& frameData = m_Data.at(frameIndex);
 
 		frameTime = frameData.first;
@@ -129,6 +116,44 @@ void InputGeomCache::getData(size_t frameIndex, float& frameTime, GeomCacheData*
 size_t InputGeomCache::getDataCount() const
 {
 	return m_Data.size();
+}
+
+int InputGeomCache::getVertexIdIndex() const
+{
+	const int itemCount = GetAttributeCount(m_Descriptor);
+	for (int iItem = 0; iItem < itemCount; ++iItem)
+	{
+		if (_stricmp(m_Descriptor[iItem].semantic, VERTEX_ID_SEMANTIC) != 0)
+		{
+			return iItem;
+		}
+	}
+
+	return -1;
+}
+
+bool InputGeomCache::hasVertexId() const
+{
+	return getVertexIdIndex() > 0;
+}
+
+int InputGeomCache::getSubMeshIdIndex() const
+{
+	const int itemCount = GetAttributeCount(m_Descriptor);
+	for (int iItem = 0; iItem < itemCount; ++iItem)
+	{
+		if (_stricmp(m_Descriptor[iItem].semantic, SUBMESH_ID_SEMANTIC) != 0)
+		{
+			return iItem;
+		}
+	}
+
+	return -1;
+}
+
+bool InputGeomCache::hasSubMeshId() const
+{
+	return getSubMeshIdIndex() > 0;
 }
 
 } // namespace nvc
