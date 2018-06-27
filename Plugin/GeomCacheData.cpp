@@ -67,4 +67,23 @@ size_t getAttributeCount(const GeomCacheDesc* desc)
 	return count;
 }
 
+int getSemanticIndex(const GeomCacheDesc *desc, const char *semantic)
+{
+	const size_t itemCount = getAttributeCount(desc);
+	for (size_t iItem = 0; iItem < itemCount; ++iItem)
+	{
+		if (_stricmp(desc[iItem].semantic, semantic) != 0)
+		{
+			return static_cast<int>(iItem);
+		}
+	}
+
+	return -1;
+}
+
+bool hasSemantic(const GeomCacheDesc *desc, const char *semantic)
+{
+	return getSemanticIndex(desc, semantic) > 0;
+}
+
 } // namespace nvc

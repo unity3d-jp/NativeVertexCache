@@ -48,4 +48,7 @@ void freeGeomCacheData(GeomCacheData& cacheData, size_t attributeCount);
 size_t getSizeOfDataFormat(DataFormat dataFormat);
 size_t getAttributeCount(const GeomCacheDesc* desc);
 
+int getSemanticIndex(const GeomCacheDesc *desc, const char *semantic);
+bool hasSemantic(const GeomCacheDesc *desc, const char *semantic);
+
 } // namespace nvc
