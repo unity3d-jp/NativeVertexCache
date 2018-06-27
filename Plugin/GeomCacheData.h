@@ -58,28 +58,28 @@ struct GeomCacheDesc
 
 struct GeomSubmesh
 {
-    size_t indexOffset, indexCount;
+    uint32_t indexOffset, indexCount;
     Topology topology;
 };
 
 struct GeomMesh
 {
-    size_t vertexOffset, vertexCount;
-    size_t submeshCount;
+    uint32_t vertexOffset, vertexCount;
+    uint32_t submeshCount;
 };
 
 struct GeomCacheData
 {
-	const void* indices;
+	void* indices;
 	size_t indexCount;
 
-	const void **vertices;
+    void **vertices;
 	size_t vertexCount;
 
-    const GeomMesh *segments;
-    size_t segmentCount;
+    GeomMesh *meshes;
+    size_t meshCount;
 
-    const GeomSubmesh *submeshes;
+    GeomSubmesh *submeshes;
     size_t submeshCount;
 };
 void freeGeomCacheData(GeomCacheData& cacheData, size_t attributeCount);

@@ -115,6 +115,7 @@ Compiler( 'Compiler-x64-OSX' )
                             + ' /fp:fast'
                             + ' /D"WIN32_LEAN_AND_MEAN" /D_WIN32 /D__WINDOWS__'
                             + ' /D"_CRT_SECURE_NO_WARNINGS"' // don't warn about unsafe functions
+                            + ' /D"_SCL_SECURE_NO_WARNINGS"'
                             + ' /D"_WINSOCK_DEPRECATED_NO_WARNINGS"' // don't warn about deprecated winsock functions - TODO:C Update API use
                             + ' /EHsc' 				// Use exception
     .PCHOptions             = .CompilerOptions

@@ -18,6 +18,7 @@ public:
 	~InputGeomCache();
 
 	void addData(float time, const GeomCacheData *data);
+    void clearData();
 
 	void getDesc(GeomCacheDesc *desc) const;
 	// GeomCacheData::data can be nullptr. in that case, only count will be filled.

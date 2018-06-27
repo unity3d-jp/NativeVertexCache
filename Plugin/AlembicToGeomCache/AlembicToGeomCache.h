@@ -16,9 +16,13 @@
 
 namespace nvcabc {
 
+using ImportCallback = void(*)(void *userdata, nvc::InputGeomCache *igc);
+
 struct AlembicImportOptions
 {
     bool multithreading = true;
+    int callback_interval = 0; // 0: never
+    ImportCallback callback = nullptr;
 };
 
 struct AlembicGeometries

@@ -156,7 +156,7 @@ void NullDecompressor::loadFrame(size_t frameIndex)
 	if (frameHeader.VertexCount > 0)
 	{
 		const size_t attributeCount = getAttributeCount(m_Descriptor);
-		frameData.Data.vertices = new const void*[attributeCount];
+		frameData.Data.vertices = new void*[attributeCount];
 
 		for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
 		{

@@ -49,7 +49,7 @@ private:
 
 public:
     std::vector<nvc::GeomCacheDesc> m_descs;
-    std::vector<const void*> m_data_pointers;
+    std::vector<void*> m_data_pointers;
 
     std::vector<double> m_timesamples;
     std::vector<int> m_indices;

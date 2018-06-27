@@ -123,4 +123,12 @@ namespace NaiveVertexCache
         #endregion
     }
 
+
+    public static class Misc
+    {
+        public static PinnedList<byte> cstr(string s)
+        {
+            return new PinnedList<byte>(System.Text.Encoding.ASCII.GetBytes(s));
+        }
+    }
 }

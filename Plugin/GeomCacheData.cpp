@@ -22,6 +22,9 @@ void freeGeomCacheData(GeomCacheData& cacheData, size_t attributeCount)
 	}
 
 	delete[] cacheData.vertices;
+
+    delete[] cacheData.meshes;
+    delete[] cacheData.submeshes;
 }
 
 size_t getSizeOfDataFormat(DataFormat dataFormat)

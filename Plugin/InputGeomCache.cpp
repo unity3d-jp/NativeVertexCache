@@ -13,17 +13,7 @@ InputGeomCache::InputGeomCache(const GeomCacheDesc *desc)
 
 InputGeomCache::~InputGeomCache()
 {
-	const size_t attributeCount = getAttributeCount(m_Descriptor);
-
-	auto it = m_Data.begin();
-	const auto itEnd = m_Data.end();
-	while (it != itEnd)
-	{
-		freeGeomCacheData(it->second, attributeCount);
-		++it;
-	}
-
-	m_Data.clear();
+    clearData();
 }
 
 void InputGeomCache::addData(float time, const GeomCacheData* data)
@@ -56,7 +46,7 @@ void InputGeomCache::addData(float time, const GeomCacheData* data)
 		if (data->vertices)
 		{
 			const size_t attributeCount = getAttributeCount(m_Descriptor);
-			cacheData.vertices = new const void*[attributeCount];
+			cacheData.vertices = new void*[attributeCount];
 
 			for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
 			{
@@ -72,6 +62,18 @@ void InputGeomCache::addData(float time, const GeomCacheData* data)
 			}
 		}
 
+        cacheData.meshCount = data->meshCount;
+        if (data->meshes) {
+            cacheData.meshes = new GeomMesh[data->meshCount];
+            std::copy(data->meshes, data->meshes + data->meshCount, cacheData.meshes);
+        }
+
+        cacheData.submeshCount = data->submeshCount;
+        if (data->submeshes) {
+            cacheData.submeshes = new GeomSubmesh[data->submeshCount];
+            std::copy(data->submeshes, data->submeshes + data->submeshCount, cacheData.submeshes);
+        }
+
 		// Insert sorted.
 		const auto dataToInsert = std::make_pair(time, cacheData);
 		const auto itInsert = std::lower_bound(m_Data.begin(), m_Data.end(), dataToInsert,
@@ -81,6 +83,21 @@ void InputGeomCache::addData(float time, const GeomCacheData* data)
 										});
 		m_Data.insert(itInsert, dataToInsert);
 	}
+}
+
+void InputGeomCache::clearData()
+{
+    const size_t attributeCount = getAttributeCount(m_Descriptor);
+
+    auto it = m_Data.begin();
+    const auto itEnd = m_Data.end();
+    while (it != itEnd)
+    {
+        freeGeomCacheData(it->second, attributeCount);
+        ++it;
+    }
+
+    m_Data.clear();
 }
 
 void InputGeomCache::getDesc(GeomCacheDesc* desc) const
