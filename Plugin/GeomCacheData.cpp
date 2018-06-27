@@ -66,15 +66,6 @@ size_t getAttributeCount(const GeomCacheDesc* desc)
 
 	return count;
 }
-const char* SEMANTIC_POINTS = "points";
-const char* SEMANTIC_VELOCITIES = "velocities";
-const char* SEMANTIC_NORMALS = "normals";
-const char* SEMANTIC_TANGENTS = "tangents";
-const char* SEMANTIC_UV0 = "uv0";
-const char* SEMANTIC_UV1 = "uv1";
-const char* SEMANTIC_COLORS = "colors";
-const char* SEMANTIC_VERTEXID = "vertexid";
-const char* SEMANTIC_MESHID = "meshid";
 
 int getAttributeIndex(const GeomCacheDesc *desc, const char *semantic)
 {

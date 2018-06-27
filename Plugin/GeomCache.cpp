@@ -91,11 +91,11 @@ bool GeomCache::open(const char* nvcFilename) {
 		memcpy(m_GeomCacheDescs, d, getAttributeCount(d));
 	}
 
-	m_DescIndex_points   = getAttributeIndex(m_GeomCacheDescs, SEMANTIC_POINTS  );
-	m_DescIndex_normals  = getAttributeIndex(m_GeomCacheDescs, SEMANTIC_NORMALS );
-	m_DescIndex_tangents = getAttributeIndex(m_GeomCacheDescs, SEMANTIC_TANGENTS);
-	m_DescIndex_uv0      = getAttributeIndex(m_GeomCacheDescs, SEMANTIC_UV0     );
-	m_DescIndex_colors   = getAttributeIndex(m_GeomCacheDescs, SEMANTIC_COLORS  );
+	m_DescIndex_points   = getAttributeIndex(m_GeomCacheDescs, nvcSEMANTIC_POINTS  );
+	m_DescIndex_normals  = getAttributeIndex(m_GeomCacheDescs, nvcSEMANTIC_NORMALS );
+	m_DescIndex_tangents = getAttributeIndex(m_GeomCacheDescs, nvcSEMANTIC_TANGENTS);
+	m_DescIndex_uv0      = getAttributeIndex(m_GeomCacheDescs, nvcSEMANTIC_UV0     );
+	m_DescIndex_colors   = getAttributeIndex(m_GeomCacheDescs, nvcSEMANTIC_COLORS  );
 
 	preload(0.0f, 1.0f);
 	return good();

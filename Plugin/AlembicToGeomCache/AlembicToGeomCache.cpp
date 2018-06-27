@@ -215,31 +215,31 @@ void ImportContext::gatherMeshes(aiObject * obj)
         const auto& summary = m_segments.back().m_summary;
         if (m_id_points == -1) {
             m_id_points = (int)m_descs.size();
-            m_descs.push_back({ nvcSemantic_Points, nvc::DataFormat::Float3 });
+            m_descs.push_back({ nvcSEMANTIC_POINTS, nvc::DataFormat::Float3 });
         }
         if (summary.has_velocities && m_id_velocities == -1) {
             m_id_velocities = (int)m_descs.size();
-            m_descs.push_back({ nvcSemantic_Velocities, nvc::DataFormat::Float3 });
+            m_descs.push_back({ nvcSEMANTIC_VELOCITIES, nvc::DataFormat::Float3 });
         }
         if (summary.has_normals && m_id_normals == -1) {
             m_id_normals = (int)m_descs.size();
-            m_descs.push_back({ nvcSemantic_Normals, nvc::DataFormat::Float3 });
+            m_descs.push_back({ nvcSEMANTIC_NORMALS, nvc::DataFormat::Float3 });
         }
         if (summary.has_tangents && m_id_tangents == -1) {
             m_id_tangents = (int)m_descs.size();
-            m_descs.push_back({ nvcSemantic_Tangents, nvc::DataFormat::Float4 });
+            m_descs.push_back({ nvcSEMANTIC_TANGENTS, nvc::DataFormat::Float4 });
         }
         if (summary.has_uv0 && m_id_uv0 == -1) {
             m_id_uv0 = (int)m_descs.size();
-            m_descs.push_back({ nvcSemantic_UV0, nvc::DataFormat::Float2 });
+            m_descs.push_back({ nvcSEMANTIC_UV0, nvc::DataFormat::Float2 });
         }
         if (summary.has_uv1 && m_id_uv1 == -1) {
             m_id_uv1 = (int)m_descs.size();
-            m_descs.push_back({ nvcSemantic_UV1, nvc::DataFormat::Float2 });
+            m_descs.push_back({ nvcSEMANTIC_UV1, nvc::DataFormat::Float2 });
         }
         if (summary.has_colors && m_id_colors == -1) {
             m_id_colors = (int)m_descs.size();
-            m_descs.push_back({ nvcSemantic_Colors, nvc::DataFormat::Float4 });
+            m_descs.push_back({ nvcSEMANTIC_COLORS, nvc::DataFormat::Float4 });
         }
     }
 
@@ -327,7 +327,7 @@ void ImportContext::gatherSamples()
 }
 
 
-bool AlembicToGeomCache(const char *path_to_abc, const AlembicImportOptions& options, AlembicGeometries& result)
+nvcabcAPI bool AlembicToGeomCache(const char *path_to_abc, const AlembicImportOptions& options, AlembicGeometries& result)
 {
     aiContext* ctx = aiContextCreate(1);
     {

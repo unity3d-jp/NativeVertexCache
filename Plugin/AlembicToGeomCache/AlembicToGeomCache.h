@@ -3,13 +3,16 @@
 #include "../Types.h"
 #include "../nvcAPI.h"
 
-#define nvcSemantic_Points      "points"
-#define nvcSemantic_Velocities  "velocities"
-#define nvcSemantic_Normals     "normals"
-#define nvcSemantic_Tangents    "tangents"
-#define nvcSemantic_UV0         "uv0"
-#define nvcSemantic_UV1         "uv1"
-#define nvcSemantic_Colors      "colors"
+#ifdef _WIN32
+    #ifdef NVCABC_IMPL
+        #define nvcabcAPI extern "C" __declspec(dllexport)
+    #else
+        #define nvcabcAPI extern "C" __declspec(dllimport)
+    #endif
+#else
+    #define nvcabcAPI extern "C"
+#endif
+
 
 namespace nvcabc {
 
@@ -27,6 +30,6 @@ struct AlembicGeometries
     std::vector<float> timesamples;
 };
 
-bool AlembicToGeomCache(const char *path_to_abc, const AlembicImportOptions& options, AlembicGeometries& result);
+nvcabcAPI bool AlembicToGeomCache(const char *path_to_abc, const AlembicImportOptions& options, AlembicGeometries& result);
 
 } // namespace nvcabc

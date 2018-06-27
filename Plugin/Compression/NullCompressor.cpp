@@ -88,7 +88,7 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 		pStream->write(frameHeader);
 
 		std::vector<null_compression::MeshDesc> meshes;
-		const int meshIdIndex = getAttributeIndex(geomDesc, SEMANTIC_MESHID);
+		const int meshIdIndex = getAttributeIndex(geomDesc, nvcSEMANTIC_MESHID);
 		if (meshIdIndex > 0)
 		{
 			int currentMeshId = 0;

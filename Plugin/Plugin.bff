@@ -64,6 +64,7 @@
         {
             // Test framework uses exceptions
             .CompilerOptions            + .UseExceptions
+                                        + ' /D"NVC_IMPL"'
 
             // Input (Unity)
             .CompilerInputUnity         = '$ProjectName$-Unity-Windows'
