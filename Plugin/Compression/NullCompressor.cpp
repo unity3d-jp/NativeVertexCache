@@ -26,11 +26,23 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 	};
 
 	pStream->write(header);
-	pStream->write(geomDesc, sizeof(GeomCacheDesc) * header.VertexAttributeCount);
+
+	// Write the descriptor.
+	char buffer[null_compression::SEMANTIC_STRING_LENGTH] = {};
+	for (uint32_t iAttribute = 0; iAttribute < header.VertexAttributeCount; ++iAttribute)
+	{
+		memset(buffer, 0, sizeof(buffer));
+		assert(geomDesc[iAttribute].semantic != nullptr
+			&& strlen(geomDesc[iAttribute].semantic) < null_compression::SEMANTIC_STRING_LENGTH);
+		sprintf(buffer, "%s", geomDesc[iAttribute].semantic);
+
+		pStream->write(buffer, sizeof(buffer));
+		pStream->write<uint32_t>(static_cast<uint32_t>(geomDesc[iAttribute].format));
+	}
 
 	// Calculate frame offsets and write a dummy entry in the stream to hold the value later.
 	const size_t frameSeekTableOffset = pStream->getPosition();
-	const size_t frameSeekTableSize = (header.FrameCount + header.FrameSeekWindowCount - 1) / header.FrameSeekWindowCount + 1;
+	const size_t frameSeekTableSize = (header.FrameCount + header.FrameSeekWindowCount - 1) / header.FrameSeekWindowCount;
 	for (uint64_t iEntry = 0; iEntry < frameSeekTableSize; ++iEntry)
 	{
 		pStream->write(static_cast<uint64_t>(0));
@@ -62,6 +74,10 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 		float time = 0.0f;
 		GeomCacheData frameData{};
 		geomCache.getData(iFrame, time, &frameData);
+		if (frameData.vertices == nullptr)
+		{
+			continue; // Error?
+		}
 
 		const null_compression::FrameHeader frameHeader
 		{
@@ -70,11 +86,64 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 		};
 
 		pStream->write(frameHeader);
+
+		std::vector<null_compression::MeshHeader> meshes;
+		const int meshIdIndex = getAttributeIndex(geomDesc, SEMANTIC_MESHID);
+		if (meshIdIndex > 0)
+		{
+			int currentMeshId = 0;
+			uint32_t currentMeshIndexStart = 0;
+			uint32_t currentMeshVertexStart = 0;
+			uint32_t currentMeshVertexEnd = 0;
+
+			const int* meshIds = static_cast<const int*>(frameData.vertices[meshIdIndex]);
+			const int* indices = static_cast<const int*>(frameData.indices);
+			for (size_t i = 0; i < frameData.indexCount; ++i)
+			{
+				const int index = indices[i];
+				if (meshIds[index] != currentMeshId)
+				{
+					meshes.push_back(null_compression::MeshHeader
+						{
+							static_cast<uint32_t>(currentMeshId),
+							currentMeshVertexStart,
+							(currentMeshVertexEnd - currentMeshVertexStart),
+							currentMeshIndexStart,
+							static_cast<uint32_t>(i - currentMeshIndexStart),
+						});
+					
+					currentMeshIndexStart = static_cast<uint32_t>(i);
+					currentMeshVertexStart = index;
+					currentMeshVertexEnd = index;
+					currentMeshId = meshIds[index];
+				}
+
+				currentMeshVertexStart = std::min(currentMeshVertexStart, static_cast<uint32_t>(index));
+				currentMeshVertexEnd = std::max(currentMeshVertexEnd, static_cast<uint32_t>(index));
+			}
+		}
+		else
+		{
+			meshes.push_back(null_compression::MeshHeader
+				{ 
+					0u, 
+					static_cast<uint32_t>(frameData.vertexCount),
+					0u,
+					static_cast<uint32_t>(frameData.indexCount)
+				});
+		}
+
+		// Write mesh data.
+		pStream->write<uint64_t>(meshes.size());
+		pStream->write(meshes.data(), sizeof(null_compression::MeshHeader) * meshes.size());
+
+		// Write indices.
 		if (frameData.indices)
 		{
 			pStream->write(frameData.indices, sizeof(int) * frameData.indexCount);
 		}
 
+		// Write vertices.
 		if (frameData.vertices)
 		{
 			for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
@@ -87,7 +156,7 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 
 	// Update the frame seek table with the real offsets.
 	pStream->seek(frameSeekTableOffset, Stream::SeekOrigin::Begin);
-	for (uint64_t iEntry = 0; iEntry < frameSeekTableSize; ++iEntry)
+	for (uint64_t iEntry = 0; iEntry < frameSeekTableValues.size(); ++iEntry)
 	{
 		pStream->write(frameSeekTableValues[iEntry]);
 	}

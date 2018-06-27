@@ -6,10 +6,6 @@ namespace nvc {
 
 class InputGeomCache final
 {
-public:
-	static const char* VERTEX_ID_SEMANTIC;
-	static const char* MESH_ID_SEMANTIC;
-
 private:
 	using FrameDataType = std::pair<float, GeomCacheData>;
 
@@ -27,11 +23,6 @@ public:
 	// GeomCacheData::data can be nullptr. in that case, only count will be filled.
 	void getData(size_t frameIndex, float& frameTime, GeomCacheData* data) const;
 	size_t getDataCount() const;
-
-	int getVertexIdIndex() const;
-	bool hasVertexId() const;
-	int getMeshIdIndex() const;
-	bool hasMeshId() const;
 
 	//...
 	InputGeomCache(const InputGeomCache&) = delete;

@@ -25,15 +25,22 @@ void NullDecompressor::open(Stream* pStream)
 	// Read the file header.
 	m_pStream->read(m_Header);
 
+	// Read the descriptor.
 	for (uint32_t iElement = 0; iElement < m_Header.VertexAttributeCount; ++iElement)
 	{
-		m_pStream->read(m_Descriptor[iElement]);
+		m_pStream->read(m_Semantics[iElement], sizeof(char) * null_compression::SEMANTIC_STRING_LENGTH);
+
+		uint32_t format = 0;
+		m_pStream->read(format);
+
+		m_Descriptor[iElement].semantic = m_Semantics[iElement];
+		m_Descriptor[iElement].format = static_cast<DataFormat>(format);
 	}
 
 	m_FramesOffset = m_pStream->getPosition();
 
 	// Read the seek table.
-	const size_t seekTableSize = (m_Header.FrameCount + m_Header.FrameSeekWindowCount - 1) / m_Header.FrameSeekWindowCount + 1;
+	const size_t seekTableSize = (m_Header.FrameCount + m_Header.FrameSeekWindowCount - 1) / m_Header.FrameSeekWindowCount;
 	for (uint64_t iEntry = 0; iEntry < seekTableSize; ++iEntry)
 	{
 		m_SeekTable.push_back(m_pStream->read<uint64_t>());

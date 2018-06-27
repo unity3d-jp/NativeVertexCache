@@ -20,6 +20,7 @@ private:
 	null_compression::FileHeader m_Header = {};
 
 	GeomCacheDesc m_Descriptor[GEOM_CACHE_MAX_DESCRIPTOR_COUNT] = {};
+	char m_Semantics[GEOM_CACHE_MAX_DESCRIPTOR_COUNT][null_compression::SEMANTIC_STRING_LENGTH] = {};
 
 	std::vector<uint64_t> m_SeekTable;
 	std::vector<float> m_FrameTimeTable;

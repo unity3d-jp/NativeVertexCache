@@ -20,6 +20,17 @@ namespace null_compression
 		uint32_t IndexCount;
 		uint32_t VertexCount;
 	};
+
+	struct MeshHeader
+	{
+		uint32_t MeshId;
+		uint32_t vertexStart;
+		uint32_t vertexCount;
+		uint32_t indexStart;
+		uint32_t indexCount;
+	};
+
+	static const uint32_t SEMANTIC_STRING_LENGTH = 60;
 }
 
 } // namespace nvc

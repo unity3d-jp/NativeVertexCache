@@ -6,9 +6,6 @@
 
 namespace nvc {
 
-const char* InputGeomCache::VERTEX_ID_SEMANTIC = "VertexId";
-const char* InputGeomCache::MESH_ID_SEMANTIC = "MeshId";
-
 InputGeomCache::InputGeomCache(const GeomCacheDesc *desc)
 {
 	memcpy(m_Descriptor, desc, sizeof(GeomCacheDesc) * getAttributeCount(desc));
@@ -108,44 +105,6 @@ void InputGeomCache::getData(size_t frameIndex, float& frameTime, GeomCacheData*
 size_t InputGeomCache::getDataCount() const
 {
 	return m_Data.size();
-}
-
-int InputGeomCache::getVertexIdIndex() const
-{
-	const size_t itemCount = getAttributeCount(m_Descriptor);
-	for (size_t iItem = 0; iItem < itemCount; ++iItem)
-	{
-		if (_stricmp(m_Descriptor[iItem].semantic, VERTEX_ID_SEMANTIC) != 0)
-		{
-			return static_cast<int>(iItem);
-		}
-	}
-
-	return -1;
-}
-
-bool InputGeomCache::hasVertexId() const
-{
-	return getVertexIdIndex() > 0;
-}
-
-int InputGeomCache::getMeshIdIndex() const
-{
-	const size_t itemCount = getAttributeCount(m_Descriptor);
-	for (size_t iItem = 0; iItem < itemCount; ++iItem)
-	{
-		if (_stricmp(m_Descriptor[iItem].semantic, MESH_ID_SEMANTIC) != 0)
-		{
-			return static_cast<int>(iItem);
-		}
-	}
-
-	return -1;
-}
-
-bool InputGeomCache::hasMeshId() const
-{
-	return getMeshIdIndex() > 0;
 }
 
 } // namespace nvc
