@@ -6,6 +6,10 @@ namespace nvc {
 
 class InputGeomCache final
 {
+public:
+	static const char* VERTEX_ID_SEMANTIC;
+	static const char* SUBMESH_ID_SEMANTIC;
+
 private:
 	using FrameDataType = std::pair<float, GeomCacheData>;
 
@@ -27,11 +31,29 @@ public:
 	void getData(size_t frameIndex, float& frameTime, GeomCacheData* data) const;
 	size_t getDataCount() const;
 
+	int getVertexIdIndex() const;
+	bool hasVertexId() const;
+	int getSubMeshIdIndex() const;
+	bool hasSubMeshId() const;
+
 	//...
 	InputGeomCache(const InputGeomCache&) = delete;
 	InputGeomCache(InputGeomCache&&) = delete;
 	InputGeomCache& operator=(const InputGeomCache&) = delete;
 	InputGeomCache& operator=(InputGeomCache&&) = delete;
+
+	static int GetAttributeCount(const GeomCacheDesc* desc)
+	{
+		uint32_t count = 0;
+
+		const GeomCacheDesc *currentDesc = desc;
+		while (currentDesc->semantic != nullptr)
+		{
+			++count;
+		}
+
+		return count;
+	}
 };
 
 } // namespace nvc
