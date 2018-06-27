@@ -81,6 +81,7 @@ size_t InputGeomCache::getDataSize() const
 	while (currentDesc->semantic != nullptr)
 	{
 		cacheDataSize += getSizeOfDataFormat(currentDesc->format);
+        ++currentDesc;
 	}
 
 	return cacheDataSize;

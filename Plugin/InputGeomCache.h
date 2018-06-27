@@ -50,6 +50,7 @@ public:
 		while (currentDesc->semantic != nullptr)
 		{
 			++count;
+            ++currentDesc;
 		}
 
 		return count;
