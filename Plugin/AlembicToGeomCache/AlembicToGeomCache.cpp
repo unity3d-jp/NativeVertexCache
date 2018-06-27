@@ -184,6 +184,11 @@ void ImportContext::gatherTimes()
     m_timesamples.erase(
         std::unique(m_timesamples.begin(), m_timesamples.end()),
         m_timesamples.end());
+
+    size_t count = m_timesamples.size();
+    m_result->timesamples.resize(count);
+    for (size_t i = 0; i < count; ++i)
+        m_result->timesamples[i] = (float)m_timesamples[i];
 }
 
 
