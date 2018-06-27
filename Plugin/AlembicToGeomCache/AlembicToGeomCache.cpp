@@ -2,7 +2,9 @@
 #include "AlembicToGeomCache.h"
 #include "../../External/abci/abci.h"
 
-namespace nvc {
+namespace nvcabc {
+
+using namespace nvc;
 
 static void WriteGeometry(aiPolyMesh *poly, AlembicGeometries& result)
 {
@@ -132,7 +134,7 @@ static void WriteGeometry(aiPolyMesh *poly, AlembicGeometries& result)
 
         tasks_allocate.push_back([&]() {
             colors.resize(sample_summary.vertex_count);
-            idata.colors = (abcV4*)uv0.data();
+            idata.colors = (abcV4*)colors.data();
         });
         tasks_write.push_back([&]() {
             auto& d = odata[id_colors];
@@ -215,4 +217,4 @@ bool AlembicToGeomCache(const char *path_to_abc, const AlembicImportOptions& /*o
     return true;
 }
 
-} // namespace nvc
+} // namespace nvcabc

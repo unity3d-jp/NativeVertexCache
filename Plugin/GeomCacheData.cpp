@@ -60,6 +60,7 @@ size_t getAttributeCount(const GeomCacheDesc* desc)
 	const GeomCacheDesc *currentDesc = desc;
 	while (currentDesc->semantic != nullptr)
 	{
+		++currentDesc;
 		++count;
 	}
 
