@@ -3,13 +3,14 @@
 #include "Plugin/Stream/FileStream.h"
 #include "Plugin/Compression/NullCompressor.h"
 #include "Plugin/InputGeomCache.h"
+#include "Plugin/GeomCache.h"
 #include "Plugin/GeomCacheData.h"
 #include "Plugin/NativeVertexCacheTest/TestUtil.h"
 #include "Plugin/Types.h"
 
 namespace {
-	using namespace nvc;
-	template<typename T>
+using namespace nvc;
+template<typename T>
 void convertDataArrayToFloat2(float2* dst, const T* src, size_t numberOfElements) {
 	for(size_t i = 0; i < numberOfElements; ++i) {
 		dst[i] = to_float(src[i]);
@@ -64,6 +65,7 @@ void convertDataArrayToFloat4(float4* dst, const void* src, size_t numberOfEleme
 }
 } // namespace
 
+/*
 static void dump(const nvc::InputGeomCache& igc) {
 	using namespace nvc;
 	using namespace nvcabc;
@@ -123,6 +125,54 @@ static void dump(const nvc::InputGeomCache& igc) {
 		printf("\n");
 	}
 }
+*/
+
+static void dump(const nvc::OutputGeomCache& outputGecomCache) {
+	using namespace nvc;
+
+	const auto nIndex = outputGecomCache.indices.size();
+	printf("indices[%zd]={", nIndex);
+	for(size_t iIndex = 0; iIndex < nIndex; ++iIndex) {
+		printf("%d, ", outputGecomCache.indices[iIndex]);
+	}
+	printf("}\n");
+
+	const auto nPoints = outputGecomCache.points.size();
+	printf("points[%zd]={", nPoints);
+	for(const auto& v : outputGecomCache.points) {
+		printf("(%+5.3f,%+5.3f,%+5.3f), ", v[0], v[1], v[2]);
+	}
+	printf("}\n");
+
+	const auto nNormals = outputGecomCache.normals.size();
+	printf("normals[%zd]={", nNormals);
+	for(const auto& v : outputGecomCache.normals) {
+		printf("(%+5.3f,%+5.3f,%+5.3f), ", v[0], v[1], v[2]);
+	}
+	printf("}\n");
+
+	const auto nTangents = outputGecomCache.tangents.size();
+	printf("tangents[%zd]={", nTangents);
+	for(const auto& v : outputGecomCache.tangents) {
+		printf("(%+5.3f,%+5.3f,%+5.3f,%+5.3f), ", v[0], v[1], v[2], v[3]);
+	}
+	printf("}\n");
+
+	const auto nUvs = outputGecomCache.uvs.size();
+	printf("uv0[%zd]={", nUvs);
+	for(const auto& v : outputGecomCache.uvs) {
+		printf("(%+5.3f,%+5.3f), ", v[0], v[1]);
+	}
+	printf("}\n");
+
+	const auto nColors = outputGecomCache.colors.size();
+	printf("colors[%zd]={", nColors);
+	for(const auto& v : outputGecomCache.colors) {
+		printf("(%+5.3f,%+5.3f,%+5.3f,%+5.3f), ", v[0], v[1], v[2], v[3]);
+	}
+	printf("}\n");
+}
+
 
 void RunTest_AlembicToNvc()
 {
@@ -135,15 +185,33 @@ void RunTest_AlembicToNvc()
     assert(IsFileExist(abcFilename));
     RemoveFile(nvcFilename);
 
-    AlembicImportOptions opt;
-    AlembicGeometries abcGeoms;
+	// Import -> output .nvc
+	{
+	    AlembicImportOptions opt;
+	    AlembicGeometries abcGeoms;
 
-    const auto abcToGcResult = AlembicToGeomCache(abcFilename, opt, abcGeoms);
-    assert(abcToGcResult);
+	    const auto abcToGcResult = AlembicToGeomCache(abcFilename, opt, abcGeoms);
+	    assert(abcToGcResult);
 
-	dump(*abcGeoms.geometry);
+//		dump(*abcGeoms.geometry);
 
-    FileStream fs { nvcFilename, FileStream::OpenModes::Random_ReadWrite };
-    NullCompressor nc {};
-    nc.compress(*abcGeoms.geometry, &fs);
+	    FileStream fs { nvcFilename, FileStream::OpenModes::Random_ReadWrite };
+	    NullCompressor nc {};
+	    nc.compress(*abcGeoms.geometry, &fs);
+	}
+
+	// read .nvc
+	{
+		GeomCache geomCache;
+		const auto r0 = geomCache.open(nvcFilename);
+		assert(r0);
+		geomCache.prefetch(0, 1);
+		geomCache.setCurrentFrame(0.0f);
+
+		OutputGeomCache outputGecomCache;
+		const auto r1 = geomCache.assignCurrentDataToMesh(outputGecomCache);
+		assert(r1);
+
+		dump(outputGecomCache);
+	}
 }
