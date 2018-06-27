@@ -91,12 +91,11 @@ bool GeomCache::open(const char* nvcFilename) {
 		memcpy(m_GeomCacheDescs, d, getAttributeCount(d));
 	}
 
-	m_DescIndex_indices  = getAttributeIndex(m_GeomCacheDescs, "indices" );  // ?? is indices desc needed??
-	m_DescIndex_points   = getAttributeIndex(m_GeomCacheDescs, "ponits"  );
-	m_DescIndex_normals  = getAttributeIndex(m_GeomCacheDescs, "normals" );
-	m_DescIndex_tangents = getAttributeIndex(m_GeomCacheDescs, "tangents");
-	m_DescIndex_uvs      = getAttributeIndex(m_GeomCacheDescs, "uvs"     );
-	m_DescIndex_colors   = getAttributeIndex(m_GeomCacheDescs, "colors"  );
+	m_DescIndex_points   = getAttributeIndex(m_GeomCacheDescs, SEMANTIC_POINTS  );
+	m_DescIndex_normals  = getAttributeIndex(m_GeomCacheDescs, SEMANTIC_NORMALS );
+	m_DescIndex_tangents = getAttributeIndex(m_GeomCacheDescs, SEMANTIC_TANGENTS);
+	m_DescIndex_uv0      = getAttributeIndex(m_GeomCacheDescs, SEMANTIC_UV0     );
+	m_DescIndex_colors   = getAttributeIndex(m_GeomCacheDescs, SEMANTIC_COLORS  );
 
 	preload(0.0f, 1.0f);
 	return good();
@@ -105,11 +104,10 @@ bool GeomCache::open(const char* nvcFilename) {
 bool GeomCache::close() {
 	m_Decompressor.release();
 	m_InputFileStream.release();
-	m_DescIndex_indices  = -1;
 	m_DescIndex_points   = -1;
 	m_DescIndex_normals  = -1;
 	m_DescIndex_tangents = -1;
-	m_DescIndex_uvs      = -1;
+	m_DescIndex_uv0      = -1;
 	m_DescIndex_colors   = -1;
 
 	return true;
@@ -191,15 +189,15 @@ bool GeomCache::assignCurrentDataToMesh(OutputGeomCache& outputGecomCache) {
 		);
 	}
 
-	// uvs
-	if(m_DescIndex_uvs >= 0) {
+	// uv0
+	if(m_DescIndex_uv0 >= 0) {
 		outputGecomCache.uvs.resize(geomCacheData.vertexCount);
-		const auto* p = geomCacheData.vertices[m_DescIndex_uvs];
+		const auto* p = geomCacheData.vertices[m_DescIndex_uv0];
 		convertDataArrayToFloat2(
 			  outputGecomCache.uvs.data()
 			, p
 			, outputGecomCache.uvs.size()
-			, m_GeomCacheDescs[m_DescIndex_uvs].format
+			, m_GeomCacheDescs[m_DescIndex_uv0].format
 		);
 	}
 

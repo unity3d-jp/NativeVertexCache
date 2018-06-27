@@ -15,7 +15,7 @@ namespace nvcabc {
 
 struct AlembicImportOptions
 {
-    // todo:
+    bool multithreading = true;
 };
 
 struct AlembicGeometries
