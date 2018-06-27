@@ -1,6 +1,7 @@
 #include "Plugin/PrecompiledHeader.h"
 #include "Plugin/InputGeomCache.h"
 #include "Plugin/OutputGeomCache.h"
+#include "Plugin/GeomCache.h"
 #include "Plugin/nvcAPI.h"
 
 namespace nvc {
@@ -13,6 +14,7 @@ static inline void copy(const std::vector<T>& src, T *dst)
 }
 
 } // namespace nvc
+
 
 nvcAPI nvc::InputGeomCache* nvcIGCCreate(const nvc::GeomCacheDesc *descs)
 {
@@ -29,6 +31,15 @@ nvcAPI void nvcIGCAddData(nvc::InputGeomCache * self, float time, const nvc::Geo
     }
 }
 
+nvcAPI nvc::OutputGeomCache* nvcOGCCreate()
+{
+    return new nvc::OutputGeomCache();
+}
+
+nvcAPI void nvcOGCRelease(nvc::OutputGeomCache *self)
+{
+    delete self;
+}
 
 nvcAPI int nvcOGCGetVertexCount(nvc::OutputGeomCache *self)
 {
@@ -79,5 +90,45 @@ nvcAPI void nvcOGCGetColors(nvc::OutputGeomCache *self, nvc::float4 *dst)
 {
     if (self) {
         nvc::copy(self->colors, dst);
+    }
+}
+
+
+nvcAPI nvc::GeomCache* nvcGCCreate()
+{
+    return new nvc::GeomCache();
+}
+
+nvcAPI void nvcGCRelease(nvc::GeomCache *self)
+{
+    delete self;
+}
+
+nvcAPI int nvcGCOpen(nvc::GeomCache *self, const char *path)
+{
+    if (self) {
+        return self->open(path);
+    }
+    return false;
+}
+
+nvcAPI void nvcGCClose(nvc::GeomCache *self)
+{
+    if (self) {
+        self->close();
+    }
+}
+
+nvcAPI void nvcGCSetCurrentTime(nvc::GeomCache *self, float time)
+{
+    if (self) {
+        self->setCurrentFrame(time);
+    }
+}
+
+nvcAPI void nvcGCGetCurrentCache(nvc::GeomCache *self, nvc::OutputGeomCache *ogc)
+{
+    if (self && ogc) {
+        self->assignCurrentDataToMesh(*ogc);
     }
 }
