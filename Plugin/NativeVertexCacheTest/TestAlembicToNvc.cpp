@@ -10,6 +10,26 @@ static void dump(const nvc::InputGeomCache& igc) {
 	using namespace nvc;
 	using namespace nvcabc;
 	const auto nFrame = igc.getDataCount();
+	GeomCacheDesc geomCacheDescs[GEOM_CACHE_MAX_DESCRIPTOR_COUNT + 1] {};
+	igc.getDesc(&geomCacheDescs[0]);
+
+//	const int descIndex_points   = getAttributeIndex(geomCacheDescs, SEMANTIC_POINTS  );
+//	const int descIndex_normals  = getAttributeIndex(geomCacheDescs, SEMANTIC_NORMALS );
+//	const int descIndex_tangents = getAttributeIndex(geomCacheDescs, SEMANTIC_TANGENTS);
+//	const int descIndex_uv0      = getAttributeIndex(geomCacheDescs, SEMANTIC_UV0     );
+//	const int descIndex_colors   = getAttributeIndex(geomCacheDescs, SEMANTIC_COLORS  );
+	const int descIndex_points   = getAttributeIndex(geomCacheDescs, nvcSemantic_Points  );
+	const int descIndex_normals  = getAttributeIndex(geomCacheDescs, nvcSemantic_Normals );
+	const int descIndex_tangents = getAttributeIndex(geomCacheDescs, nvcSemantic_Tangents);
+	const int descIndex_uv0      = getAttributeIndex(geomCacheDescs, nvcSemantic_UV0     );
+	const int descIndex_colors   = getAttributeIndex(geomCacheDescs, nvcSemantic_Colors  );
+
+	printf("GeomCacheDesc.descIndex_points   = %d\n", descIndex_points   );
+	printf("GeomCacheDesc.descIndex_normals  = %d\n", descIndex_normals  );
+	printf("GeomCacheDesc.descIndex_tangents = %d\n", descIndex_tangents );
+	printf("GeomCacheDesc.descIndex_uv0      = %d\n", descIndex_uv0      );
+	printf("GeomCacheDesc.descIndex_colors   = %d\n", descIndex_colors   );
+
 	printf("nFrame(%zd)\n", nFrame);
 	for(size_t iFrame = 0; iFrame < nFrame; ++iFrame) {
 		printf("frame(%zd), ", iFrame);
@@ -28,6 +48,8 @@ static void dump(const nvc::InputGeomCache& igc) {
 			printf("%d, ", index);
 		}
 		printf("}\n");
+
+		
 
 		printf("\n");
 	}
