@@ -5,6 +5,7 @@ void RunTest_Types();
 void RunTest_MemoryStream();
 void RunTest_FileStream();
 void RunTest_Alembic();
+void RunTest_AlembicToNvc();
 
 
 int main(int argc, char *argv[])
@@ -14,6 +15,7 @@ int main(int argc, char *argv[])
         { "MemoryStream", RunTest_MemoryStream },
         { "FileStream", RunTest_FileStream },
         { "Alembic", RunTest_Alembic },
+        { "AlembicToNvc", RunTest_AlembicToNvc },
 
         // add new test here
     };
