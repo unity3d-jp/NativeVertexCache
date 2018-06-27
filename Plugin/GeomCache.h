@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Plugin/OutputGeomCache.h"
+#include "Plugin/Compression/IDecompressor.h"
+#include "Plugin/Stream/FileStream.h"
 
 namespace nvc {
 
@@ -10,6 +12,10 @@ class GeomCache final
 public:
 	GeomCache();
 	~GeomCache();
+
+	bool open(const char* nvcFilename);
+	bool close();
+	bool good() const;
 
 	// Caching
 	//  I                                I
@@ -25,7 +31,7 @@ public:
 	void setCurrentFrame(float currentTime);
 	// + function to get geometry data to render.
 
-	void assignCurrentDataToMesh(OutputGeomCache& mesh);
+	bool assignCurrentDataToMesh(OutputGeomCache& mesh);
 
 
 	//// Sampling.
@@ -37,6 +43,14 @@ public:
 	GeomCache(GeomCache&&) = delete;
 	GeomCache& operator=(const GeomCache&) = delete;
 	GeomCache& operator=(GeomCache&&) = delete;
+
+protected:
+	std::unique_ptr<IDecompressor> m_Decompressor {};
+	std::unique_ptr<FileStream> m_InputFileStream {};
+//	GeomCacheDesc m_GeomCacheDesc[GEOM_CACHE_MAX_DESCRIPTOR_COUNT + 1] {};
+
+	float m_CurrentTime = 0.0f;
+	size_t m_CurrentFrame = 0;
 };
 
 } // namespace nvc
