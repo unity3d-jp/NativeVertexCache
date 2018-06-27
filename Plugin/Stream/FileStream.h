@@ -2,8 +2,11 @@
 
 //! Local Includes.
 #include "Stream.h"
+#if defined(_MSC_VER)
+#include <windows.h>
+#endif
 
-class FileStream final : Stream
+class FileStream final : public Stream
 {
 public:
 	enum OpenModes : int32_t {
@@ -11,15 +14,17 @@ public:
 		None				= 0,
 		Read				= 1 << 0,
 		Write				= 1 << 1,
-		SequentialAccess	= 0 << 2,
-		RandomAccess		= 1 << 2,
+		CreateAlways		= 1 << 2,
+		CreateIfNotExist	= 1 << 3,
+		SequentialAccess	= 0 << 4,
+		RandomAccess		= 1 << 4,
 
 		Random_ReadOnly			= Read | RandomAccess,
 		Sequential_ReadOnly		= Read | SequentialAccess,
-		Random_WriteOnly		= Write | RandomAccess,
-		Sequential_WriteOnly	= Write | SequentialAccess,
-		Random_ReadWrite		= Read | Write | RandomAccess,
-		Sequential_ReadWrite	= Read | Write | SequentialAccess,
+		Random_WriteOnly		= Write | CreateAlways | RandomAccess,
+		Sequential_WriteOnly	= Write | CreateAlways | SequentialAccess,
+		Random_ReadWrite		= Read | Write | CreateIfNotExist | RandomAccess,
+		Sequential_ReadWrite	= Read | Write | CreateIfNotExist | SequentialAccess,
 	};
 
 	FileStream(const char* filename, OpenModes openModes);
@@ -53,8 +58,27 @@ public:
 
 protected:
 	FileStream();
+	bool open(const char* filename, OpenModes openModes);
+	bool grow(int64_t size);
 	bool isGood() const;
+	int64_t alignToPageSize(int64_t size) const;
+	bool truncate(int64_t size);
 
-	OpenModes openModes = OpenModes::None;
-	FILE* fp = nullptr;
+	const int InvalidFd = -1;
+
+	OpenModes m_OpenModes = OpenModes::None;
+	int m_Fd = InvalidFd;
+	HANDLE m_HandleMap = INVALID_HANDLE_VALUE;
+//	uint8_t* m_Map = nullptr;
+//	const int DefaultWindowLength = 1024 * 1024;
+//	int64_t m_WindowOffset = 0;
+//	int64_t m_WindowLength = DefaultWindowLength;
+
+	int64_t m_Cursor = 0;
+	int64_t m_Length = 0;
+	int64_t m_Capacity = 0;
+	int64_t m_PageSize = 0;
+	int64_t m_GrowSize = 0;
+	DWORD m_flProtect = 0;
+	DWORD m_dwDesiredAccess = 0;
 };

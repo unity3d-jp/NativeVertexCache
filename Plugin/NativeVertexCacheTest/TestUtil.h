@@ -1,4 +1,5 @@
 #include "Plugin/Pcg.h"
+#include <chrono>
 
 template<class T>
 inline bool NearEqual(T a, T b, T eps)
@@ -26,3 +27,55 @@ inline void FillRandom(T& vec, uint64_t state = 0x900dbeef, uint64_t inc = 0x876
         v = static_cast<ValueType>(pcg.getUint32());
     }
 }
+
+template<typename T>
+static void FillSequence(T& vec) {
+    using ValueType = T::value_type;
+    auto x = static_cast<ValueType>(0);
+    for(auto& v : vec) {
+        v = x;
+        ++x;
+    }
+}
+
+// usage:
+//    const auto start_time = GetHighResolutionClock();
+//    ... do something ...
+//    const auto end_time = GetHighResolutionClock();
+//    const double diff_time_in_seconds = GetSeconds(start_time, end_time);
+//    printf("%f seconds\n", diff_time_in_seconds);
+//
+inline std::chrono::high_resolution_clock::time_point GetHighResolutionClock() {
+    return std::chrono::high_resolution_clock::now();
+}
+
+inline double GetSeconds(std::chrono::high_resolution_clock::time_point begin, std::chrono::high_resolution_clock::time_point end) {
+    const auto d = static_cast<std::chrono::duration<double>>(end - begin);
+    return d.count();
+}
+
+bool RemoveFile(const char* filename);
+bool IsFileExist(const char* filename);
+bool IsFileReadable(const char* filename);
+bool IsFileWritable(const char* filename);
+
+class AutoPrepareCleanFile {
+public:
+	AutoPrepareCleanFile(const char* filename, bool removeOnDestructor = true)
+		: filename { filename }
+		, removeOnDestructor { removeOnDestructor }
+	{
+		RemoveFile(filename);
+	}
+
+	~AutoPrepareCleanFile()
+	{
+		if(removeOnDestructor) {
+			RemoveFile(filename.c_str());
+		}
+	}
+
+protected:
+	std::string filename;
+	const bool removeOnDestructor;
+};

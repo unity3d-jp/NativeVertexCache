@@ -24,6 +24,8 @@ void RunTest_MemoryStream()
 		);
 		msDst.setLength(msSrc.getLength());
 		msDst.seek(0, Stream::SeekOrigin::Begin);
+
+		msSrc.seek(0, Stream::SeekOrigin::Begin);
 		msSrc.copyTo(&msDst, msSrc.getLength());
 
 		assert(msSrc.getLength() == msDst.getLength());
