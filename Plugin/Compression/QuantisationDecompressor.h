@@ -84,7 +84,8 @@ private:
 		return HUGE_VALF;
 	}
 
-	size_t getFrameIndex(float time) const
+public:
+	size_t getFrameIndex(float time) const override
 	{
 		const auto it = std::find_if(m_FrameTimeTable.begin(), m_FrameTimeTable.end(),
 			[time](float t)
@@ -100,11 +101,12 @@ private:
 		return ~0u;
 	}
 
-	size_t getFrameCount() const
+	size_t getFrameCount() const override
 	{
 		return m_Header.FrameCount;
 	}
 
+private:
 	void loadFrame(size_t frameIndex);
 	void freeFrame(FrameDataType& data) const;
 
