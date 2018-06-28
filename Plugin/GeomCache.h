@@ -31,6 +31,7 @@ public:
 
 	// Playback.
 	void setCurrentFrame(float currentTime);
+	void setCurrentFrameIndex(size_t currentFrameIndex);
 	// + function to get geometry data to render.
 
 	bool assignCurrentDataToMesh(OutputGeomCache& mesh);
@@ -41,6 +42,10 @@ public:
 
 	size_t getFrameIndexByTime(float time) const {
 		return m_Decompressor->getFrameIndex(time);
+	}
+
+	float getTimeByFrameIndex(size_t frameIndex) const {
+		return m_Decompressor->getFrameTime(frameIndex);
 	}
 
 	//// Sampling.

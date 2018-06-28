@@ -134,6 +134,12 @@ void GeomCache::prefetch(size_t currentFrame, size_t range) {
 // Playback.
 void GeomCache::setCurrentFrame(float currentTime) {
 	m_CurrentTime = currentTime;
+	m_CurrentFrame = getFrameIndexByTime(currentTime);
+}
+
+void GeomCache::setCurrentFrameIndex(size_t currentFrameIndex) {
+	m_CurrentFrame = currentFrameIndex;
+	m_CurrentTime = getTimeByFrameIndex(currentFrameIndex);
 }
 
 // + function to get geometry data to render.
