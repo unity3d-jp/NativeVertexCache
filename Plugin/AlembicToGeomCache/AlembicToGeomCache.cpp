@@ -13,8 +13,8 @@ class MeshSegment
 public:
     MeshSegment(ImportContext *ctx, aiPolyMesh *abc);
     void onUpdateSample();
-    void getCounts(size_t& index_count, size_t& vertex_count);
-    void setOffsets(size_t index_offset, size_t vertex_offset);
+    void getCounts(size_t& index_count, size_t& vertex_count, size_t& subm_count);
+    void setOffsets(size_t index_offset, size_t vertex_offset, size_t subm_offset);
     void fillVertexBuffersBegin();
     void fillVertexBuffersEnd();
 
@@ -28,6 +28,7 @@ public:
     aiPolyMeshData m_vdata;
     size_t index_offset = 0;
     size_t vertex_offset = 0;
+    size_t subm_offset = 0;
 };
 
 
@@ -49,6 +50,8 @@ private:
 
 public:
     std::vector<nvc::GeomCacheDesc> m_descs;
+    std::vector<nvc::GeomMesh> m_geomeshes;
+    std::vector<nvc::GeomSubmesh> m_geosubmeshes;
     std::vector<void*> m_data_pointers;
 
     std::vector<double> m_timesamples;
@@ -86,16 +89,18 @@ void MeshSegment::onUpdateSample()
     aiPolyMeshGetSubmeshSummaries(sample, m_submesh_summaries.data());
 }
 
-void MeshSegment::getCounts(size_t& icount, size_t& vcount)
+void MeshSegment::getCounts(size_t& icount, size_t& vcount, size_t& smcount)
 {
     icount = m_sample_summary.index_count;
     vcount = m_sample_summary.vertex_count;
+    smcount = m_submeshes.size();
 }
 
-void MeshSegment::setOffsets(size_t ioffset, size_t voffset)
+void MeshSegment::setOffsets(size_t ioffset, size_t voffset, size_t smoffset)
 {
     index_offset = ioffset;
     vertex_offset = voffset;
+    subm_offset = smoffset;
 }
 
 void MeshSegment::fillVertexBuffersBegin()
@@ -253,6 +258,7 @@ void ImportContext::gatherMeshes()
 {
     gatherMeshes(aiContextGetTopObject(m_ctx));
     m_descs.push_back(GEOM_CACHE_DESCRIPTOR_END);
+
 }
 
 
@@ -260,15 +266,40 @@ void ImportContext::gatherSamples(double time, nvc::InputGeomCache *igc)
 {
     aiContextUpdateSamples(m_ctx, time);
 
-    size_t index_offset = 0, vertex_offset = 0;
-    size_t index_count = 0, vertex_count = 0;
+    m_geomeshes.clear();
+    m_geosubmeshes.clear();
+
+    size_t index_offset = 0, index_count = 0;
+    size_t vertex_offset = 0, vertex_count = 0;
+    size_t subm_offset = 0, subm_count = 0;
     for (auto& seg : m_segments) {
         seg.onUpdateSample();
 
-        seg.setOffsets(index_offset, vertex_offset);
-        seg.getCounts(index_count, vertex_count);
+        seg.setOffsets(index_offset, vertex_offset, subm_offset);
+        seg.getCounts(index_count, vertex_count, subm_count);
+
+        {
+            GeomMesh gm;
+            gm.submeshCount = (uint32_t)seg.m_submesh_summaries.size();
+            gm.vertexOffset = (uint32_t)vertex_offset;
+            gm.vertexCount = (uint32_t)vertex_count;
+            m_geomeshes.push_back(gm);
+        }
+        {
+            GeomSubmesh gsm;
+            gsm.indexOffset = (uint32_t)index_offset;
+            for (auto& sm : seg.m_submesh_summaries) {
+                gsm.indexCount = sm.index_count;
+                gsm.topology = (nvc::Topology)sm.topology;
+                m_geosubmeshes.push_back(gsm);
+
+                gsm.indexOffset += sm.index_count;
+            }
+        }
+
         index_offset += index_count;
         vertex_offset += vertex_count;
+        subm_offset += subm_count;
     }
 
     m_indices.resize(index_offset);
@@ -314,6 +345,10 @@ void ImportContext::gatherSamples(double time, nvc::InputGeomCache *igc)
     odata.indices = m_indices.data();
     odata.vertexCount = m_points.size();
     odata.vertices = m_data_pointers.data();
+    odata.meshCount = m_geomeshes.size();
+    odata.meshes = m_geomeshes.data();
+    odata.submeshCount = m_geosubmeshes.size();
+    odata.submeshes = m_geosubmeshes.data();
     nvcIGCAddData(igc, (float)time, &odata);
 }
 
