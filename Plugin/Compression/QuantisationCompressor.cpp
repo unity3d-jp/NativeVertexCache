@@ -33,6 +33,34 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 
 	pStream->write(header);
 
+	// Find vertex attributes and update the formats.
+	size_t pointsAttributeIndex = ~0u;
+	size_t normalsAttributeIndex = ~0u;
+	size_t tangentsAttributeIndex = ~0u;
+
+	const size_t attributeCount = getAttributeCount(geomDesc);
+	for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
+	{
+		if (geomDesc[iAttribute].semantic != nullptr)
+		{
+			if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_POINTS) == 0)
+			{
+				pointsAttributeIndex = iAttribute;
+				geomDesc[iAttribute].format = DataFormat::UNorm16x3;
+			}
+			else if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_NORMALS) == 0)
+			{
+				normalsAttributeIndex = iAttribute;
+				geomDesc[iAttribute].format = DataFormat::UNorm16x2;
+			}
+			else if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_TANGENTS) == 0)
+			{
+				tangentsAttributeIndex = iAttribute;
+				geomDesc[iAttribute].format = DataFormat::UNorm16x2;
+			}
+		}
+	}
+
 	// Write the descriptor.
 	char buffer[quantisation_compression::SEMANTIC_STRING_LENGTH] = {};
 	for (uint32_t iAttribute = 0; iAttribute < header.VertexAttributeCount; ++iAttribute)
@@ -55,7 +83,8 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 	}
 
 	// Write constant data.
-	if(header.ConstantDataSize > 0) {
+	if(header.ConstantDataSize > 0)
+	{
 		geomConstantData.storeDataTo(pStream);
 	}
 
@@ -71,41 +100,6 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 
 		pStream->write(time);
 	}
-
-	// Find vertex attributes.
-	size_t pointsAttributeIndex = ~0u;
-	size_t normalsAttributeIndex = ~0u;
-	size_t tangentsAttributeIndex = ~0u;
-
-	const size_t attributeCount = getAttributeCount(geomDesc);
-	for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
-	{
-		if (geomDesc[iAttribute].semantic != nullptr)
-		{
-			if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_POINTS) == 0)
-			{
-				pointsAttributeIndex = iAttribute;
-			}
-			else if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_NORMALS) == 0)
-			{
-				normalsAttributeIndex = iAttribute;
-			}
-			else if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_TANGENTS) == 0)
-			{
-				tangentsAttributeIndex = iAttribute;
-			}
-		}
-	}
-
-	//struct ChannelsData
-	//{
-	//	float3 *points;
-	//	float3 *normals;
-	//	float4 *tangents;
-	//};
-
-	//ChannelsData cacheData;
-
 
 	// Write frames.
 	for (uint64_t iFrame = 0; iFrame < header.FrameCount; ++iFrame)
@@ -147,47 +141,53 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 		// Write vertices.
 		if (frameData.vertices)
 		{
-			float3* points = static_cast<float3*>(frameData.vertices[pointsAttributeIndex]);
-			const AABB verticesAABB = AABB::Build(points, frameData.vertexCount);
-
-			// Save position and [normals + tangents] as transform.
-			PackedTransform* packedTransform = new PackedTransform[frameData.vertexCount];
-
-			if (pointsAttributeIndex != ~0u)
-			{
-				for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
-				{
-					packedTransform[iVertex].Translation = PackPoint(verticesAABB, points[iVertex]);
-				}
-			}
-
-			if (normalsAttributeIndex != ~0u)
-			{
-				float3* normals = static_cast<float3*>(frameData.vertices[normalsAttributeIndex]);
-				for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
-				{
-					float2 n = OctEncode(normals[iVertex]);
-					packedTransform[iVertex].Normal[0] = n[0];
-					packedTransform[iVertex].Normal[1] = n[1];
-				}
-			}
-
-			if (tangentsAttributeIndex != ~0u)
-			{
-				float4* tangents = static_cast<float4*>(frameData.vertices[tangentsAttributeIndex]);
-				for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
-				{
-					float2 t = OctEncode(tangents[iVertex]);
-					packedTransform[iVertex].Tangent[0] = t[0];
-					packedTransform[iVertex].Tangent[1] = t[1];
-				}
-			}
-
 			for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
 			{
-				if (iAttribute != pointsAttributeIndex
-					&& iAttribute != normalsAttributeIndex
-					&& iAttribute != tangentsAttributeIndex)
+				if (iAttribute == pointsAttributeIndex)
+				{
+					float3* points = static_cast<float3*>(frameData.vertices[pointsAttributeIndex]);
+					const AABB verticesAABB = AABB::Build(points, frameData.vertexCount);
+
+					unorm16x3* packedVertices = new unorm16x3[frameData.vertexCount];
+					for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
+					{
+						packedVertices[iVertex] = PackPoint(verticesAABB, points[iVertex]);
+					}
+
+					const size_t dataSize = getSizeOfDataFormat(DataFormat::SNorm16x3) * frameData.vertexCount;
+					pStream->write(packedVertices, dataSize);
+				}
+				else if (iAttribute != normalsAttributeIndex)
+				{
+					float3* normals = static_cast<float3*>(frameData.vertices[normalsAttributeIndex]);
+
+					unorm16x2* packedNormals = new unorm16x2[frameData.vertexCount];
+					for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
+					{
+						float2 n = OctEncode(normals[iVertex]);
+						packedNormals[iVertex][0] = n[0];
+						packedNormals[iVertex][1] = n[1];
+					}
+
+					const size_t dataSize = getSizeOfDataFormat(DataFormat::SNorm16x2) * frameData.vertexCount;
+					pStream->write(packedNormals, dataSize);
+				}
+				else if (iAttribute != tangentsAttributeIndex)
+				{
+					float4* tangents = static_cast<float4*>(frameData.vertices[tangentsAttributeIndex]);
+
+					unorm16x2* packedTangents = new unorm16x2[frameData.vertexCount];
+					for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
+					{
+						float2 t = OctEncode(tangents[iVertex]);
+						packedTangents[iVertex][0] = t[0];
+						packedTangents[iVertex][1] = t[1];
+					}
+
+					const size_t dataSize = getSizeOfDataFormat(DataFormat::SNorm16x2) * frameData.vertexCount;
+					pStream->write(packedTangents, dataSize);
+				}
+				else
 				{
 					const size_t dataSize = getSizeOfDataFormat(geomDesc[iAttribute].format) * frameData.vertexCount;
 					pStream->write(frameData.vertices[iAttribute], dataSize);
