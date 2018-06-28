@@ -48,7 +48,8 @@ void NullDecompressor::open(Stream* pStream)
 
 	// Read constant data
 	if(m_Header.ConstantDataSize > 0) {
-		m_ConstantData.loadDataFrom(m_pStream);
+		m_ConstantData.resize(m_Header.ConstantDataSize);
+		m_pStream->read(m_ConstantData.data(), m_ConstantData.size());
 	}
 
 	// Read the time table.
@@ -132,14 +133,14 @@ bool NullDecompressor::getData(float time, GeomCacheData& data)
 	return false;
 }
 
-size_t NullDecompressor::getConstantDataStringSize() const override {
+size_t NullDecompressor::getConstantDataStringSize() const {
 	if(m_ConstantData.size() != 0) {
 		return InputGeomCacheConstantData::getStringCountFromData(m_ConstantData.data(), m_ConstantData.size());
 	}
 	return 0;
 }
 
-const char* NullDecompressor::getConstantDataString(size_t index) const override {
+const char* NullDecompressor::getConstantDataString(size_t index) const {
 	if(m_ConstantData.size() != 0) {
 		return InputGeomCacheConstantData::getStringFromData(m_ConstantData.data(), m_ConstantData.size(), index);
 	}

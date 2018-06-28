@@ -241,7 +241,7 @@ const char* InputGeomCacheConstantData::getStringFromData(const void* data, size
 	//	};
 	const auto* p = static_cast<const uint8_t*>(data);
 
-	const size_t numStrings = getStringCountFromData(data);
+	const size_t numStrings = getStringCountFromData(data, dataSize);
 	if(index >= numStrings) {
 		return nullptr;
 	}
@@ -255,7 +255,7 @@ const char* InputGeomCacheConstantData::getStringFromData(const void* data, size
 		}
 		p += length;
 	}
-	return p;
+	return reinterpret_cast<const char*>(p);
 }
 
 } // namespace nvc
