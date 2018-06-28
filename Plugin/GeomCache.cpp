@@ -149,6 +149,13 @@ bool GeomCache::assignCurrentDataToMesh(OutputGeomCache& outputGecomCache) {
 	}
 
 	GeomCacheData geomCacheData {};
+
+	const size_t frameIndex = getFrameIndexByTime(m_CurrentTime);
+	if(frameIndex == ~0u) {
+		return false;
+	}
+	prefetch(frameIndex, 1);
+
 	if(! m_Decompressor->getData(m_CurrentTime, geomCacheData)) {
 		return false;
 	}
