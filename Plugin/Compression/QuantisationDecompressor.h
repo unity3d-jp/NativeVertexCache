@@ -73,7 +73,7 @@ private:
 	}
 
 public:
-	float getFrameTime(size_t frameIndex) const
+	float getFrameTime(size_t frameIndex) const override
 	{
 		if (frameIndex < getFrameCount())
 		{

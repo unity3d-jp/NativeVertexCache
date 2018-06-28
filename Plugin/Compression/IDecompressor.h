@@ -20,6 +20,7 @@ public:
 	virtual bool getData(size_t frameIndex, float& time, GeomCacheData& data) = 0;
 	virtual bool getData(float time, GeomCacheData& data) = 0;
 	virtual const GeomCacheDesc* getDescriptors() const = 0;
+
 	virtual float getFrameTime(size_t frameIndex) const = 0;
 	virtual size_t getFrameIndex(float time) const = 0;
 	virtual size_t getFrameCount() const = 0;

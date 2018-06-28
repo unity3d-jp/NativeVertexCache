@@ -129,12 +129,12 @@ void QuantisationDecompressor::loadFrame(size_t frameIndex)
 	frameData.Data.indexCount = frameHeader.IndexCount;
 	frameData.Data.vertexCount = frameHeader.VertexCount;
 
-    frameData.Data.meshCount = m_pStream->read<uint64_t>();
-    frameData.Data.meshes = new GeomMesh[frameData.Data.meshCount];
-    for (size_t iMesh = 0; iMesh < frameData.Data.meshCount; ++iMesh)
-    {
-        m_pStream->read(frameData.Data.meshes[iMesh]);
-    }
+	frameData.Data.meshCount = m_pStream->read<uint64_t>();
+	frameData.Data.meshes = new GeomMesh[frameData.Data.meshCount];
+	for (size_t iMesh = 0; iMesh < frameData.Data.meshCount; ++iMesh)
+	{
+		m_pStream->read(frameData.Data.meshes[iMesh]);
+	}
 
     frameData.Data.submeshCount = m_pStream->read<uint64_t>();
     frameData.Data.submeshes = new GeomSubmesh[frameData.Data.submeshCount];

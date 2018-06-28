@@ -87,9 +87,9 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 
 		pStream->write(frameHeader);
 
-        // Write mesh and submesh data.
-        pStream->write<uint64_t>(frameData.meshCount);
-        pStream->write(frameData.meshes, sizeof(GeomMesh) * frameData.meshCount);
+		// Write mesh and submesh data.
+		pStream->write<uint64_t>(frameData.meshCount);
+		pStream->write(frameData.meshes, sizeof(GeomMesh) * frameData.meshCount);
 
         pStream->write<uint64_t>(frameData.submeshCount);
         pStream->write(frameData.submeshes, sizeof(GeomSubmesh) * frameData.submeshCount);
