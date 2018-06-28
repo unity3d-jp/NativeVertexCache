@@ -50,8 +50,56 @@ namespace NaiveVertexCache
             m_ogc.Release();
         }
 
+        Transform FindOrCreateObjectByPath(string path, bool createIfNotExist, ref bool created)
+        {
+            var names = path.Split('/');
+            Transform t = GetComponent<Transform>();
+            foreach (var name in names)
+            {
+                if (name.Length == 0) { continue; }
+                t = FindOrCreateObjectByName(t, name, createIfNotExist, ref created);
+                if (t == null) { break; }
+            }
+            return t;
+        }
+
+        Transform FindOrCreateObjectByName(Transform parent, string name, bool createIfNotExist, ref bool created)
+        {
+            Transform ret = null;
+            if (parent == null)
+            {
+                var roots = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
+                foreach (var go in roots)
+                {
+                    if (go.name == name)
+                    {
+                        ret = go.GetComponent<Transform>();
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                ret = parent.Find(name);
+            }
+
+            if (createIfNotExist && ret == null)
+            {
+                var go = new GameObject();
+                go.name = name;
+                ret = go.GetComponent<Transform>();
+                if (parent != null)
+                    ret.SetParent(parent, false);
+                created = true;
+            }
+            return ret;
+        }
+
+
         void UpdateMesh(ref GeomMesh gm, Mesh dst)
         {
+            if (dst == null)
+                return;
             dst.Clear();
 
             if (m_ogc.FillPoints(ref gm, m_points))
@@ -80,17 +128,12 @@ namespace NaiveVertexCache
             }
         }
 
-        Mesh FindOrAddMesh(string name)
+        Mesh FindOrAddMesh(string path)
         {
-            var trans = GetComponent<Transform>();
-            var child = trans.Find(name);
+            bool created = false;
+            var child = FindOrCreateObjectByPath(path, true, ref created);
             if (child == null)
-            {
-                var go = new GameObject();
-                go.name = name;
-                child = go.GetComponent<Transform>();
-                child.SetParent(trans);
-            }
+                return null;
 
             var cgo = child.gameObject;
 
@@ -127,7 +170,7 @@ namespace NaiveVertexCache
                 for (int mi = 0; mi < meshCount; ++mi)
                 {
                     m_ogc.GetMesh(mi, ref gm);
-                    UpdateMesh(ref gm, FindOrAddMesh(mi.ToString()));
+                    UpdateMesh(ref gm, FindOrAddMesh(m_gc.GetPath(mi)));
                 }
             }
         }

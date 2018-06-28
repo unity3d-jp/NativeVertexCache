@@ -53,4 +53,4 @@ nvcAPI void nvcGCClose(nvc::GeomCache *self);
 nvcAPI void nvcGCSetCurrentTime(nvc::GeomCache *self, float time);
 nvcAPI int  nvcGCGetCurrentCache(nvc::GeomCache *self, nvc::OutputGeomCache *ogc);
 nvcAPI int  nvcGCGetConstantDataStringSize(nvc::GeomCache *self);
-nvcAPI const char*  nvcGCGetConstantDataString(nvc::GeomCache *self, size_t index);
+nvcAPI const char*  nvcGCGetConstantDataString(nvc::GeomCache *self, int index);

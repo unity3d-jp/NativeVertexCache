@@ -182,7 +182,7 @@ nvcAPI int  nvcGCGetConstantDataStringSize(nvc::GeomCache *self)
 	return -1;
 }
 
-nvcAPI const char*  nvcGCGetConstantDataString(nvc::GeomCache *self, size_t index)
+nvcAPI const char*  nvcGCGetConstantDataString(nvc::GeomCache *self, int index)
 {
 	if(self) {
 		return self->getConstantDataString(index);

@@ -188,6 +188,7 @@ namespace NaiveVertexCache
         public float time { set { nvcGCSetCurrentTime(self, value); } }
         public bool Assign(OutputGeomCache ogc) { return nvcGCGetCurrentCache(self, ogc); }
 
+        public string GetPath(int meshIndex) { return Misc.S(nvcGCGetConstantDataString(self, meshIndex)); }
 
         #region internal
         [DllImport("NativeVertexCache")] static extern GeomCache nvcGCCreate();
@@ -196,6 +197,9 @@ namespace NaiveVertexCache
         [DllImport("NativeVertexCache")] static extern void nvcGCClose(IntPtr self);
         [DllImport("NativeVertexCache")] static extern void nvcGCSetCurrentTime(IntPtr self, float time);
         [DllImport("NativeVertexCache")] static extern bool nvcGCGetCurrentCache(IntPtr self, OutputGeomCache ogc);
+
+        [DllImport("NativeVertexCache")] static extern int nvcGCGetConstantDataStringSize(IntPtr self);
+        [DllImport("NativeVertexCache")] static extern IntPtr nvcGCGetConstantDataString(IntPtr self, int index);
         #endregion
     }
 
@@ -205,6 +209,10 @@ namespace NaiveVertexCache
         public static PinnedList<byte> cstr(string s)
         {
             return new PinnedList<byte>(System.Text.Encoding.ASCII.GetBytes(s));
+        }
+        public static string S(IntPtr cstring)
+        {
+            return cstring == IntPtr.Zero ? "" : Marshal.PtrToStringAnsi(cstring);
         }
     }
 }
