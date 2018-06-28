@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace NaiveVertexCache
 {
-    [ExecuteInEditMode]
+    //[ExecuteInEditMode]
     public class GeomCahcePlayer : MonoBehaviour
     {
         [SerializeField] string m_path;

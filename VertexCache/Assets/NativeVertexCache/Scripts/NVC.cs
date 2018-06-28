@@ -70,7 +70,7 @@ namespace NaiveVertexCache
 
 
     // interface to export geometry from Unity to cache
-    public class InputGeomCache
+    public struct InputGeomCache
     {
         public IntPtr self;
         public static implicit operator bool(InputGeomCache v) { return v.self != IntPtr.Zero; }
@@ -88,7 +88,7 @@ namespace NaiveVertexCache
     }
 
     // interface to import geometry from cache to Unity
-    public class OutputGeomCache
+    public struct OutputGeomCache
     {
         public IntPtr self;
         public static implicit operator bool(OutputGeomCache v) { return v.self != IntPtr.Zero; }
@@ -158,7 +158,7 @@ namespace NaiveVertexCache
     }
 
 
-    public class GeomCache
+    public struct GeomCache
     {
         public IntPtr self;
         public static implicit operator bool(GeomCache v) { return v.self != IntPtr.Zero; }
