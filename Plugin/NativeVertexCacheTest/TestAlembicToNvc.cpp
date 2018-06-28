@@ -342,9 +342,51 @@ static void test2() {
 	}
 }
 
+
+// Constant data
+static void test3() {
+    using namespace nvc;
+    using namespace nvcabc;
+
+    const char* abcFilename = "../../../Data/Cloth-10frames.abc";
+    const char* nvcFilename = "../../../Data/TestOutput/Cloth-10frames.nvc";
+
+    assert(IsFileExist(abcFilename));
+    RemoveFile(nvcFilename);
+
+	// Import -> output .nvc
+	{
+	    AlembicImportOptions opt;
+	    AlembicGeometries abcGeoms;
+
+	    const auto abcToGcResult = AlembicToGeomCache(abcFilename, opt, abcGeoms);
+	    assert(abcToGcResult);
+
+//		dump(*abcGeoms.geometry);
+
+	    FileStream fs { nvcFilename, FileStream::OpenModes::Random_ReadWrite };
+	    NullCompressor nc {};
+	    nc.compress(*abcGeoms.geometry, &fs);
+	}
+
+	// read .nvc
+	{
+		GeomCache geomCache;
+		const auto r0 = geomCache.open(nvcFilename);
+		assert(r0);
+
+		const auto nString = geomCache.getConstantDataStringSize();
+		for(size_t iString = 0; iString < nString; ++iString) {
+			const char* str = geomCache.getConstantDataString(iString);
+			printf("const[%zd]={%s}\n", iString, str);
+		}
+	}
+}
+
 void RunTest_AlembicToNvc()
 {
 //	test0();
 //	test1();
-	test2();
+//	test2();
+	test3();
 }
