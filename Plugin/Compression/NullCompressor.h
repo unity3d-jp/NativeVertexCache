@@ -9,7 +9,14 @@ namespace nvc
 class NullCompressor final : public ICompressor
 {
 public:
-	static const size_t DefaultSeekWindow = 10;
+	///////////////////////////////////////////////////////////////////////
+	///! Fixme
+	///	Currently, SeekWindow doesn't work properly.
+	/// Only first seek window works.
+	/// '3000' is temporary "solution" for it.
+	///////////////////////////////////////////////////////////////////////
+	static const size_t DefaultSeekWindow = 3000;
+//	static const size_t DefaultSeekWindow = 10;
 
 public:
 	NullCompressor() = default;
