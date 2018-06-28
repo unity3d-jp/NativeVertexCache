@@ -178,9 +178,9 @@ static void dump(const nvc::OutputGeomCache& outputGecomCache) {
 	}
 	printf("}\n");
 
-	const auto nUvs = outputGecomCache.uvs.size();
+	const auto nUvs = outputGecomCache.uv0.size();
 	printf("uv0[%zd]={", nUvs);
-	for(const auto& v : outputGecomCache.uvs) {
+	for(const auto& v : outputGecomCache.uv0) {
 		printf("(%+5.3f,%+5.3f), ", v[0], v[1]);
 	}
 	printf("}\n");

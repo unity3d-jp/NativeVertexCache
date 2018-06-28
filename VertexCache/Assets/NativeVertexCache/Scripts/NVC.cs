@@ -30,18 +30,43 @@ namespace NaiveVertexCache
         UNorm16x4,
     }
 
+    enum Topology
+    {
+        Points,
+        Lines,
+        Triangles,
+        Quads,
+    }
+
+
     public struct GeomCacheDesc
     {
         public IntPtr semantic; // char*
         public DataFormat format;
     };
 
+    public struct GeomSubmesh
+    {
+        public uint indexOffset, indexCount;
+        Topology topology;
+    };
+
+    public struct GeomMesh
+    {
+        public uint vertexOffset, vertexCount;
+        public uint submeshCount;
+    };
+
     public struct GeomCacheData
     {
-        public IntPtr indices;     // void*
-        public IntPtr indexCount;  // size_t
-        public IntPtr vertices;    // void**
-        public IntPtr vertexCount; // size_t
+        public IntPtr indices;      // int*
+        public IntPtr indexCount;   // size_t
+        public IntPtr vertices;     // void**
+        public IntPtr vertexCount;  // size_t
+        public IntPtr meshes;       // GeomMesh*
+        public IntPtr meshCount;    // size_t
+        public IntPtr submeshes;    // GeomSubmesh*
+        public IntPtr submeshCount; // size_t
     };
 
 
@@ -75,12 +100,36 @@ namespace NaiveVertexCache
         public int vertexCount { get { return nvcOGCGetVertexCount(self); } }
         public int indexCount { get { return nvcOGCGetIndexCount(self); } }
 
-        public void FillIndices(PinnedList<int> dst) { dst.ResizeDiscard(indexCount); nvcOGCGetIndices(self, dst); }
-        public void FillPoints(PinnedList<Vector3> dst) { dst.ResizeDiscard(vertexCount); nvcOGCGetPoints(self, dst); }
-        public void FillNormals(PinnedList<Vector3> dst) { dst.ResizeDiscard(vertexCount); nvcOGCGetNormals(self, dst); }
-        public void FillTangents(PinnedList<Vector4> dst) { dst.ResizeDiscard(vertexCount); nvcOGCGetTangents(self, dst); }
-        public void FillUVs(PinnedList<Vector2> dst) { dst.ResizeDiscard(vertexCount); nvcOGCGetUVs(self, dst); }
-        public void FillUVs(PinnedList<Color> dst) { dst.ResizeDiscard(vertexCount); nvcOGCGetColors(self, dst); }
+        public void FillIndices(ref GeomSubmesh subm, PinnedList<int> dst)
+        {
+            dst.ResizeDiscard(indexCount);
+            nvcOGCCopyIndices(self, ref subm, dst);
+        }
+        public void FillPoints(ref GeomMesh gm, PinnedList<Vector3> dst)
+        {
+            dst.ResizeDiscard(vertexCount);
+            nvcOGCCopyPoints(self, ref gm, dst);
+        }
+        public void FillNormals(ref GeomMesh gm, PinnedList<Vector3> dst)
+        {
+            dst.ResizeDiscard(vertexCount);
+            nvcOGCCopyNormals(self, ref gm, dst);
+        }
+        public void FillTangents(ref GeomMesh gm, PinnedList<Vector4> dst)
+        {
+            dst.ResizeDiscard(vertexCount);
+            nvcOGCCopyTangents(self, ref gm, dst);
+        }
+        public void FillUV0(ref GeomMesh gm, PinnedList<Vector2> dst)
+        {
+            dst.ResizeDiscard(vertexCount);
+            nvcOGCCopyUV0(self, ref gm, dst);
+        }
+        public void FillColors(ref GeomMesh gm, PinnedList<Color> dst)
+        {
+            dst.ResizeDiscard(vertexCount);
+            nvcOGCCopyColors(self, ref gm, dst);
+        }
 
         #region internal
         [DllImport("NativeVertexCache")] static extern OutputGeomCache nvcOGCCreate();
@@ -88,12 +137,12 @@ namespace NaiveVertexCache
 
         [DllImport("NativeVertexCache")] static extern int nvcOGCGetVertexCount(IntPtr self);
         [DllImport("NativeVertexCache")] static extern int nvcOGCGetIndexCount(IntPtr self);
-        [DllImport("NativeVertexCache")] static extern void nvcOGCGetIndices(IntPtr self, IntPtr dst);
-        [DllImport("NativeVertexCache")] static extern void nvcOGCGetPoints(IntPtr self, IntPtr dst);
-        [DllImport("NativeVertexCache")] static extern void nvcOGCGetNormals(IntPtr self, IntPtr dst);
-        [DllImport("NativeVertexCache")] static extern void nvcOGCGetTangents(IntPtr self, IntPtr dst);
-        [DllImport("NativeVertexCache")] static extern void nvcOGCGetUVs(IntPtr self, IntPtr dst);
-        [DllImport("NativeVertexCache")] static extern void nvcOGCGetColors(IntPtr self, IntPtr dst);
+        [DllImport("NativeVertexCache")] static extern void nvcOGCCopyIndices(IntPtr self, ref GeomSubmesh subm, IntPtr dst);
+        [DllImport("NativeVertexCache")] static extern void nvcOGCCopyPoints(IntPtr self, ref GeomMesh gm, IntPtr dst);
+        [DllImport("NativeVertexCache")] static extern void nvcOGCCopyNormals(IntPtr self, ref GeomMesh gm, IntPtr dst);
+        [DllImport("NativeVertexCache")] static extern void nvcOGCCopyTangents(IntPtr self, ref GeomMesh gm, IntPtr dst);
+        [DllImport("NativeVertexCache")] static extern void nvcOGCCopyUV0(IntPtr self, ref GeomMesh gm, IntPtr dst);
+        [DllImport("NativeVertexCache")] static extern void nvcOGCCopyColors(IntPtr self, ref GeomMesh gm, IntPtr dst);
         #endregion
     }
 

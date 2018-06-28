@@ -27,12 +27,12 @@ nvcAPI nvc::OutputGeomCache* nvcOGCCreate();
 nvcAPI void nvcOGCRelease(nvc::OutputGeomCache *self);
 nvcAPI int  nvcOGCGetVertexCount(nvc::OutputGeomCache *self);
 nvcAPI int  nvcOGCGetIndexCount(nvc::OutputGeomCache *self);
-nvcAPI void nvcOGCGetIndices(nvc::OutputGeomCache *self, int *dst);
-nvcAPI void nvcOGCGetPoints(nvc::OutputGeomCache *self, nvc::float3 *dst);
-nvcAPI void nvcOGCGetNormals(nvc::OutputGeomCache *self, nvc::float3 *dst);
-nvcAPI void nvcOGCGetTangents(nvc::OutputGeomCache *self, nvc::float4 *dst);
-nvcAPI void nvcOGCGetUVs(nvc::OutputGeomCache *self, nvc::float2 *dst);
-nvcAPI void nvcOGCGetColors(nvc::OutputGeomCache *self, nvc::float4 *dst);
+nvcAPI void nvcOGCCopyIndices(nvc::OutputGeomCache *self, const nvc::GeomSubmesh *gsm, int *dst);
+nvcAPI void nvcOGCCopyPoints(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float3 *dst);
+nvcAPI void nvcOGCCopyNormals(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float3 *dst);
+nvcAPI void nvcOGCCopyTangents(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float4 *dst);
+nvcAPI void nvcOGCCopyUV0(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float2 *dst);
+nvcAPI void nvcOGCCopyColors(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float4 *dst);
 
 nvcAPI nvc::GeomCache* nvcGCCreate();
 nvcAPI void nvcGCRelease(nvc::GeomCache *self);

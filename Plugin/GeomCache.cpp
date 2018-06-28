@@ -205,12 +205,12 @@ bool GeomCache::assignCurrentDataToMesh(OutputGeomCache& outputGecomCache) {
 
 	// uv0
 	if(m_DescIndex_uv0 >= 0) {
-		outputGecomCache.uvs.resize(geomCacheData.vertexCount);
+		outputGecomCache.uv0.resize(geomCacheData.vertexCount);
 		const auto* p = geomCacheData.vertices[m_DescIndex_uv0];
 		convertDataArrayToFloat2(
-			  outputGecomCache.uvs.data()
+			  outputGecomCache.uv0.data()
 			, p
-			, outputGecomCache.uvs.size()
+			, outputGecomCache.uv0.size()
 			, m_GeomCacheDescs[m_DescIndex_uv0].format
 		);
 	}

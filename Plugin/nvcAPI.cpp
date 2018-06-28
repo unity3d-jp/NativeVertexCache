@@ -4,17 +4,6 @@
 #include "Plugin/GeomCache.h"
 #include "Plugin/nvcAPI.h"
 
-namespace nvc {
-
-// std::copy can be extremely slow on some platform/compilers. this is a faster altenative.
-template<class T>
-static inline void copy(const std::vector<T>& src, T *dst)
-{
-    std::memcpy(dst, src.data(), sizeof(T) * src.size());
-}
-
-} // namespace nvc
-
 
 nvcAPI nvc::InputGeomCache* nvcIGCCreate(const nvc::GeomCacheDesc *descs)
 {
@@ -51,45 +40,45 @@ nvcAPI int nvcOGCGetIndexCount(nvc::OutputGeomCache *self)
     return self ? (int)self->indices.size() : 0;
 }
 
-nvcAPI void nvcOGCGetIndices(nvc::OutputGeomCache *self, int *dst)
+nvcAPI void nvcOGCCopyIndices(nvc::OutputGeomCache *self, const nvc::GeomSubmesh *gsm, int *dst)
 {
     if (self) {
-        nvc::copy(self->indices, dst);
+        self->copyIndices(*gsm, dst);
     }
 }
 
-nvcAPI void nvcOGCGetPoints(nvc::OutputGeomCache *self, nvc::float3 *dst)
+nvcAPI void nvcOGCCopyPoints(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float3 *dst)
 {
     if (self) {
-        nvc::copy(self->points, dst);
+        self->copyPoints(*gm, dst);
     }
 }
 
-nvcAPI void nvcOGCGetNormals(nvc::OutputGeomCache *self, nvc::float3 *dst)
+nvcAPI void nvcOGCCopyNormals(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float3 *dst)
 {
     if (self) {
-        nvc::copy(self->normals, dst);
+        self->copyNormals(*gm, dst);
     }
 }
 
-nvcAPI void nvcOGCGetTangents(nvc::OutputGeomCache *self, nvc::float4 *dst)
+nvcAPI void nvcOGCCopyTangents(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float4 *dst)
 {
     if (self) {
-        nvc::copy(self->tangents, dst);
+        self->copyTangents(*gm, dst);
     }
 }
 
-nvcAPI void nvcOGCGetUVs(nvc::OutputGeomCache *self, nvc::float2 *dst)
+nvcAPI void nvcOGCCopyUV0(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float2 *dst)
 {
     if (self) {
-        nvc::copy(self->uvs, dst);
+        self->copyUV0(*gm, dst);
     }
 }
 
-nvcAPI void nvcOGCGetColors(nvc::OutputGeomCache *self, nvc::float4 *dst)
+nvcAPI void nvcOGCCopyColors(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float4 *dst)
 {
     if (self) {
-        nvc::copy(self->colors, dst);
+        self->copyColors(*gm, dst);
     }
 }
 
