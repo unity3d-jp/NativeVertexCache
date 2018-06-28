@@ -68,6 +68,22 @@ namespace NaiveVertexCache
         public IntPtr submeshCount; // size_t
     };
 
+    public struct InputGeomCacheConstantData
+    {
+        public IntPtr self;
+        public static implicit operator bool(InputGeomCacheConstantData v) { return v.self != IntPtr.Zero; }
+
+        public static InputGeomCacheConstantData Create() { return nvcIGCCreateConstantData(); }
+
+        public void Release() { nvcIGCReleaseConstantData(self); self = IntPtr.Zero; }
+        public void AddPath(string path) { nvcIGCAddConstantDataString(self, path); }
+
+        #region internal
+        [DllImport("NativeVertexCache")] static extern InputGeomCacheConstantData nvcIGCCreateConstantData();
+        [DllImport("NativeVertexCache")] static extern void nvcIGCReleaseConstantData(IntPtr self);
+        [DllImport("NativeVertexCache")] static extern int nvcIGCAddConstantDataString(IntPtr self, string path);
+        #endregion
+    }
 
     // interface to export geometry from Unity to cache
     public struct InputGeomCache

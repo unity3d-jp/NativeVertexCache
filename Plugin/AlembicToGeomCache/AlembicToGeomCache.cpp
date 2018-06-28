@@ -36,6 +36,7 @@ class ImportContext
 {
 public:
     ImportContext(aiContext *ctx, AlembicGeometries& result);
+    ~ImportContext();
     void gatherTimes();
     void gatherMeshes();
     void gatherSamples();
@@ -45,6 +46,7 @@ private:
     void gatherSamples(double time, nvc::InputGeomCache *igc);
 
     aiContext * m_ctx = nullptr;
+    InputGeomCacheConstantData *m_igcconst = nullptr;
     AlembicGeometries *m_result = nullptr;
     std::vector<MeshSegment> m_segments;
 
@@ -185,6 +187,14 @@ ImportContext::ImportContext(aiContext * ctx, AlembicGeometries & result)
 {
 }
 
+ImportContext::~ImportContext()
+{
+    if (m_igcconst) {
+        nvcIGCReleaseConstantData(m_igcconst);
+        m_igcconst = nullptr;
+    }
+}
+
 void ImportContext::gatherTimes()
 {
     // unify all time samplings
@@ -216,6 +226,7 @@ void ImportContext::gatherMeshes(aiObject * obj)
 
     if (aiPolyMesh *poly = aiObjectAsPolyMesh(obj)) {
         m_segments.push_back(MeshSegment(this, poly));
+        nvcIGCAddConstantDataString(m_igcconst, aiObjectGetFullName(obj));
 
         const auto& summary = m_segments.back().m_summary;
         if (m_id_points == -1) {
@@ -256,9 +267,10 @@ void ImportContext::gatherMeshes(aiObject * obj)
 
 void ImportContext::gatherMeshes()
 {
+    m_igcconst = nvcIGCCreateConstantData();
+
     gatherMeshes(aiContextGetTopObject(m_ctx));
     m_descs.push_back(GEOM_CACHE_DESCRIPTOR_END);
-
 }
 
 
@@ -355,7 +367,9 @@ void ImportContext::gatherSamples(double time, nvc::InputGeomCache *igc)
 
 void ImportContext::gatherSamples()
 {
-    m_result->geometry = AlembicGeometries::GeomPtr(nvcIGCCreate(m_descs.data()), nvcIGCRelease);
+    m_result->geometry = AlembicGeometries::GeomPtr(
+        nvcIGCCreate(m_descs.data(), m_igcconst),
+        nvcIGCRelease);
     auto *igc = m_result->geometry.get();
     for (auto ts : m_timesamples) {
         gatherSamples(ts, igc);
