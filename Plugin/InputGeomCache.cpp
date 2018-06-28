@@ -137,28 +137,6 @@ size_t InputGeomCache::getDataCount() const
 	return m_Data.size();
 }
 
-
-
-size_t InputGeomCacheConstantData::getStringCount() const {
-	return m_Strings.size();
-}
-
-const char* InputGeomCacheConstantData::getString(size_t stringIndex) const {
-	if(stringIndex >= m_Strings.size()) {
-		return nullptr;
-	}
-	const auto& s = m_Strings[stringIndex];
-	if(s.size() == 0) {
-		return nullptr;
-	} else {
-		return s.data();
-	}
-}
-
-void InputGeomCacheConstantData::clearStrings() {
-	m_Strings.clear();
-}
-
 size_t InputGeomCacheConstantData::addString(const char* text) {
 	const auto index = m_Strings.size();
 	const auto textLen = strlen(text) + 1;
