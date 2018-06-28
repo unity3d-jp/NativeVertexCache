@@ -103,11 +103,19 @@ bool NullDecompressor::getData(size_t frameIndex, float& time, GeomCacheData& da
 
 bool NullDecompressor::getData(float time, GeomCacheData& data)
 {
-	const auto it = std::find_if(m_LoadedFrames.begin(), m_LoadedFrames.end(),
-		[time](const FrameDataType& d)
-	{
-		return d.Time == time;
-	});
+//	const auto it = std::find_if(m_LoadedFrames.begin(), m_LoadedFrames.end(),
+//		[time](const FrameDataType& d)
+//	{
+//		return d.Time == time;
+//	});
+	const auto it = std::lower_bound(
+		  m_LoadedFrames.begin()
+		, m_LoadedFrames.end()
+		, FrameDataType { time, GeomCacheData{} }
+		, [](const FrameDataType& lhs, const FrameDataType& rhs) -> bool {
+			return lhs.Time < rhs.Time;
+		}
+	);
 
 	if (it != m_LoadedFrames.end())
 	{
