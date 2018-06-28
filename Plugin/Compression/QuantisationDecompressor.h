@@ -30,8 +30,6 @@ private:
 	{
 		float Time;
 		GeomCacheData Data;
-		uint64_t MeshCount;
-		quantisation_compression::MeshDesc *pMeshes;
 	};
 
 	std::vector<FrameDataType> m_LoadedFrames;

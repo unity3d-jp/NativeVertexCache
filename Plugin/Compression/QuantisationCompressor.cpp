@@ -87,55 +87,12 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 
 		pStream->write(frameHeader);
 
-		std::vector<quantisation_compression::MeshDesc> meshes;
-		const int meshIdIndex = getAttributeIndex(geomDesc, nvcSEMANTIC_MESHID);
-		if (meshIdIndex > 0)
-		{
-			int currentMeshId = 0;
-			uint32_t currentMeshIndexStart = 0;
-			uint32_t currentMeshVertexStart = 0;
-			uint32_t currentMeshVertexEnd = 0;
+        // Write mesh and submesh data.
+        pStream->write<uint64_t>(frameData.meshCount);
+        pStream->write(frameData.meshes, sizeof(GeomMesh) * frameData.meshCount);
 
-			const int* meshIds = static_cast<const int*>(frameData.vertices[meshIdIndex]);
-			const int* indices = static_cast<const int*>(frameData.indices);
-			for (size_t i = 0; i < frameData.indexCount; ++i)
-			{
-				const int index = indices[i];
-				if (meshIds[index] != currentMeshId)
-				{
-					meshes.push_back(quantisation_compression::MeshDesc
-						{
-							static_cast<uint32_t>(currentMeshId),
-							currentMeshVertexStart,
-							(currentMeshVertexEnd - currentMeshVertexStart),
-							currentMeshIndexStart,
-							static_cast<uint32_t>(i - currentMeshIndexStart),
-						});
-					
-					currentMeshIndexStart = static_cast<uint32_t>(i);
-					currentMeshVertexStart = index;
-					currentMeshVertexEnd = index;
-					currentMeshId = meshIds[index];
-				}
-
-				currentMeshVertexStart = std::min(currentMeshVertexStart, static_cast<uint32_t>(index));
-				currentMeshVertexEnd = std::max(currentMeshVertexEnd, static_cast<uint32_t>(index));
-			}
-		}
-		else
-		{
-			meshes.push_back(quantisation_compression::MeshDesc
-				{ 
-					0u, 
-					static_cast<uint32_t>(frameData.vertexCount),
-					0u,
-					static_cast<uint32_t>(frameData.indexCount)
-				});
-		}
-
-		// Write mesh data.
-		pStream->write<uint64_t>(meshes.size());
-		pStream->write(meshes.data(), sizeof(quantisation_compression::MeshDesc) * meshes.size());
+        pStream->write<uint64_t>(frameData.submeshCount);
+        pStream->write(frameData.submeshes, sizeof(GeomSubmesh) * frameData.submeshCount);
 
 		// Write indices.
 		if (frameData.indices)

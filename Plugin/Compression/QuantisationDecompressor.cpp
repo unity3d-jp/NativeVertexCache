@@ -129,12 +129,19 @@ void QuantisationDecompressor::loadFrame(size_t frameIndex)
 	frameData.Data.indexCount = frameHeader.IndexCount;
 	frameData.Data.vertexCount = frameHeader.VertexCount;
 
-	frameData.MeshCount = m_pStream->read<uint64_t>();
-	frameData.pMeshes = new quantisation_compression::MeshDesc[frameData.MeshCount];
-	for (size_t iMesh = 0; iMesh < frameData.MeshCount; ++iMesh)
-	{
-		m_pStream->read(frameData.pMeshes[iMesh]);
-	}
+    frameData.Data.meshCount = m_pStream->read<uint64_t>();
+    frameData.Data.meshes = new GeomMesh[frameData.Data.meshCount];
+    for (size_t iMesh = 0; iMesh < frameData.Data.meshCount; ++iMesh)
+    {
+        m_pStream->read(frameData.Data.meshes[iMesh]);
+    }
+
+    frameData.Data.submeshCount = m_pStream->read<uint64_t>();
+    frameData.Data.submeshes = new GeomSubmesh[frameData.Data.submeshCount];
+    for (size_t iSubmesh = 0; iSubmesh < frameData.Data.submeshCount; ++iSubmesh)
+    {
+        m_pStream->read(frameData.Data.submeshes[iSubmesh]);
+    }
 
 	if (frameHeader.IndexCount > 0)
 	{
@@ -186,9 +193,6 @@ void QuantisationDecompressor::freeFrame(FrameDataType& data) const
 {
 	freeGeomCacheData(data.Data, getAttributeCount(m_Descriptor));
 	data.Data = GeomCacheData{};
-
-	delete[] data.pMeshes;
-	data.pMeshes = nullptr;
 }
 
 bool QuantisationDecompressor::insertLoadedData(size_t frameIndex, const FrameDataType& data)

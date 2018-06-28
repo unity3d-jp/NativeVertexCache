@@ -9,7 +9,6 @@
 #define nvcSEMANTIC_UV1        "uv1"
 #define nvcSEMANTIC_COLORS     "colors"
 #define nvcSEMANTIC_VERTEXID   "vertexid"
-#define nvcSEMANTIC_MESHID     "meshid"
 
 
 namespace nvc {
