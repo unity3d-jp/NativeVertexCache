@@ -72,6 +72,7 @@ private:
 		return ~0u;
 	}
 
+public:
 	float getFrameTime(size_t frameIndex) const
 	{
 		if (frameIndex < getFrameCount())
