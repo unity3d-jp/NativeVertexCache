@@ -47,7 +47,8 @@ void QuantisationDecompressor::open(Stream* pStream)
 	}
 
 	// Read constant data
-	if(m_Header.ConstantDataSize > 0) {
+	if(m_Header.ConstantDataSize > 0)
+	{
 		m_ConstantData.resize(m_Header.ConstantDataSize);
 		m_pStream->read(m_ConstantData.data(), m_ConstantData.size());
 	}

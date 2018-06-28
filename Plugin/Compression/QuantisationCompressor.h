@@ -22,6 +22,9 @@ public:
 	QuantisationCompressor(QuantisationCompressor&&) = delete;
 	QuantisationCompressor& operator=(const QuantisationCompressor&) = delete;
 	QuantisationCompressor& operator=(QuantisationCompressor&&) = delete;
+
+private:
+	void BuildAABB();
 };
 
 } // namespace nvc

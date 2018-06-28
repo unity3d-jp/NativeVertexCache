@@ -8,6 +8,8 @@
 #include "QuantisationTypes.h"
 #include "Plugin/InputGeomCache.h"
 #include "Plugin/Stream/Stream.h"
+#include "Plugin/Types.h"
+#include "PackedTransform.h"
 
 namespace nvc
 {
@@ -70,9 +72,42 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 		pStream->write(time);
 	}
 
-	// Write frames.
-	const size_t attributeCount = getAttributeCount(geomDesc);
+	// Find vertex attributes.
+	size_t pointsAttributeIndex = ~0u;
+	size_t normalsAttributeIndex = ~0u;
+	size_t tangentsAttributeIndex = ~0u;
 
+	const size_t attributeCount = getAttributeCount(geomDesc);
+	for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
+	{
+		if (geomDesc[iAttribute].semantic != nullptr)
+		{
+			if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_POINTS) == 0)
+			{
+				pointsAttributeIndex = iAttribute;
+			}
+			else if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_NORMALS) == 0)
+			{
+				normalsAttributeIndex = iAttribute;
+			}
+			else if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_TANGENTS) == 0)
+			{
+				tangentsAttributeIndex = iAttribute;
+			}
+		}
+	}
+
+	//struct ChannelsData
+	//{
+	//	float3 *points;
+	//	float3 *normals;
+	//	float4 *tangents;
+	//};
+
+	//ChannelsData cacheData;
+
+
+	// Write frames.
 	for (uint64_t iFrame = 0; iFrame < header.FrameCount; ++iFrame)
 	{
 		if ((iFrame % header.FrameSeekWindowCount) == 0)
@@ -112,10 +147,51 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 		// Write vertices.
 		if (frameData.vertices)
 		{
+			float3* points = static_cast<float3*>(frameData.vertices[pointsAttributeIndex]);
+			const AABB verticesAABB = AABB::Build(points, frameData.vertexCount);
+
+			// Save position and [normals + tangents] as transform.
+			PackedTransform* packedTransform = new PackedTransform[frameData.vertexCount];
+
+			if (pointsAttributeIndex != ~0u)
+			{
+				for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
+				{
+					packedTransform[iVertex].Translation = PackPoint(verticesAABB, points[iVertex]);
+				}
+			}
+
+			if (normalsAttributeIndex != ~0u)
+			{
+				float3* normals = static_cast<float3*>(frameData.vertices[normalsAttributeIndex]);
+				for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
+				{
+					float2 n = OctEncode(normals[iVertex]);
+					packedTransform[iVertex].Normal[0] = n[0];
+					packedTransform[iVertex].Normal[1] = n[1];
+				}
+			}
+
+			if (tangentsAttributeIndex != ~0u)
+			{
+				float4* tangents = static_cast<float4*>(frameData.vertices[tangentsAttributeIndex]);
+				for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
+				{
+					float2 t = OctEncode(tangents[iVertex]);
+					packedTransform[iVertex].Tangent[0] = t[0];
+					packedTransform[iVertex].Tangent[1] = t[1];
+				}
+			}
+
 			for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
 			{
-				const size_t dataSize = getSizeOfDataFormat(geomDesc[iAttribute].format) * frameData.vertexCount;
-				pStream->write(frameData.vertices[iAttribute], dataSize);
+				if (iAttribute != pointsAttributeIndex
+					&& iAttribute != normalsAttributeIndex
+					&& iAttribute != tangentsAttributeIndex)
+				{
+					const size_t dataSize = getSizeOfDataFormat(geomDesc[iAttribute].format) * frameData.vertexCount;
+					pStream->write(frameData.vertices[iAttribute], dataSize);
+				}
 			}
 		}
 	}
