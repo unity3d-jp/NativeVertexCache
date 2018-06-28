@@ -29,7 +29,7 @@ namespace NaiveVertexCache
         UNorm16x4,
     }
 
-    enum Topology
+    public enum Topology
     {
         Points,
         Lines,
@@ -47,7 +47,7 @@ namespace NaiveVertexCache
     public struct GeomSubmesh
     {
         public int indexOffset, indexCount;
-        Topology topology;
+        public Topology topology;
     };
 
     public struct GeomMesh
@@ -170,7 +170,7 @@ namespace NaiveVertexCache
         public void Close() { nvcGCClose(self); }
 
         public float time { set { nvcGCSetCurrentTime(self, value); } }
-        public void Assign(OutputGeomCache ogc) { nvcGCGetCurrentCache(self, ogc); }
+        public bool Assign(OutputGeomCache ogc) { return nvcGCGetCurrentCache(self, ogc); }
 
 
         #region internal
@@ -179,7 +179,7 @@ namespace NaiveVertexCache
         [DllImport("NativeVertexCache")] static extern bool nvcGCOpen(IntPtr self, string path);
         [DllImport("NativeVertexCache")] static extern void nvcGCClose(IntPtr self);
         [DllImport("NativeVertexCache")] static extern void nvcGCSetCurrentTime(IntPtr self, float time);
-        [DllImport("NativeVertexCache")] static extern void nvcGCGetCurrentCache(IntPtr self, OutputGeomCache ogc);
+        [DllImport("NativeVertexCache")] static extern bool nvcGCGetCurrentCache(IntPtr self, OutputGeomCache ogc);
         #endregion
     }
 

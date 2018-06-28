@@ -150,9 +150,10 @@ nvcAPI void nvcGCSetCurrentTime(nvc::GeomCache *self, float time)
     }
 }
 
-nvcAPI void nvcGCGetCurrentCache(nvc::GeomCache *self, nvc::OutputGeomCache *ogc)
+nvcAPI int nvcGCGetCurrentCache(nvc::GeomCache *self, nvc::OutputGeomCache *ogc)
 {
     if (self && ogc) {
-        self->assignCurrentDataToMesh(*ogc);
+        return self->assignCurrentDataToMesh(*ogc);
     }
+    return false;
 }
