@@ -6,6 +6,7 @@
 
 //! Project Includes.
 #include "Plugin/Stream/Stream.h"
+#include "Plugin/InputGeomCache.h"
 
 namespace nvc
 {
@@ -43,6 +44,11 @@ void NullDecompressor::open(Stream* pStream)
 	for (uint64_t iEntry = 0; iEntry < seekTableSize; ++iEntry)
 	{
 		m_SeekTable.push_back(m_pStream->read<uint64_t>());
+	}
+
+	// Read constant data
+	if(m_Header.ConstantDataSize > 0) {
+		m_ConstantData.loadDataFrom(m_pStream);
 	}
 
 	// Read the time table.
@@ -124,6 +130,20 @@ bool NullDecompressor::getData(float time, GeomCacheData& data)
 	}
 
 	return false;
+}
+
+size_t NullDecompressor::getConstantDataStringSize() const override {
+	if(m_ConstantData.size() != 0) {
+		return InputGeomCacheConstantData::getStringCountFromData(m_ConstantData.data(), m_ConstantData.size());
+	}
+	return 0;
+}
+
+const char* NullDecompressor::getConstantDataString(size_t index) const override {
+	if(m_ConstantData.size() != 0) {
+		return InputGeomCacheConstantData::getStringFromData(m_ConstantData.data(), m_ConstantData.size(), index);
+	}
+	return nullptr;
 }
 
 void NullDecompressor::loadFrame(size_t frameIndex)

@@ -16,13 +16,17 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 {
 	GeomCacheDesc geomDesc[GEOM_CACHE_MAX_DESCRIPTOR_COUNT] = {};
 	geomCache.getDesc(geomDesc);
-	
+
+	InputGeomCacheConstantData geomConstantData {};
+	geomCache.getConstantData(geomConstantData);
+
 	// Write header.
 	const null_compression::FileHeader header
 	{
 		static_cast<uint64_t>(geomCache.getDataCount()),
 		static_cast<uint32_t>(DefaultSeekWindow),
 		static_cast<uint32_t>(getAttributeCount(geomDesc)),
+		static_cast<uint32_t>(geomConstantData.getSizeAsByteArray())
 	};
 
 	pStream->write(header);
@@ -46,6 +50,11 @@ void NullCompressor::compress(const InputGeomCache& geomCache, Stream* pStream)
 	for (uint64_t iEntry = 0; iEntry < frameSeekTableSize; ++iEntry)
 	{
 		pStream->write(static_cast<uint64_t>(0));
+	}
+
+	// Write constant data.
+	if(header.ConstantDataSize > 0) {
+		geomConstantData.storeDataTo(pStream);
 	}
 
 	// Write frames.
