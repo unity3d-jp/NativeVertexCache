@@ -48,6 +48,14 @@ public:
 		return m_Decompressor->getFrameTime(frameIndex);
 	}
 
+	const size_t getConstantDataStringSize() const {
+		return m_Decompressor->getConstantDataStringSize();
+	}
+
+	const char* getConstantDataString(size_t index) const {
+		return m_Decompressor->getConstantDataString(index);
+	}
+
 	//// Sampling.
 	//template<typename TDataType>
 	//TDataType Sample<TDataType>(float time, const char* semantic);
