@@ -159,7 +159,7 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 					const size_t dataSize = getSizeOfDataFormat(DataFormat::SNorm16x3) * frameData.vertexCount;
 					pStream->write(packedVertices, dataSize);
 				}
-				else if (iAttribute != normalsAttributeIndex)
+				else if (iAttribute == normalsAttributeIndex)
 				{
 					float3* normals = static_cast<float3*>(frameData.vertices[normalsAttributeIndex]);
 
@@ -174,7 +174,7 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 					const size_t dataSize = getSizeOfDataFormat(DataFormat::SNorm16x2) * frameData.vertexCount;
 					pStream->write(packedNormals, dataSize);
 				}
-				else if (iAttribute != tangentsAttributeIndex)
+				else if (iAttribute == tangentsAttributeIndex)
 				{
 					float4* tangents = static_cast<float4*>(frameData.vertices[tangentsAttributeIndex]);
 

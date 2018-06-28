@@ -12,8 +12,12 @@
 
 namespace {
 using namespace nvc;
-//using Compressor = nvc::NullCompressor;
+#define USE_QUANTISATION_COMPRESSOR 1
+#if defined(USE_QUANTISATION_COMPRESSOR) && (USE_QUANTISATION_COMPRESSOR)
 using Compressor = nvc::QuantisationCompressor;
+#else
+using Compressor = nvc::NullCompressor;
+#endif
 template<typename T>
 void convertDataArrayToFloat2(float2* dst, const T* src, size_t numberOfElements) {
 	for(size_t i = 0; i < numberOfElements; ++i) {
@@ -202,8 +206,11 @@ static void test0() {
     using namespace nvcabc;
 
     const char* abcFilename = "../../../Data/Cloth-1frame.abc";
-    const char* nvcFilename = "../../../Data/TestOutput/Cloth-1frame.nvc";
-
+#if USE_QUANTISATION_COMPRESSOR
+	const char* nvcFilename = "../../../Data/TestOutput/Cloth-1frame.quantisation.nvc";
+#else
+	const char* nvcFilename = "../../../Data/TestOutput/Cloth-1frame.nvc";
+#endif
     assert(IsFileExist(abcFilename));
     RemoveFile(nvcFilename);
 
@@ -243,8 +250,11 @@ static void test1() {
     using namespace nvcabc;
 
     const char* abcFilename = "../../../Data/Cloth-300frames.abc";
-    const char* nvcFilename = "../../../Data/TestOutput/Cloth-300frames.nvc";
-
+#if USE_QUANTISATION_COMPRESSOR
+	const char* nvcFilename = "../../../Data/TestOutput/Cloth-300frames.quantisation.nvc";
+#else
+	const char* nvcFilename = "../../../Data/TestOutput/Cloth-300frames.nvc";
+#endif
     assert(IsFileExist(abcFilename));
     RemoveFile(nvcFilename);
 
@@ -291,8 +301,11 @@ static void test2() {
     using namespace nvcabc;
 
     const char* abcFilename = "../../../Data/Cloth-10frames.abc";
-    const char* nvcFilename = "../../../Data/TestOutput/Cloth-10frames.nvc";
-
+#if USE_QUANTISATION_COMPRESSOR
+	const char* nvcFilename = "../../../Data/TestOutput/Cloth-10frames.quantisation.nvc";
+#else
+	const char* nvcFilename = "../../../Data/TestOutput/Cloth-10frames.nvc";
+#endif
     assert(IsFileExist(abcFilename));
     RemoveFile(nvcFilename);
 
@@ -351,9 +364,12 @@ static void test3() {
     using namespace nvc;
     using namespace nvcabc;
 
-    const char* abcFilename = "../../../Data/Cloth-10frames.abc";
+	const char* abcFilename = "../../../Data/Cloth-10frames.abc";
+#if USE_QUANTISATION_COMPRESSOR
+    const char* nvcFilename = "../../../Data/TestOutput/Cloth-10frames.quantisation.nvc";
+#else
     const char* nvcFilename = "../../../Data/TestOutput/Cloth-10frames.nvc";
-
+#endif
     assert(IsFileExist(abcFilename));
     RemoveFile(nvcFilename);
 

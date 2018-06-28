@@ -4,6 +4,10 @@
 //! Header Include.
 #include "GeomCache.h"
 #include "Plugin/Compression/NullDecompressor.h"
+#include "Plugin/Compression/QuantisationDecompressor.h"
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 namespace nvc {
 
@@ -83,9 +87,15 @@ bool GeomCache::open(const char* nvcFilename) {
 		return false;
 	}
 
-	m_Decompressor = std::unique_ptr<NullDecompressor>(
-		new NullDecompressor()
-	);
+	if(strstr(nvcFilename, "quantisation") != nullptr) {
+		m_Decompressor = std::unique_ptr<QuantisationDecompressor>(
+			new QuantisationDecompressor()
+		);
+	} else {
+		m_Decompressor = std::unique_ptr<NullDecompressor>(
+			new NullDecompressor()
+		);
+	}
 	assert(m_Decompressor);
 
 	m_Decompressor->open(m_InputFileStream.get());
