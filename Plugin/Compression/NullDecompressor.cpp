@@ -89,7 +89,7 @@ void NullDecompressor::prefetch(size_t frameIndex, size_t range)
 
 	// Load the frames from the seek window until the end of the range specified.
 	m_pStream->seek(getSeekTableOffset(frameIndex), Stream::SeekOrigin::Begin);
-	for (size_t iFrame = 0; iFrame < frameToLoad; ++iFrame)
+	for (size_t iFrame = startFrame; iFrame < startFrame + frameToLoad; ++iFrame)
 	{
 		loadFrame(iFrame);
 
@@ -110,11 +110,6 @@ bool NullDecompressor::getData(size_t frameIndex, float& time, GeomCacheData& da
 
 bool NullDecompressor::getData(float time, GeomCacheData& data)
 {
-//	const auto it = std::find_if(m_LoadedFrames.begin(), m_LoadedFrames.end(),
-//		[time](const FrameDataType& d)
-//	{
-//		return d.Time == time;
-//	});
 	const auto it = std::lower_bound(
 		  m_LoadedFrames.begin()
 		, m_LoadedFrames.end()
