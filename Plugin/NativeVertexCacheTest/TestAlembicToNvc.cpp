@@ -7,6 +7,7 @@
 #include "Plugin/GeomCacheData.h"
 #include "Plugin/NativeVertexCacheTest/TestUtil.h"
 #include "Plugin/Types.h"
+#include "Plugin/Pcg.h"
 
 namespace {
 using namespace nvc;
@@ -281,8 +282,69 @@ static void test1() {
 	}
 }
 
+// Random access by time(float).
+static void test2() {
+    using namespace nvc;
+    using namespace nvcabc;
+
+    const char* abcFilename = "../../../Data/Cloth-10frames.abc";
+    const char* nvcFilename = "../../../Data/TestOutput/Cloth-10frames.nvc";
+
+    assert(IsFileExist(abcFilename));
+    RemoveFile(nvcFilename);
+
+	// Import -> output .nvc
+	{
+	    AlembicImportOptions opt;
+	    AlembicGeometries abcGeoms;
+
+	    const auto abcToGcResult = AlembicToGeomCache(abcFilename, opt, abcGeoms);
+	    assert(abcToGcResult);
+
+//		dump(*abcGeoms.geometry);
+
+	    FileStream fs { nvcFilename, FileStream::OpenModes::Random_ReadWrite };
+	    NullCompressor nc {};
+	    nc.compress(*abcGeoms.geometry, &fs);
+	}
+
+	// read .nvc
+	{
+		GeomCache geomCache;
+		const auto r0 = geomCache.open(nvcFilename);
+		assert(r0);
+
+		const auto nFrame = geomCache.getFrameCount();
+		Pcg pcg(123, 456);
+		for(size_t iTest = 0, nTest = 4096; iTest < nTest; ++iTest) {
+			const float time = (pcg.getUint32() >> 16) * 2.0f / 65536.0f - 1.0f;
+			printf("iTest(%zd), time(%+6.3f (0x%08x))"
+				   , iTest
+				   , time
+				   , * reinterpret_cast<const uint32_t*>(&time)
+			);
+
+			const size_t frameIndex = geomCache.getFrameIndexByTime(time);
+			printf("  -> frameIndex(%zd)\n", frameIndex);
+
+			geomCache.setCurrentFrame(time);
+//			if(frameIndex != ~0u)
+			{
+//				geomCache.prefetch(frameIndex, 1);
+
+				OutputGeomCache outputGecomCache;
+				const auto r1 = geomCache.assignCurrentDataToMesh(outputGecomCache);
+//				assert(r1);
+
+			//	dump(outputGecomCache);
+			}
+		}
+	}
+}
+
 void RunTest_AlembicToNvc()
 {
-	test0();
-	test1();
+//	test0();
+//	test1();
+	test2();
 }
