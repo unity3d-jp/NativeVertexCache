@@ -2,14 +2,18 @@
 #include "Plugin/AlembicToGeomCache/AlembicToGeomCache.h"
 #include "Plugin/Stream/FileStream.h"
 #include "Plugin/Compression/NullCompressor.h"
+#include "Plugin/Compression/QuantisationCompressor.h"
 #include "Plugin/InputGeomCache.h"
 #include "Plugin/GeomCache.h"
 #include "Plugin/GeomCacheData.h"
 #include "Plugin/NativeVertexCacheTest/TestUtil.h"
 #include "Plugin/Types.h"
 #include "Plugin/Pcg.h"
+#include "./AbcToNvc.h"
 
-int AbcToNvc(const char* srcAbcFilename, const char* outNvcFilename) {
+namespace nvc {
+
+int AbcToNvc(const char* srcAbcFilename, const char* outNvcFilename, nvc::AbcToNvcCompressionMethod compressionMethod) {
     using namespace nvc;
     using namespace nvcabc;
 
@@ -29,8 +33,23 @@ int AbcToNvc(const char* srcAbcFilename, const char* outNvcFilename) {
 
     RemoveFile(outNvcFilename);
 	FileStream fs { outNvcFilename, FileStream::OpenModes::Random_ReadWrite };
-	NullCompressor nc {};
-	nc.compress(*abcGeoms.geometry, &fs);
 
+	switch(compressionMethod) {
+	default:
+	case AbcToNvcCompressionMethod::Null:
+		{
+			NullCompressor nc {};
+			nc.compress(*abcGeoms.geometry, &fs);
+		}
+		break;
+	case AbcToNvcCompressionMethod::Quantisation:
+		{
+			QuantisationCompressor qc {};
+			qc.compress(*abcGeoms.geometry, &fs);
+		}
+		break;
+	}
 	return 0;
 }
+
+} // namespace nvc

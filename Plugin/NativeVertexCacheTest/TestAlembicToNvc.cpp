@@ -239,8 +239,8 @@ static void test1() {
     using namespace nvc;
     using namespace nvcabc;
 
-    const char* abcFilename = "../../../Data/Cloth-10frames.abc";
-    const char* nvcFilename = "../../../Data/TestOutput/Cloth-10frames.nvc";
+    const char* abcFilename = "../../../Data/Cloth-300frames.abc";
+    const char* nvcFilename = "../../../Data/TestOutput/Cloth-300frames.nvc";
 
     assert(IsFileExist(abcFilename));
     RemoveFile(nvcFilename);
@@ -267,7 +267,7 @@ static void test1() {
 		assert(r0);
 
 		const auto nFrame = geomCache.getFrameCount();
-		for(size_t iFrame = 0ull; iFrame < nFrame; ++iFrame) {
+		for(size_t iFrame = 9ull; iFrame < nFrame; ++iFrame) {
 			printf("frame(%zd/%zd) @ %6.3fsec:\n", iFrame, nFrame, geomCache.getTimeByFrameIndex(iFrame));
 
 			geomCache.prefetch(iFrame, 1);
@@ -277,7 +277,7 @@ static void test1() {
 			const auto r1 = geomCache.assignCurrentDataToMesh(outputGecomCache);
 			assert(r1);
 
-			dump(outputGecomCache);
+//			dump(outputGecomCache);
 		}
 	}
 }
@@ -386,7 +386,7 @@ static void test3() {
 void RunTest_AlembicToNvc()
 {
 //	test0();
-//	test1();
+	test1();
 //	test2();
-	test3();
+//	test3();
 }
