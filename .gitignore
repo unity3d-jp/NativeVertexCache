@@ -392,3 +392,4 @@ sysinfo.txt
 
 
 # End of https://www.gitignore.io/api/unity
+VertexCache/Assets/NativeVertexCache/Plugins/x86_64/
