@@ -225,6 +225,7 @@ void QuantisationDecompressor::loadFrame(size_t frameIndex)
 
 				free(vertexData);
 				vertexData = unpackedVertices;
+				m_Descriptor[iAttribute].format = DataFormat::Float3;
 			}
 			else if (_stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_NORMALS) == 0
 				&& m_Descriptor[iAttribute].format == DataFormat::UNorm16x2)
@@ -240,6 +241,7 @@ void QuantisationDecompressor::loadFrame(size_t frameIndex)
 
 				free(vertexData);
 				vertexData = unpackedNormals;
+				m_Descriptor[iAttribute].format = DataFormat::Float3;
 			}
 			else if (_stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_TANGENTS) == 0
 				&& m_Descriptor[iAttribute].format == DataFormat::UNorm16x2)
@@ -262,6 +264,7 @@ void QuantisationDecompressor::loadFrame(size_t frameIndex)
 
 				free(vertexData);
 				vertexData = unpackedTangents;
+				m_Descriptor[iAttribute].format = DataFormat::Float4;
 			}
 
 			frameData.Data.vertices[iAttribute] = vertexData;

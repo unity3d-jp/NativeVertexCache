@@ -156,8 +156,10 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 						packedVertices[iVertex] = PackPoint(verticesAABB, points[iVertex]);
 					}
 
-					const size_t dataSize = getSizeOfDataFormat(DataFormat::SNorm16x3) * frameData.vertexCount;
+					const size_t dataSize = getSizeOfDataFormat(DataFormat::UNorm16x3) * frameData.vertexCount;
 					pStream->write(packedVertices, dataSize);
+
+					delete[] packedVertices;
 				}
 				else if (iAttribute == normalsAttributeIndex)
 				{
@@ -171,8 +173,10 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 						packedNormals[iVertex][1] = n[1];
 					}
 
-					const size_t dataSize = getSizeOfDataFormat(DataFormat::SNorm16x2) * frameData.vertexCount;
+					const size_t dataSize = getSizeOfDataFormat(DataFormat::UNorm16x2) * frameData.vertexCount;
 					pStream->write(packedNormals, dataSize);
+
+					delete[] packedNormals;
 				}
 				else if (iAttribute == tangentsAttributeIndex)
 				{
@@ -186,8 +190,10 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 						packedTangents[iVertex][1] = t[1];
 					}
 
-					const size_t dataSize = getSizeOfDataFormat(DataFormat::SNorm16x2) * frameData.vertexCount;
+					const size_t dataSize = getSizeOfDataFormat(DataFormat::UNorm16x2) * frameData.vertexCount;
 					pStream->write(packedTangents, dataSize);
+
+					delete[] packedTangents;
 				}
 				else
 				{
