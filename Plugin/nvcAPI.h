@@ -19,11 +19,16 @@ namespace nvc {
 class InputGeomCache;
 class OutputGeomCache;
 class GeomCache;
+struct InputGeomCacheConstantData;
 } // namespace nvc
 
-nvcAPI nvc::InputGeomCache* nvcIGCCreate(const nvc::GeomCacheDesc *descs);
+nvcAPI nvc::InputGeomCache* nvcIGCCreate(const nvc::GeomCacheDesc *descs, const nvc::InputGeomCacheConstantData* constants = nullptr);
 nvcAPI void nvcIGCRelease(nvc::InputGeomCache *self);
 nvcAPI void nvcIGCAddData(nvc::InputGeomCache *self, float time, const nvc::GeomCacheData *data);
+
+nvcAPI nvc::InputGeomCacheConstantData* nvcIGCCreateConstantData();
+nvcAPI void nvcIGCReleaseConstantData(nvc::InputGeomCacheConstantData* self);
+nvcAPI int nvcIGCAddConstantDataString(nvc::InputGeomCacheConstantData* self, const char* str);
 
 nvcAPI nvc::OutputGeomCache* nvcOGCCreate();
 nvcAPI void nvcOGCRelease(nvc::OutputGeomCache *self);
@@ -47,3 +52,5 @@ nvcAPI int  nvcGCOpen(nvc::GeomCache *self, const char *path);
 nvcAPI void nvcGCClose(nvc::GeomCache *self);
 nvcAPI void nvcGCSetCurrentTime(nvc::GeomCache *self, float time);
 nvcAPI int  nvcGCGetCurrentCache(nvc::GeomCache *self, nvc::OutputGeomCache *ogc);
+nvcAPI int  nvcGCGetConstantDataStringSize(nvc::GeomCache *self);
+nvcAPI const char*  nvcGCGetConstantDataString(nvc::GeomCache *self, size_t index);

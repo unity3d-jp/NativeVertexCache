@@ -5,9 +5,9 @@
 #include "Plugin/nvcAPI.h"
 
 
-nvcAPI nvc::InputGeomCache* nvcIGCCreate(const nvc::GeomCacheDesc *descs)
+nvcAPI nvc::InputGeomCache* nvcIGCCreate(const nvc::GeomCacheDesc *descs, const nvc::InputGeomCacheConstantData* constants)
 {
-    return new nvc::InputGeomCache(descs);
+    return new nvc::InputGeomCache(descs, constants);
 }
 nvcAPI void nvcIGCRelease(nvc::InputGeomCache *self)
 {
@@ -19,6 +19,22 @@ nvcAPI void nvcIGCAddData(nvc::InputGeomCache * self, float time, const nvc::Geo
         self->addData(time, data);
     }
 }
+nvcAPI nvc::InputGeomCacheConstantData* nvcIGCCreateConstantData()
+{
+    return new nvc::InputGeomCacheConstantData();
+}
+nvcAPI void nvcIGCReleaseConstantData(nvc::InputGeomCacheConstantData* self)
+{
+    delete self;
+}
+nvcAPI int nvcIGCAddConstantDataString(nvc::InputGeomCacheConstantData* self, const char* str)
+{
+	if(self) {
+		return static_cast<int>(self->addString(str));
+	}
+	return -1;
+}
+
 
 nvcAPI nvc::OutputGeomCache* nvcOGCCreate()
 {
@@ -156,4 +172,20 @@ nvcAPI int nvcGCGetCurrentCache(nvc::GeomCache *self, nvc::OutputGeomCache *ogc)
         return self->assignCurrentDataToMesh(*ogc);
     }
     return false;
+}
+
+nvcAPI int  nvcGCGetConstantDataStringSize(nvc::GeomCache *self)
+{
+	if(self) {
+		return static_cast<int>(self->getConstantDataStringSize());
+	}
+	return -1;
+}
+
+nvcAPI const char*  nvcGCGetConstantDataString(nvc::GeomCache *self, size_t index)
+{
+	if(self) {
+		return self->getConstantDataString(index);
+	}
+	return nullptr;
 }
