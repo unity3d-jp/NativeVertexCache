@@ -6,6 +6,7 @@ void RunTest_MemoryStream();
 void RunTest_FileStream();
 void RunTest_Alembic();
 void RunTest_AlembicToNvc();
+int AbcToNvc(const char* srcAbcFilename, const char* outNvcFilename);
 
 
 int main(int argc, char *argv[])
@@ -23,6 +24,9 @@ int main(int argc, char *argv[])
 
     if (argc > 1) {
         for (int ai = 1; ai < argc; ++ai) {
+            if(_stricmp(argv[ai], "--abc-to-nvc") == 0) {
+                return AbcToNvc(argv[ai+1], argv[ai+2]);
+            }
             auto it = tests.find(argv[ai]);
             if (it !=tests.end()) {
                 it->second();
