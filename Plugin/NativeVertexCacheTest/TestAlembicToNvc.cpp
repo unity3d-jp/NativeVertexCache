@@ -193,9 +193,7 @@ static void dump(const nvc::OutputGeomCache& outputGecomCache) {
 	printf("}\n");
 }
 
-
-void RunTest_AlembicToNvc()
-{
+static void test0() {
     using namespace nvc;
     using namespace nvcabc;
 
@@ -232,6 +230,59 @@ void RunTest_AlembicToNvc()
 		const auto r1 = geomCache.assignCurrentDataToMesh(outputGecomCache);
 		assert(r1);
 
-		dump(outputGecomCache);
+//		dump(outputGecomCache);
 	}
+}
+
+static void test1() {
+    using namespace nvc;
+    using namespace nvcabc;
+
+    const char* abcFilename = "../../../Data/Cloth-10frames.abc";
+    const char* nvcFilename = "../../../Data/TestOutput/Cloth-10frames.nvc";
+
+    assert(IsFileExist(abcFilename));
+    RemoveFile(nvcFilename);
+
+	// Import -> output .nvc
+	{
+	    AlembicImportOptions opt;
+	    AlembicGeometries abcGeoms;
+
+	    const auto abcToGcResult = AlembicToGeomCache(abcFilename, opt, abcGeoms);
+	    assert(abcToGcResult);
+
+//		dump(*abcGeoms.geometry);
+
+	    FileStream fs { nvcFilename, FileStream::OpenModes::Random_ReadWrite };
+	    NullCompressor nc {};
+	    nc.compress(*abcGeoms.geometry, &fs);
+	}
+
+	// read .nvc
+	{
+		GeomCache geomCache;
+		const auto r0 = geomCache.open(nvcFilename);
+		assert(r0);
+
+		const auto nFrame = geomCache.getFrameCount();
+		for(size_t iFrame = 0ull; iFrame < nFrame; ++iFrame) {
+			printf("frame(%zd/%zd) @ %6.3fsec:\n", iFrame, nFrame, geomCache.getTimeByFrameIndex(iFrame));
+
+			geomCache.prefetch(iFrame, 1);
+			geomCache.setCurrentFrameIndex(iFrame);
+
+			OutputGeomCache outputGecomCache;
+			const auto r1 = geomCache.assignCurrentDataToMesh(outputGecomCache);
+			assert(r1);
+
+			dump(outputGecomCache);
+		}
+	}
+}
+
+void RunTest_AlembicToNvc()
+{
+	test0();
+	test1();
 }
