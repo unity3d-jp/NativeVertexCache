@@ -64,7 +64,7 @@ struct GeomSubmesh
 struct GeomMesh
 {
     uint32_t vertexOffset, vertexCount;
-    uint32_t submeshCount;
+    uint32_t submeshOffset, submeshCount;
 };
 
 struct GeomCacheData

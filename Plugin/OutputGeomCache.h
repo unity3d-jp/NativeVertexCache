@@ -16,13 +16,13 @@ public:
     std::vector<float2> uv0, uv1;
     std::vector<float4> colors;
 
-    void copyIndices(const GeomSubmesh &subm, int *dst);
-    void copyPoints(const GeomMesh &mesh, float3 *dst);
-    void copyNormals(const GeomMesh &mesh, float3 *dst);
-    void copyTangents(const GeomMesh &mesh, float4 *dst);
-    void copyUV0(const GeomMesh &mesh, float2 *dst);
-    void copyUV1(const GeomMesh &mesh, float2 *dst);
-    void copyColors(const GeomMesh &mesh, float4 *dst);
+    bool copyIndices(const GeomSubmesh &subm, int *dst);
+    bool copyPoints(const GeomMesh &mesh, float3 *dst);
+    bool copyNormals(const GeomMesh &mesh, float3 *dst);
+    bool copyTangents(const GeomMesh &mesh, float4 *dst);
+    bool copyUV0(const GeomMesh &mesh, float2 *dst);
+    bool copyUV1(const GeomMesh &mesh, float2 *dst);
+    bool copyColors(const GeomMesh &mesh, float4 *dst);
 };
 
 } // namespace nvc

@@ -280,6 +280,7 @@ void ImportContext::gatherSamples(double time, nvc::InputGeomCache *igc)
 
         {
             GeomMesh gm;
+            gm.submeshOffset = (uint32_t)m_geosubmeshes.size();
             gm.submeshCount = (uint32_t)seg.m_submesh_summaries.size();
             gm.vertexOffset = (uint32_t)vertex_offset;
             gm.vertexCount = (uint32_t)vertex_count;

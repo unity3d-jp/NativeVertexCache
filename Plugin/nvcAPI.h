@@ -1,5 +1,7 @@
 #pragma once
 
+#define nvcPluginVersion 20180628
+
 #ifdef _WIN32
     #ifdef NVC_IMPL
         #define nvcAPI extern "C" __declspec(dllexport)
@@ -27,12 +29,13 @@ nvcAPI nvc::OutputGeomCache* nvcOGCCreate();
 nvcAPI void nvcOGCRelease(nvc::OutputGeomCache *self);
 nvcAPI int  nvcOGCGetVertexCount(nvc::OutputGeomCache *self);
 nvcAPI int  nvcOGCGetIndexCount(nvc::OutputGeomCache *self);
-nvcAPI void nvcOGCCopyIndices(nvc::OutputGeomCache *self, const nvc::GeomSubmesh *gsm, int *dst);
-nvcAPI void nvcOGCCopyPoints(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float3 *dst);
-nvcAPI void nvcOGCCopyNormals(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float3 *dst);
-nvcAPI void nvcOGCCopyTangents(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float4 *dst);
-nvcAPI void nvcOGCCopyUV0(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float2 *dst);
-nvcAPI void nvcOGCCopyColors(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float4 *dst);
+nvcAPI int  nvcOGCCopyIndices(nvc::OutputGeomCache *self, const nvc::GeomSubmesh *gsm, int *dst);
+nvcAPI int  nvcOGCCopyPoints(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float3 *dst);
+nvcAPI int  nvcOGCCopyNormals(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float3 *dst);
+nvcAPI int  nvcOGCCopyTangents(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float4 *dst);
+nvcAPI int  nvcOGCCopyUV0(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float2 *dst);
+nvcAPI int  nvcOGCCopyUV1(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float2 *dst);
+nvcAPI int  nvcOGCCopyColors(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float4 *dst);
 
 nvcAPI nvc::GeomCache* nvcGCCreate();
 nvcAPI void nvcGCRelease(nvc::GeomCache *self);

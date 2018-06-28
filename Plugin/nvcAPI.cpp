@@ -40,46 +40,60 @@ nvcAPI int nvcOGCGetIndexCount(nvc::OutputGeomCache *self)
     return self ? (int)self->indices.size() : 0;
 }
 
-nvcAPI void nvcOGCCopyIndices(nvc::OutputGeomCache *self, const nvc::GeomSubmesh *gsm, int *dst)
+nvcAPI int nvcOGCCopyIndices(nvc::OutputGeomCache *self, const nvc::GeomSubmesh *gsm, int *dst)
 {
     if (self) {
-        self->copyIndices(*gsm, dst);
+        return self->copyIndices(*gsm, dst);
     }
+    return false;
 }
 
-nvcAPI void nvcOGCCopyPoints(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float3 *dst)
+nvcAPI int nvcOGCCopyPoints(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float3 *dst)
 {
     if (self) {
-        self->copyPoints(*gm, dst);
+        return self->copyPoints(*gm, dst);
     }
+    return false;
 }
 
-nvcAPI void nvcOGCCopyNormals(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float3 *dst)
+nvcAPI int nvcOGCCopyNormals(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float3 *dst)
 {
     if (self) {
-        self->copyNormals(*gm, dst);
+        return self->copyNormals(*gm, dst);
     }
+    return false;
 }
 
-nvcAPI void nvcOGCCopyTangents(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float4 *dst)
+nvcAPI int nvcOGCCopyTangents(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float4 *dst)
 {
     if (self) {
-        self->copyTangents(*gm, dst);
+        return self->copyTangents(*gm, dst);
     }
+    return false;
 }
 
-nvcAPI void nvcOGCCopyUV0(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float2 *dst)
+nvcAPI int nvcOGCCopyUV0(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float2 *dst)
 {
     if (self) {
-        self->copyUV0(*gm, dst);
+        return self->copyUV0(*gm, dst);
     }
+    return false;
 }
 
-nvcAPI void nvcOGCCopyColors(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float4 *dst)
+nvcAPI int nvcOGCCopyUV1(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float2 *dst)
 {
     if (self) {
-        self->copyColors(*gm, dst);
+        return self->copyUV1(*gm, dst);
     }
+    return false;
+}
+
+nvcAPI int nvcOGCCopyColors(nvc::OutputGeomCache *self, const nvc::GeomMesh *gm, nvc::float4 *dst)
+{
+    if (self) {
+        return self->copyColors(*gm, dst);
+    }
+    return false;
 }
 
 
