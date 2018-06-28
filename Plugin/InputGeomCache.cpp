@@ -3,12 +3,17 @@
 
 //! Header Include.
 #include "InputGeomCache.h"
+#include "Stream/Stream.h"
+#include "Stream/MemoryStream.h"
 
 namespace nvc {
 
-InputGeomCache::InputGeomCache(const GeomCacheDesc *desc)
+InputGeomCache::InputGeomCache(const GeomCacheDesc *desc, const InputGeomCacheConstantData *constantData)
 {
 	memcpy(m_Descriptor, desc, sizeof(GeomCacheDesc) * getAttributeCount(desc));
+	if(constantData != nullptr) {
+		m_ConstantData.copyFrom(*constantData);
+	}
 }
 
 InputGeomCache::~InputGeomCache()
@@ -105,6 +110,10 @@ void InputGeomCache::getDesc(GeomCacheDesc* desc) const
 	memcpy(desc, m_Descriptor, sizeof(GeomCacheDesc) * getAttributeCount(m_Descriptor));
 }
 
+void InputGeomCache::getConstantData(InputGeomCacheConstantData& constantData) const {
+	constantData.copyFrom(this->m_ConstantData);
+}
+
 void InputGeomCache::getData(size_t frameIndex, float& frameTime, GeomCacheData* data) const
 {
 	if (frameIndex < getDataCount())
@@ -126,6 +135,127 @@ void InputGeomCache::getData(size_t frameIndex, float& frameTime, GeomCacheData*
 size_t InputGeomCache::getDataCount() const
 {
 	return m_Data.size();
+}
+
+
+
+size_t InputGeomCacheConstantData::getStringCount() const {
+	return m_Strings.size();
+}
+
+const char* InputGeomCacheConstantData::getString(size_t stringIndex) const {
+	if(stringIndex >= m_Strings.size()) {
+		return nullptr;
+	}
+	const auto& s = m_Strings[stringIndex];
+	if(s.size() == 0) {
+		return nullptr;
+	} else {
+		return s.data();
+	}
+}
+
+void InputGeomCacheConstantData::clearStrings() {
+	m_Strings.clear();
+}
+
+size_t InputGeomCacheConstantData::addString(const char* text) {
+	const auto index = m_Strings.size();
+	const auto textLen = strlen(text) + 1;
+	std::vector<char> buf(textLen);
+	memcpy(buf.data(), text, buf.size());
+    buf.back() = 0;
+	m_Strings.push_back(buf);
+	return index;
+}
+
+size_t InputGeomCacheConstantData::getSizeAsByteArray() const {
+	size_t size = 0;
+
+	const auto numStrings = static_cast<uint32_t>(m_Strings.size());
+	size += sizeof(numStrings);
+	for(uint32_t iString = 0; iString < numStrings; ++iString) {
+		const auto& str = m_Strings[iString];
+		size += sizeof(uint32_t);
+		if(str.size() > 0) {
+			size += str.size();
+		}
+	}
+	return size;
+}
+
+// reconstruct from byte stream
+bool InputGeomCacheConstantData::loadDataFrom(const Stream* source) {
+	const auto numStrings = source->read<uint32_t>();
+	m_Strings.resize(numStrings);
+	for(uint32_t iString = 0; iString < numStrings; ++iString) {
+		const auto strLength = source->read<uint32_t>();
+		std::vector<char> buf(strLength);
+		if(buf.size() > 0) {
+			source->read(buf.data(), buf.size());
+		}
+		m_Strings[iString] = buf;
+	}
+	return true;
+}
+
+// represent structure as byte stream
+bool InputGeomCacheConstantData::storeDataTo(Stream* destination) const {
+	const auto numStrings = static_cast<uint32_t>(m_Strings.size());
+	destination->write<uint32_t>(numStrings);
+	for(uint32_t iString = 0; iString < numStrings; ++iString) {
+		const auto& str = m_Strings[iString];
+		destination->write<uint32_t>(static_cast<uint32_t>(str.size()));
+		if(str.size() > 0) {
+			destination->write(str.data(), str.size());
+		}
+	}
+	return true;
+}
+
+bool InputGeomCacheConstantData::copyFrom(const InputGeomCacheConstantData& srcConstantData) {
+	MemoryStream memStream(1024, true);
+	srcConstantData.storeDataTo(&memStream);
+    memStream.setLength(memStream.getPosition());
+	memStream.seek(0, Stream::SeekOrigin::Begin);
+	this->loadDataFrom(&memStream);
+	return true;
+}
+
+size_t InputGeomCacheConstantData::getStringCountFromData(const void* data, size_t dataSize)
+{
+	if(dataSize < sizeof(uint32_t)) {
+		return 0;
+	}
+	return * static_cast<const uint32_t*>(data);
+}
+
+const char* InputGeomCacheConstantData::getStringFromData(const void* data, size_t dataSize, size_t index)
+{
+	//	uint32_t	numStrings;
+	//	String		strings[numStrings];
+	//
+	//	struct String {
+	//		uint32_t	length;
+	//		uint8_t		str[length];
+	//	};
+	const auto* p = static_cast<const uint8_t*>(data);
+
+	const size_t numStrings = getStringCountFromData(data);
+	if(index >= numStrings) {
+		return nullptr;
+	}
+	p += sizeof(uint32_t);
+
+	for(size_t iIndex = 0; ; ++iIndex) {
+		const uint32_t length = * (const uint32_t*) p;
+		p += sizeof(uint32_t);
+		if(iIndex >= index) {
+			break;
+		}
+		p += length;
+	}
+	return p;
 }
 
 } // namespace nvc
