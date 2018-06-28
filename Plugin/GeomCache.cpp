@@ -79,7 +79,9 @@ bool GeomCache::open(const char* nvcFilename) {
 			, FileStream::OpenModes::Random_ReadOnly
 		)
 	);
-	assert(m_InputFileStream && m_InputFileStream->canRead());
+	if(m_InputFileStream == nullptr || (!m_InputFileStream->canRead())) {
+		return false;
+	}
 
 	m_Decompressor = std::unique_ptr<NullDecompressor>(
 		new NullDecompressor()
