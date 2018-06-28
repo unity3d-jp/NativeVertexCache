@@ -2,6 +2,7 @@
 #include "Plugin/AlembicToGeomCache/AlembicToGeomCache.h"
 #include "Plugin/Stream/FileStream.h"
 #include "Plugin/Compression/NullCompressor.h"
+#include "Plugin/Compression/QuantisationCompressor.h"
 #include "Plugin/InputGeomCache.h"
 #include "Plugin/GeomCache.h"
 #include "Plugin/GeomCacheData.h"
@@ -11,6 +12,8 @@
 
 namespace {
 using namespace nvc;
+//using Compressor = nvc::NullCompressor;
+using Compressor = nvc::QuantisationCompressor;
 template<typename T>
 void convertDataArrayToFloat2(float2* dst, const T* src, size_t numberOfElements) {
 	for(size_t i = 0; i < numberOfElements; ++i) {
@@ -215,7 +218,7 @@ static void test0() {
 //		dump(*abcGeoms.geometry);
 
 	    FileStream fs { nvcFilename, FileStream::OpenModes::Random_ReadWrite };
-	    NullCompressor nc {};
+	    Compressor nc {};
 	    nc.compress(*abcGeoms.geometry, &fs);
 	}
 
@@ -256,7 +259,7 @@ static void test1() {
 //		dump(*abcGeoms.geometry);
 
 	    FileStream fs { nvcFilename, FileStream::OpenModes::Random_ReadWrite };
-	    NullCompressor nc {};
+	    Compressor nc {};
 	    nc.compress(*abcGeoms.geometry, &fs);
 	}
 
@@ -277,7 +280,7 @@ static void test1() {
 			const auto r1 = geomCache.assignCurrentDataToMesh(outputGecomCache);
 			assert(r1);
 
-//			dump(outputGecomCache);
+			dump(outputGecomCache);
 		}
 	}
 }
@@ -304,7 +307,7 @@ static void test2() {
 //		dump(*abcGeoms.geometry);
 
 	    FileStream fs { nvcFilename, FileStream::OpenModes::Random_ReadWrite };
-	    NullCompressor nc {};
+	    Compressor nc {};
 	    nc.compress(*abcGeoms.geometry, &fs);
 	}
 
@@ -365,7 +368,7 @@ static void test3() {
 //		dump(*abcGeoms.geometry);
 
 	    FileStream fs { nvcFilename, FileStream::OpenModes::Random_ReadWrite };
-	    NullCompressor nc {};
+	    Compressor nc {};
 	    nc.compress(*abcGeoms.geometry, &fs);
 	}
 
