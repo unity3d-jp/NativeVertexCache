@@ -83,14 +83,9 @@ public:
 		return HUGE_VALF;
 	}
 
-public:
 	size_t getFrameIndex(float time) const override
 	{
-		const auto it = std::find_if(m_FrameTimeTable.begin(), m_FrameTimeTable.end(),
-			[time](float t)
-		{
-			return t == time;
-		});
+		const auto it = std::lower_bound(m_FrameTimeTable.cbegin(), m_FrameTimeTable.cend(), time);
 
 		if (it != m_FrameTimeTable.end())
 		{
