@@ -116,7 +116,11 @@ void InputGeomCache::getData(size_t frameIndex, float& frameTime, GeomCacheData*
 		data->indexCount = frameData.second.indexCount;
 		data->vertices = frameData.second.vertices;
 		data->vertexCount = frameData.second.vertexCount;
-	}
+        data->meshes = frameData.second.meshes;
+        data->meshCount = frameData.second.meshCount;
+        data->submeshes = frameData.second.submeshes;
+        data->submeshCount = frameData.second.submeshCount;
+    }
 }
 
 size_t InputGeomCache::getDataCount() const
