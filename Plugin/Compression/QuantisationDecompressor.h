@@ -25,6 +25,7 @@ private:
 	std::vector<uint64_t> m_SeekTable;
 	std::vector<float> m_FrameTimeTable;
 	std::vector<bool> m_IsFrameLoaded;
+	std::vector<uint8_t> m_ConstantData;
 
 	struct FrameDataType 
 	{
@@ -47,6 +48,8 @@ public:
 	bool getData(size_t frameIndex, float& time, GeomCacheData& data) override;
 	bool getData(float time, GeomCacheData& data) override;
 	const GeomCacheDesc* getDescriptors() const override { return &m_Descriptor[0]; }
+	size_t getConstantDataStringSize() const override;
+	const char* getConstantDataString(size_t index) const override;
 
 	//...
 	QuantisationDecompressor(const QuantisationDecompressor&) = delete;

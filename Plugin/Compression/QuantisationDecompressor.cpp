@@ -6,6 +6,7 @@
 
 //! Project Includes.
 #include "Plugin/Stream/Stream.h"
+#include "Plugin/InputGeomCache.h"
 
 namespace nvc
 {
@@ -45,6 +46,12 @@ void QuantisationDecompressor::open(Stream* pStream)
 		m_SeekTable.push_back(m_pStream->read<uint64_t>());
 	}
 
+	// Read constant data
+	if(m_Header.ConstantDataSize > 0) {
+		m_ConstantData.resize(m_Header.ConstantDataSize);
+		m_pStream->read(m_ConstantData.data(), m_ConstantData.size());
+	}
+
 	// Read the time table.
 	for (size_t iFrame = 0; iFrame < m_Header.FrameCount; ++iFrame)
 	{
@@ -82,7 +89,7 @@ void QuantisationDecompressor::prefetch(size_t frameIndex, size_t range)
 
 	// Load the frames from the seek window until the end of the range specified.
 	m_pStream->seek(getSeekTableOffset(frameIndex), Stream::SeekOrigin::Begin);
-	for (size_t iFrame = 0; iFrame < frameToLoad; ++iFrame)
+	for (size_t iFrame = startFrame; iFrame < startFrame + frameToLoad; ++iFrame)
 	{
 		loadFrame(iFrame);
 
@@ -103,11 +110,14 @@ bool QuantisationDecompressor::getData(size_t frameIndex, float& time, GeomCache
 
 bool QuantisationDecompressor::getData(float time, GeomCacheData& data)
 {
-	const auto it = std::find_if(m_LoadedFrames.begin(), m_LoadedFrames.end(),
-		[time](const FrameDataType& d)
-	{
-		return d.Time == time;
-	});
+	const auto it = std::lower_bound(
+		  m_LoadedFrames.begin()
+		, m_LoadedFrames.end()
+		, FrameDataType { time, GeomCacheData{} }
+		, [](const FrameDataType& lhs, const FrameDataType& rhs) -> bool {
+			return lhs.Time < rhs.Time;
+		}
+	);
 
 	if (it != m_LoadedFrames.end())
 	{
@@ -116,6 +126,24 @@ bool QuantisationDecompressor::getData(float time, GeomCacheData& data)
 	}
 
 	return false;
+}
+
+size_t QuantisationDecompressor::getConstantDataStringSize() const
+{
+	if (!m_ConstantData.empty())
+	{
+		return InputGeomCacheConstantData::getStringCountFromData(m_ConstantData.data(), m_ConstantData.size());
+	}
+	return 0;
+}
+
+const char* QuantisationDecompressor::getConstantDataString(size_t index) const
+{
+	if (!m_ConstantData.empty())
+	{
+		return InputGeomCacheConstantData::getStringFromData(m_ConstantData.data(), m_ConstantData.size(), index);
+	}
+	return nullptr;
 }
 
 void QuantisationDecompressor::loadFrame(size_t frameIndex)
