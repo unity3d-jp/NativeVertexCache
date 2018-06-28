@@ -166,7 +166,6 @@ void QuantisationDecompressor::loadFrame(size_t frameIndex)
 	quantisation_compression::FrameHeader frameHeader{};
 	m_pStream->read(frameHeader);
 
-
 	FrameDataType frameData{};
 	frameData.Time = m_FrameTimeTable[frameIndex];
 	frameData.Data.indexCount = frameHeader.IndexCount;
@@ -213,7 +212,19 @@ void QuantisationDecompressor::loadFrame(size_t frameIndex)
 
 		for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
 		{
-			const size_t dataSize = getSizeOfDataFormat(m_Descriptor[iAttribute].format) * frameData.Data.vertexCount;
+			size_t dataSize = getSizeOfDataFormat(m_Descriptor[iAttribute].format) * frameData.Data.vertexCount;
+			if (_stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_POINTS) == 0)
+			{
+				dataSize = getSizeOfDataFormat(DataFormat::UNorm16x3) * frameData.Data.vertexCount;
+			}
+			else if (_stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_NORMALS) == 0)
+			{
+				dataSize = getSizeOfDataFormat(DataFormat::UNorm16x2) * frameData.Data.vertexCount;
+			}
+			else if (_stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_TANGENTS) == 0)
+			{
+				dataSize = getSizeOfDataFormat(DataFormat::UNorm16x2) * frameData.Data.vertexCount;
+			}
 
 			void *vertexData = malloc(dataSize);
 			if (vertexData != nullptr)
