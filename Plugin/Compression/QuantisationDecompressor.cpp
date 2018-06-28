@@ -7,6 +7,7 @@
 //! Project Includes.
 #include "Plugin/Stream/Stream.h"
 #include "Plugin/InputGeomCache.h"
+#include "PackedTransform.h"
 
 namespace nvc
 {
@@ -194,6 +195,9 @@ void QuantisationDecompressor::loadFrame(size_t frameIndex)
 		const size_t attributeCount = getAttributeCount(m_Descriptor);
 		frameData.Data.vertices = new void*[attributeCount];
 
+		AABB verticesAABB{};
+		m_pStream->read(verticesAABB);
+
 		for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
 		{
 			const size_t dataSize = getSizeOfDataFormat(m_Descriptor[iAttribute].format) * frameData.Data.vertexCount;
@@ -206,6 +210,58 @@ void QuantisationDecompressor::loadFrame(size_t frameIndex)
 			else
 			{
 				m_pStream->seek(dataSize, Stream::SeekOrigin::Current);
+			}
+
+			if (_stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_POINTS) == 0
+				&& m_Descriptor[iAttribute].format == DataFormat::UNorm16x3)
+			{
+				unorm16x3* packedVertices = static_cast<unorm16x3*>(vertexData);
+				float3 *unpackedVertices = static_cast<float3*>(malloc(getSizeOfDataFormat(DataFormat::Float3) * frameData.Data.vertexCount));
+
+				for (size_t iVertex = 0; iVertex < frameData.Data.vertexCount; ++iVertex)
+				{
+					unpackedVertices[iVertex] = UnpackPoint(verticesAABB, packedVertices[iVertex]);
+				}
+
+				free(vertexData);
+				vertexData = unpackedVertices;
+			}
+			else if (_stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_NORMALS) == 0
+				&& m_Descriptor[iAttribute].format == DataFormat::UNorm16x2)
+			{
+				unorm16x2* packedNormals = static_cast<unorm16x2*>(vertexData);
+				float3 *unpackedNormals = static_cast<float3*>(malloc(getSizeOfDataFormat(DataFormat::Float3) * frameData.Data.vertexCount));
+
+				for (size_t iVertex = 0; iVertex < frameData.Data.vertexCount; ++iVertex)
+				{
+					float2 n; n[0] = packedNormals[iVertex][0].to_float(); n[1] = packedNormals[iVertex][1].to_float();
+					unpackedNormals[iVertex] = OctDecode(n);
+				}
+
+				free(vertexData);
+				vertexData = unpackedNormals;
+			}
+			else if (_stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_TANGENTS) == 0
+				&& m_Descriptor[iAttribute].format == DataFormat::UNorm16x2)
+			{
+				unorm16x2* packedTangents = static_cast<unorm16x2*>(vertexData);
+				float4 *unpackedTangents = static_cast<float4*>(malloc(getSizeOfDataFormat(DataFormat::Float3) * frameData.Data.vertexCount));
+
+				for (size_t iVertex = 0; iVertex < frameData.Data.vertexCount; ++iVertex)
+				{
+					float2 packed;
+					packed[0] = packedTangents[iVertex][0].to_float();
+					packed[1] = packedTangents[iVertex][1].to_float();
+
+					float3 t = OctDecode(packed);
+					unpackedTangents[iVertex][0] = t[0];
+					unpackedTangents[iVertex][1] = t[1];
+					unpackedTangents[iVertex][2] = t[2];
+					unpackedTangents[iVertex][3] = 1.0f;
+				}
+
+				free(vertexData);
+				vertexData = unpackedTangents;
 			}
 
 			frameData.Data.vertices[iAttribute] = vertexData;

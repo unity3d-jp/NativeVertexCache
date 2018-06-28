@@ -141,13 +141,15 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 		// Write vertices.
 		if (frameData.vertices)
 		{
+			float3* points = static_cast<float3*>(frameData.vertices[pointsAttributeIndex]);
+			const AABB verticesAABB = AABB::Build(points, frameData.vertexCount);
+
+			pStream->write(verticesAABB);
+
 			for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
 			{
 				if (iAttribute == pointsAttributeIndex)
 				{
-					float3* points = static_cast<float3*>(frameData.vertices[pointsAttributeIndex]);
-					const AABB verticesAABB = AABB::Build(points, frameData.vertexCount);
-
 					unorm16x3* packedVertices = new unorm16x3[frameData.vertexCount];
 					for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
 					{
