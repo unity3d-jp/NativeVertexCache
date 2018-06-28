@@ -152,10 +152,17 @@ bool GeomCache::assignCurrentDataToMesh(OutputGeomCache& outputGecomCache) {
 	if(! m_Decompressor->getData(m_CurrentTime, geomCacheData)) {
 		return false;
 	}
+    if (geomCacheData.meshCount == 0 || geomCacheData.submeshCount == 0) {
+        return false;
+    }
+
 	if(geomCacheData.vertices == nullptr) {
 		freeGeomCacheData(geomCacheData, geomCacheData.vertexCount);
 		return false;
 	}
+
+    outputGecomCache.meshes.assign(geomCacheData.meshes, geomCacheData.meshes + geomCacheData.meshCount);
+    outputGecomCache.submeshes.assign(geomCacheData.submeshes, geomCacheData.submeshes + geomCacheData.submeshCount);
 
 	// indices
 	{

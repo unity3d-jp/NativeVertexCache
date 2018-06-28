@@ -9,6 +9,8 @@ namespace nvc {
 class OutputGeomCache
 {
 public:
+    std::vector<GeomMesh> meshes;
+    std::vector<GeomSubmesh> submeshes;
     std::vector<int> indices;
     std::vector<float3> points;
     std::vector<float3> normals;

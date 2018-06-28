@@ -27,6 +27,10 @@ nvcAPI void nvcIGCAddData(nvc::InputGeomCache *self, float time, const nvc::Geom
 
 nvcAPI nvc::OutputGeomCache* nvcOGCCreate();
 nvcAPI void nvcOGCRelease(nvc::OutputGeomCache *self);
+nvcAPI int  nvcOGCGetMeshCount(nvc::OutputGeomCache *self);
+nvcAPI void nvcOGCGetMesh(nvc::OutputGeomCache *self, int index, nvc::GeomMesh* dst);
+nvcAPI int  nvcOGCGetSubmeshCount(nvc::OutputGeomCache *self);
+nvcAPI void nvcOGCGetSubmesh(nvc::OutputGeomCache *self, int index, nvc::GeomSubmesh* dst);
 nvcAPI int  nvcOGCGetVertexCount(nvc::OutputGeomCache *self);
 nvcAPI int  nvcOGCGetIndexCount(nvc::OutputGeomCache *self);
 nvcAPI int  nvcOGCCopyIndices(nvc::OutputGeomCache *self, const nvc::GeomSubmesh *gsm, int *dst);

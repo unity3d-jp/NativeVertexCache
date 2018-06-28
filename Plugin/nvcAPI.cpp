@@ -30,6 +30,27 @@ nvcAPI void nvcOGCRelease(nvc::OutputGeomCache *self)
     delete self;
 }
 
+nvcAPI int nvcOGCGetMeshCount(nvc::OutputGeomCache *self)
+{
+    return self ? (int)self->meshes.size() : 0;
+}
+nvcAPI void nvcOGCGetMesh(nvc::OutputGeomCache *self, int index, nvc::GeomMesh* dst)
+{
+    if (self) {
+        *dst = self->meshes[index];
+    }
+}
+nvcAPI int nvcOGCGetSubmeshCount(nvc::OutputGeomCache *self)
+{
+    return self ? (int)self->submeshes.size() : 0;
+}
+nvcAPI void nvcOGCGetSubmesh(nvc::OutputGeomCache *self, int index, nvc::GeomSubmesh* dst)
+{
+    if (self) {
+        *dst = self->submeshes[index];
+    }
+}
+
 nvcAPI int nvcOGCGetVertexCount(nvc::OutputGeomCache *self)
 {
     return self ? (int)self->points.size() : 0;
