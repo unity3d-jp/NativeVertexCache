@@ -23,9 +23,6 @@ public:
 	//	uint32_t	numStrings;
 	//	String strings[numStrings];
 	//
-	size_t getStringCount() const;
-	const char* getString(size_t stringIndex) const;
-	void clearStrings();
 	size_t addString(const char* text);
 
 	size_t getSizeAsByteArray() const;
