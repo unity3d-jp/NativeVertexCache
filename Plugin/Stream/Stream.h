@@ -35,10 +35,10 @@ public:
 	virtual void close() = 0;
 
 	template <typename TData>
-	TData read() { TData d; read(&d, sizeof(TData)); return d; }
+	TData read() const { TData d; read(&d, sizeof(TData)); return d; }
 
 	template <typename TData>
-	void read(TData& d) { read(&d, sizeof(TData)); }
+	void read(TData& d) const { read(&d, sizeof(TData)); }
 
 	template <typename TData>
 	void write(const TData& d) { write(&d, sizeof(TData)); }
