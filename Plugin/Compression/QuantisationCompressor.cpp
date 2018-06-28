@@ -161,7 +161,7 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 
 					delete[] packedVertices;
 				}
-				else if (iAttribute != normalsAttributeIndex)
+				else if (iAttribute == normalsAttributeIndex)
 				{
 					float3* normals = static_cast<float3*>(frameData.vertices[normalsAttributeIndex]);
 
@@ -178,7 +178,7 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 
 					delete[] packedNormals;
 				}
-				else if (iAttribute != tangentsAttributeIndex)
+				else if (iAttribute == tangentsAttributeIndex)
 				{
 					float4* tangents = static_cast<float4*>(frameData.vertices[tangentsAttributeIndex]);
 
