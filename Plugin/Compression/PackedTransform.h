@@ -167,8 +167,8 @@ struct PackedQuaternion
 	operator float4() const
 	{
 		const float a0 = UnpackFloatNormalized(X0, NORM_FACTOR, QUATERNION_BITS_PER_COMPONENT);
-		const float a1 = UnpackFloatNormalized(X0, NORM_FACTOR, QUATERNION_BITS_PER_COMPONENT);
-		const float a2 = UnpackFloatNormalized(X0, NORM_FACTOR, QUATERNION_BITS_PER_COMPONENT);
+		const float a1 = UnpackFloatNormalized(X1, NORM_FACTOR, QUATERNION_BITS_PER_COMPONENT);
+		const float a2 = UnpackFloatNormalized(X2, NORM_FACTOR, QUATERNION_BITS_PER_COMPONENT);
 		
 		float4 quat;
 		if (drop == 0)
