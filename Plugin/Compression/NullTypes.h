@@ -10,6 +10,7 @@ namespace null_compression
 		uint64_t FrameCount;
 		uint32_t FrameSeekWindowCount;
 		uint32_t VertexAttributeCount;
+		uint32_t ConstantDataSize;
 	};
 
 	struct FrameHeader
