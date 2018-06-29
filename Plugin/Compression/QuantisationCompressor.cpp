@@ -82,7 +82,6 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 	bool areUV0Null = true;
 	bool areUV1Null = true;
 	bool areVelocitiesNull = true;
-	uint32_t attributeToRemove = 0;
 
 	size_t frameCount = geomCache.getDataCount();
 	for (uint64_t iFrame = 0; iFrame < frameCount; ++iFrame)
@@ -105,11 +104,6 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 				{
 					areUV0Null = areUV0Null && (uv0[iVertex][0] == 0.0f && uv0[iVertex][1] == 0.0f);
 				}
-
-				if (areUV0Null)
-				{
-					++attributeToRemove;
-				}
 			}
 
 			if (uv1AttributeIndex == ~0u)
@@ -118,11 +112,6 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 				for (size_t iVertex = 0; areUV1Null && (iVertex < frameData.vertexCount); ++iVertex)
 				{
 					areUV1Null = areUV1Null && (uv1[iVertex][0] == 0.0f && uv1[iVertex][1] == 0.0f);
-				}
-
-				if (areUV1Null)
-				{
-					++attributeToRemove;
 				}
 			}
 
@@ -136,13 +125,24 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 							&& velocities[iVertex][1] == 0.0f
 							&& velocities[iVertex][2] == 0.0f);
 				}
-
-				if (areVelocitiesNull)
-				{
-					++attributeToRemove;
-				}
 			}
 		}
+	}
+
+	uint32_t attributeToRemove = 0;
+	if (areUV0Null)
+	{
+		++attributeToRemove;
+	}
+
+	if (areUV1Null)
+	{
+		++attributeToRemove;
+	}
+
+	if (areVelocitiesNull)
+	{
+		++attributeToRemove;
 	}
 
 	if (vertexIdAttributeIndex == ~0u)
