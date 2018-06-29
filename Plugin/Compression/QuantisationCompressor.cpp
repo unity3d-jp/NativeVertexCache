@@ -97,7 +97,7 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 		// Write vertices.
 		if (frameData.vertices)
 		{
-			if (uv1AttributeIndex == ~0u)
+			if (uv0AttributeIndex == ~0u)
 			{
 				const float2* uv0 = static_cast<const float2*>(frameData.vertices[uv0AttributeIndex]);
 				for (size_t iVertex = 0; areUV0Null && (iVertex < frameData.vertexCount); ++iVertex)
@@ -130,26 +130,26 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 	}
 
 	uint32_t attributeToRemove = 0;
-	if (areUV0Null)
+	if (uv0AttributeIndex != ~0u && areUV0Null)
 	{
 		++attributeToRemove;
 	}
 
-	if (areUV1Null)
+	if (uv1AttributeIndex != ~0u && areUV1Null)
 	{
 		++attributeToRemove;
 	}
 
-	if (areVelocitiesNull)
+	if (velocitiesAttributeIndex != ~0u && areVelocitiesNull)
 	{
 		++attributeToRemove;
 	}
 
-	if (vertexIdAttributeIndex == ~0u)
+	if (vertexIdAttributeIndex != ~0u)
 	{
 		++attributeToRemove;
 	}
-	if (meshIdAttributeIndex == ~0u)
+	if (meshIdAttributeIndex != ~0u)
 	{
 		++attributeToRemove;
 	}
