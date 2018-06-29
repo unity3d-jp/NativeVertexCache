@@ -77,7 +77,7 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 	{
 		static_cast<uint64_t>(geomCache.getDataCount()),
 		static_cast<uint32_t>(DefaultSeekWindow),
-		static_cast<uint32_t>(getAttributeCount(geomDesc)) - (vertexIdAttributeIndex != ~0u ? 1 : 0) - (meshIdAttributeIndex != ~0u ? 1 : 0),
+		static_cast<uint32_t>(getAttributeCount(geomDesc)) - (vertexIdAttributeIndex == ~0u ? 0 : 1) - (meshIdAttributeIndex == ~0u ? 0 : 1),
 		static_cast<uint32_t>(geomConstantData.getSizeAsByteArray())
 	};
 
@@ -174,8 +174,8 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 
 			for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
 			{
-				if (iAttribute != vertexIdAttributeIndex
-					&& iAttribute != meshIdAttributeIndex)
+				if (iAttribute == vertexIdAttributeIndex
+					|| iAttribute == meshIdAttributeIndex)
 				{
 					// Skip.
 				}
