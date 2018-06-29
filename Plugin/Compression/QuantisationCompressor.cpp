@@ -24,6 +24,7 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 
 	// Find vertex attributes and update the formats.
 	size_t pointsAttributeIndex = ~0u;
+	size_t velocitiesAttributeIndex = ~0u;
 	size_t normalsAttributeIndex = ~0u;
 	size_t tangentsAttributeIndex = ~0u;
 	size_t uv0AttributeIndex = ~0u;
@@ -39,6 +40,11 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 			if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_POINTS) == 0)
 			{
 				pointsAttributeIndex = iAttribute;
+				geomDesc[iAttribute].format = DataFormat::UNorm16x3;
+			}
+			else if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_VELOCITIES) == 0)
+			{
+				velocitiesAttributeIndex = iAttribute;
 				geomDesc[iAttribute].format = DataFormat::UNorm16x3;
 			}
 			else if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_NORMALS) == 0)
@@ -191,6 +197,20 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 					pStream->write(packedVertices, dataSize);
 
 					delete[] packedVertices;
+				}
+				else if (iAttribute == velocitiesAttributeIndex)
+				{
+					float3* velocities = static_cast<float3*>(frameData.vertices[iAttribute]);
+					unorm16x3* packedVelocities = new unorm16x3[frameData.vertexCount];
+					for (size_t iVelocities = 0; iVelocities < frameData.vertexCount; ++iVelocities)
+					{
+						packedVelocities[iVelocities] = PackPoint(verticesAABB, velocities[iVelocities]);
+					}
+
+					const size_t dataSize = getSizeOfDataFormat(DataFormat::UNorm16x3) * frameData.vertexCount;
+					pStream->write(packedVelocities, dataSize);
+
+					delete[] packedVelocities;
 				}
 				else if (iAttribute == normalsAttributeIndex)
 				{

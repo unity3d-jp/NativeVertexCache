@@ -41,6 +41,10 @@ void QuantisationDecompressor::open(Stream* pStream)
 		{
 			m_Descriptor[iElement].format = DataFormat::Float3;
 		}
+		else if (_stricmp(m_Descriptor[iElement].semantic, nvcSEMANTIC_VELOCITIES) == 0)
+		{
+			m_Descriptor[iElement].format = DataFormat::Float3;
+		}
 		else if (_stricmp(m_Descriptor[iElement].semantic, nvcSEMANTIC_NORMALS) == 0)
 		{
 			m_Descriptor[iElement].format = DataFormat::Float3;
@@ -222,6 +226,10 @@ void QuantisationDecompressor::loadFrame(size_t frameIndex)
 			{
 				dataSize = getSizeOfDataFormat(DataFormat::UNorm16x3) * frameData.Data.vertexCount;
 			}
+			else if (_stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_VELOCITIES) == 0)
+			{
+				dataSize = getSizeOfDataFormat(DataFormat::UNorm16x3) * frameData.Data.vertexCount;
+			}
 			else if (_stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_NORMALS) == 0)
 			{
 				dataSize = getSizeOfDataFormat(DataFormat::UNorm16x2) * frameData.Data.vertexCount;
@@ -258,6 +266,19 @@ void QuantisationDecompressor::loadFrame(size_t frameIndex)
 
 				free(vertexData);
 				vertexData = unpackedVertices;
+			}
+			else if (_stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_VELOCITIES) == 0)
+			{
+				unorm16x3* packedVelocities = static_cast<unorm16x3*>(vertexData);
+				float3 *unpackedVelocities = static_cast<float3*>(malloc(getSizeOfDataFormat(DataFormat::Float3) * frameData.Data.vertexCount));
+
+				for (size_t iVertex = 0; iVertex < frameData.Data.vertexCount; ++iVertex)
+				{
+					unpackedVelocities[iVertex] = UnpackPoint(verticesAABB, packedVelocities[iVertex]);
+				}
+
+				free(vertexData);
+				vertexData = unpackedVelocities;
 			}
 			else if (_stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_NORMALS) == 0)
 			{
