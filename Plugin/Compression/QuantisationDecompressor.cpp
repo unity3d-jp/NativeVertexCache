@@ -49,6 +49,11 @@ void QuantisationDecompressor::open(Stream* pStream)
 		{
 			m_Descriptor[iElement].format = DataFormat::Float4;
 		}
+		else if (_stricmp(m_Descriptor[iElement].semantic, nvcSEMANTIC_UV0) == 0
+			|| _stricmp(m_Descriptor[iElement].semantic, nvcSEMANTIC_UV1) == 0)
+		{
+			m_Descriptor[iElement].format = DataFormat::Float2;
+		}
 	}
 
 	m_FramesOffset = m_pStream->getPosition();
@@ -225,6 +230,11 @@ void QuantisationDecompressor::loadFrame(size_t frameIndex)
 			{
 				dataSize = getSizeOfDataFormat(DataFormat::UNorm16x2) * frameData.Data.vertexCount;
 			}
+			else if (_stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_UV0) == 0
+				|| _stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_UV1) == 0)
+			{
+				dataSize = getSizeOfDataFormat(DataFormat::UNorm16x2) * frameData.Data.vertexCount;
+			}
 
 			void *vertexData = malloc(dataSize);
 			if (vertexData != nullptr)
@@ -283,6 +293,21 @@ void QuantisationDecompressor::loadFrame(size_t frameIndex)
 
 				free(vertexData);
 				vertexData = unpackedTangents;
+			}
+			else if (_stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_UV0) == 0
+				|| _stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_UV1) == 0)
+			{
+				unorm16x2* packedUVs = static_cast<unorm16x2*>(vertexData);
+				float2 *unpackedUVs = static_cast<float2*>(malloc(getSizeOfDataFormat(DataFormat::Float2) * frameData.Data.vertexCount));
+
+				for (size_t iVertex = 0; iVertex < frameData.Data.vertexCount; ++iVertex)
+				{
+					unpackedUVs[iVertex][0] = packedUVs[iVertex][0].to_float();
+					unpackedUVs[iVertex][1] = packedUVs[iVertex][1].to_float();
+				}
+
+				free(vertexData);
+				vertexData = unpackedUVs;
 			}
 
 			frameData.Data.vertices[iAttribute] = vertexData;

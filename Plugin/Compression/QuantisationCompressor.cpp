@@ -22,21 +22,14 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 	InputGeomCacheConstantData geomConstantData {};
 	geomCache.getConstantData(geomConstantData);
 
-	// Write header.
-	const quantisation_compression::FileHeader header
-	{
-		static_cast<uint64_t>(geomCache.getDataCount()),
-		static_cast<uint32_t>(DefaultSeekWindow),
-		static_cast<uint32_t>(getAttributeCount(geomDesc)),
-		static_cast<uint32_t>(geomConstantData.getSizeAsByteArray())
-	};
-
-	pStream->write(header);
-
 	// Find vertex attributes and update the formats.
 	size_t pointsAttributeIndex = ~0u;
 	size_t normalsAttributeIndex = ~0u;
 	size_t tangentsAttributeIndex = ~0u;
+	size_t uv0AttributeIndex = ~0u;
+	size_t uv1AttributeIndex = ~0u;
+	size_t vertexIdAttributeIndex = ~0u;
+	size_t meshIdAttributeIndex = ~0u;
 
 	const size_t attributeCount = getAttributeCount(geomDesc);
 	for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
@@ -58,20 +51,53 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 				tangentsAttributeIndex = iAttribute;
 				geomDesc[iAttribute].format = DataFormat::UNorm16x2;
 			}
+			else if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_UV0) == 0)
+			{
+				uv0AttributeIndex = iAttribute;
+				geomDesc[iAttribute].format = DataFormat::UNorm16x2;
+			}
+			else if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_UV1) == 0)
+			{
+				uv1AttributeIndex = iAttribute;
+				geomDesc[iAttribute].format = DataFormat::UNorm16x2;
+			}
+			else if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_VERTEXID) == 0)
+			{
+				vertexIdAttributeIndex = iAttribute;
+			}
+			else if (_stricmp(geomDesc[iAttribute].semantic, nvcSEMANTIC_MESHID) == 0)
+			{
+				meshIdAttributeIndex = iAttribute;
+			}
 		}
 	}
+
+	// Write header.
+	const quantisation_compression::FileHeader header
+	{
+		static_cast<uint64_t>(geomCache.getDataCount()),
+		static_cast<uint32_t>(DefaultSeekWindow),
+		static_cast<uint32_t>(getAttributeCount(geomDesc)) - (vertexIdAttributeIndex != ~0u ? 1 : 0) - (meshIdAttributeIndex != ~0u ? 1 : 0),
+		static_cast<uint32_t>(geomConstantData.getSizeAsByteArray())
+	};
+
+	pStream->write(header);
 
 	// Write the descriptor.
 	char buffer[quantisation_compression::SEMANTIC_STRING_LENGTH] = {};
 	for (uint32_t iAttribute = 0; iAttribute < header.VertexAttributeCount; ++iAttribute)
 	{
-		memset(buffer, 0, sizeof(buffer));
-		assert(geomDesc[iAttribute].semantic != nullptr
-			&& strlen(geomDesc[iAttribute].semantic) < quantisation_compression::SEMANTIC_STRING_LENGTH);
-		sprintf(buffer, "%s", geomDesc[iAttribute].semantic);
+		if (iAttribute != vertexIdAttributeIndex
+			&& iAttribute != meshIdAttributeIndex)
+		{
+			memset(buffer, 0, sizeof(buffer));
+			assert(geomDesc[iAttribute].semantic != nullptr
+				&& strlen(geomDesc[iAttribute].semantic) < quantisation_compression::SEMANTIC_STRING_LENGTH);
+			sprintf(buffer, "%s", geomDesc[iAttribute].semantic);
 
-		pStream->write(buffer, sizeof(buffer));
-		pStream->write<uint32_t>(static_cast<uint32_t>(geomDesc[iAttribute].format));
+			pStream->write(buffer, sizeof(buffer));
+			pStream->write<uint32_t>(static_cast<uint32_t>(geomDesc[iAttribute].format));
+		}
 	}
 
 	// Calculate frame offsets and write a dummy entry in the stream to hold the value later.
@@ -148,7 +174,12 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 
 			for (size_t iAttribute = 0; iAttribute < attributeCount; ++iAttribute)
 			{
-				if (iAttribute == pointsAttributeIndex)
+				if (iAttribute != vertexIdAttributeIndex
+					&& iAttribute != meshIdAttributeIndex)
+				{
+					// Skip.
+				}
+				else if (iAttribute == pointsAttributeIndex)
 				{
 					unorm16x3* packedVertices = new unorm16x3[frameData.vertexCount];
 					for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
@@ -163,7 +194,7 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 				}
 				else if (iAttribute == normalsAttributeIndex)
 				{
-					float3* normals = static_cast<float3*>(frameData.vertices[normalsAttributeIndex]);
+					float3* normals = static_cast<float3*>(frameData.vertices[iAttribute]);
 
 					unorm16x2* packedNormals = new unorm16x2[frameData.vertexCount];
 					for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
@@ -180,7 +211,7 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 				}
 				else if (iAttribute == tangentsAttributeIndex)
 				{
-					float4* tangents = static_cast<float4*>(frameData.vertices[tangentsAttributeIndex]);
+					float4* tangents = static_cast<float4*>(frameData.vertices[iAttribute]);
 
 					unorm16x2* packedTangents = new unorm16x2[frameData.vertexCount];
 					for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
@@ -194,6 +225,23 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 					pStream->write(packedTangents, dataSize);
 
 					delete[] packedTangents;
+				}
+				else if (iAttribute == uv0AttributeIndex
+					|| iAttribute == uv1AttributeIndex)
+				{
+					float2* uvs = static_cast<float2*>(frameData.vertices[iAttribute]);
+
+					unorm16x2* packedUVs = new unorm16x2[frameData.vertexCount];
+					for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
+					{
+						packedUVs[iVertex][0] = uvs[iVertex][0];
+						packedUVs[iVertex][1] = uvs[iVertex][1];
+					}
+
+					const size_t dataSize = getSizeOfDataFormat(DataFormat::UNorm16x2) * frameData.vertexCount;
+					pStream->write(packedUVs, dataSize);
+
+					delete[] packedUVs;
 				}
 				else
 				{
