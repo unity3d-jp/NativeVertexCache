@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../Types.h"
 #include "../nvcAPI.h"
 
 #ifdef _WIN32

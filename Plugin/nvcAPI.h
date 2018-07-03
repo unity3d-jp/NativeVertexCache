@@ -12,7 +12,7 @@
     #define nvcAPI extern "C"
 #endif
 
-#include "./Types.h"
+#include "./Foundation/Types.h"
 #include "./GeomCacheData.h"
 
 namespace nvc {

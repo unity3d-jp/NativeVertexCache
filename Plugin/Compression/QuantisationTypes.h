@@ -1,5 +1,5 @@
 #pragma once
-#include "Plugin/Types.h"
+#include "Plugin/Foundation/Types.h"
 
 namespace nvc
 {

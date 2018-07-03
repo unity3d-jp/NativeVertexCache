@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Plugin/Types.h"
-
 #include <algorithm>
 #include <cmath>
+#include "Plugin/Foundation/Types.h"
 
 namespace nvc
 {

@@ -1,6 +1,7 @@
 #include "Plugin/PrecompiledHeader.h"
-#include "AlembicToGeomCache.h"
-#include "../../External/abci/abci.h"
+#include "Plugin/Foundation/RawVector.h"
+#include "./AlembicToGeomCache.h"
+#include "External/abci/abci.h"
 
 namespace nvcabc {
 
@@ -56,11 +57,11 @@ public:
     std::vector<nvc::GeomSubmesh> m_geosubmeshes;
     std::vector<void*> m_data_pointers;
 
-    std::vector<double> m_timesamples;
-    std::vector<int> m_indices;
-    std::vector<nvc::float2> m_uv0, m_uv1;
-    std::vector<nvc::float3> m_points, m_normals, m_velocities;
-    std::vector<nvc::float4> m_tangents, m_colors;
+    RawVector<double> m_timesamples;
+    RawVector<int> m_indices;
+    RawVector<nvc::float2> m_uv0, m_uv1;
+    RawVector<nvc::float3> m_points, m_normals, m_velocities;
+    RawVector<nvc::float4> m_tangents, m_colors;
     int m_id_points = -1,
         m_id_velocities = -1,
         m_id_normals = -1,

@@ -6,9 +6,10 @@
 
 //! Project Includes.
 #include "QuantisationTypes.h"
+#include "Plugin/Foundation/Types.h"
+#include "Plugin/Foundation/RawVector.h"
 #include "Plugin/InputGeomCache.h"
 #include "Plugin/Stream/Stream.h"
-#include "Plugin/Types.h"
 #include "PackedTransform.h"
 
 namespace nvc
@@ -273,36 +274,32 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 				}
 				else if (iAttribute == pointsAttributeIndex)
 				{
-					unorm16x3* packedVertices = new unorm16x3[frameData.vertexCount];
+					RawVector<unorm16x3> packedVertices(frameData.vertexCount);
 					for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
 					{
 						packedVertices[iVertex] = PackPoint(verticesAABB, points[iVertex]);
 					}
 
 					const size_t dataSize = getSizeOfDataFormat(DataFormat::UNorm16x3) * frameData.vertexCount;
-					pStream->write(packedVertices, dataSize);
-
-					delete[] packedVertices;
+					pStream->write(packedVertices.data(), dataSize);
 				}
 				else if (iAttribute == velocitiesAttributeIndex)
 				{
 					float3* velocities = static_cast<float3*>(frameData.vertices[iAttribute]);
-					unorm16x3* packedVelocities = new unorm16x3[frameData.vertexCount];
+                    RawVector<unorm16x3> packedVelocities(frameData.vertexCount);
 					for (size_t iVelocities = 0; iVelocities < frameData.vertexCount; ++iVelocities)
 					{
 						packedVelocities[iVelocities] = PackPoint(verticesAABB, velocities[iVelocities]);
 					}
 
 					const size_t dataSize = getSizeOfDataFormat(DataFormat::UNorm16x3) * frameData.vertexCount;
-					pStream->write(packedVelocities, dataSize);
-
-					delete[] packedVelocities;
+					pStream->write(packedVelocities.data(), dataSize);
 				}
 				else if (iAttribute == normalsAttributeIndex)
 				{
 					float3* normals = static_cast<float3*>(frameData.vertices[iAttribute]);
 
-					unorm16x2* packedNormals = new unorm16x2[frameData.vertexCount];
+					RawVector<unorm16x2> packedNormals(frameData.vertexCount);
 					for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
 					{
 						float2 n = OctEncode(normals[iVertex]);
@@ -311,9 +308,7 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 					}
 
 					const size_t dataSize = getSizeOfDataFormat(DataFormat::UNorm16x2) * frameData.vertexCount;
-					pStream->write(packedNormals, dataSize);
-
-					delete[] packedNormals;
+					pStream->write(packedNormals.data(), dataSize);
 				}
 				else if (iAttribute == tangentsAttributeIndex)
 				{
@@ -337,7 +332,7 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 				{
 					float2* uvs = static_cast<float2*>(frameData.vertices[iAttribute]);
 
-					unorm16x2* packedUVs = new unorm16x2[frameData.vertexCount];
+					RawVector<unorm16x2> packedUVs(frameData.vertexCount);
 					for (size_t iVertex = 0; iVertex < frameData.vertexCount; ++iVertex)
 					{
 						packedUVs[iVertex][0] = uvs[iVertex][0];
@@ -345,9 +340,7 @@ void QuantisationCompressor::compress(const InputGeomCache& geomCache, Stream* p
 					}
 
 					const size_t dataSize = getSizeOfDataFormat(DataFormat::UNorm16x2) * frameData.vertexCount;
-					pStream->write(packedUVs, dataSize);
-
-					delete[] packedUVs;
+					pStream->write(packedUVs.data(), dataSize);
 				}
 				else
 				{

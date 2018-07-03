@@ -5,7 +5,7 @@
 #include "GeomCacheData.h"
 
 //! Project Includes.
-#include "Types.h"
+#include "Plugin/Foundation/Types.h"
 
 namespace nvc 
 {

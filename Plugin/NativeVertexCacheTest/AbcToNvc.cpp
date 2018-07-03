@@ -1,4 +1,6 @@
 #include "Plugin/PrecompiledHeader.h"
+#include "Plugin/Foundation/Types.h"
+#include "Plugin/Foundation/Pcg.h"
 #include "Plugin/AlembicToGeomCache/AlembicToGeomCache.h"
 #include "Plugin/Stream/FileStream.h"
 #include "Plugin/Compression/NullCompressor.h"
@@ -7,8 +9,6 @@
 #include "Plugin/GeomCache.h"
 #include "Plugin/GeomCacheData.h"
 #include "Plugin/NativeVertexCacheTest/TestUtil.h"
-#include "Plugin/Types.h"
-#include "Plugin/Pcg.h"
 #include "./AbcToNvc.h"
 
 namespace nvc {

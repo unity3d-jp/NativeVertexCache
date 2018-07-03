@@ -1,5 +1,5 @@
 #include "Plugin/PrecompiledHeader.h"
-#include "Plugin/Types.h"
+#include "Plugin/Foundation/Types.h"
 #include "./TestUtil.h"
 
 
