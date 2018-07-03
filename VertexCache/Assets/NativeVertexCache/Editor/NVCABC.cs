@@ -136,6 +136,7 @@ namespace NaiveVertexCache.Alembic
         public string GetNodeName(int i) { return Misc.S(nvcabcGetNodeName(self, i)); }
         public string GetNodePath(int i) { return Misc.S(nvcabcGetNodePath(self, i)); }
         public NodeType GetNodeType(int i) { return nvcabcGetNodeType(self, i); }
+
         public bool FillXformSamples(int i, PinnedList<XformData> dst) { return nvcabcFillXformSamples(self, i, dst); }
         public bool FillCameraSamples(int i, PinnedList<CameraData> dst) { return nvcabcFillCameraSamples(self, i, dst); }
 

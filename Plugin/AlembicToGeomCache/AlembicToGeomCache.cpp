@@ -38,8 +38,12 @@ class ImportContext
 public:
     using InputGeomPtr = std::shared_ptr<nvc::InputGeomCache>;
 
-    ImportContext(aiContext *ctx);
+    ImportContext();
     ~ImportContext();
+
+    void clear();
+    bool open(const char *path, const ImportOptions& opt);
+
     void gatherTimes();
     void gatherMeshes();
     InputGeomCache* gatherSamples();
@@ -53,6 +57,7 @@ private:
     std::vector<MeshSegment> m_segments;
 
 public:
+    std::vector<aiObject*> m_abc_nodes;
     std::vector<nvc::GeomCacheDesc> m_descs;
     std::vector<nvc::GeomMesh> m_geomeshes;
     std::vector<nvc::GeomSubmesh> m_geosubmeshes;
@@ -183,17 +188,39 @@ void MeshSegment::fillVertexBuffersEnd()
 
 
 
-ImportContext::ImportContext(aiContext * ctx)
-    : m_ctx(ctx)
+ImportContext::ImportContext()
 {
 }
 
 ImportContext::~ImportContext()
 {
+    clear();
+}
+
+void ImportContext::clear()
+{
     if (m_igcconst) {
         nvcIGCReleaseConstantData(m_igcconst);
         m_igcconst = nullptr;
     }
+    if (m_ctx) {
+        aiContextDestroy(m_ctx);
+        m_ctx = nullptr;
+    }
+}
+
+bool ImportContext::open(const char * path_to_abc, const ImportOptions & opt)
+{
+    clear();
+
+    aiContext* ctx = aiContextCreate(1);
+    aiContextSetConfig(ctx, (const aiConfig*)&opt);
+    if (!aiContextLoad(ctx, path_to_abc)) {
+        aiContextDestroy(ctx);
+        return false;
+    }
+    m_ctx = ctx;
+    return true;
 }
 
 void ImportContext::gatherTimes()
@@ -219,6 +246,8 @@ void ImportContext::gatherMeshes(aiObject * obj)
 {
     if (!obj)
         return;
+
+    m_abc_nodes.push_back(obj);
 
     if (aiPolyMesh *poly = aiObjectAsPolyMesh(obj)) {
         m_segments.push_back(MeshSegment(this, poly));
@@ -374,18 +403,94 @@ InputGeomCache* ImportContext::gatherSamples()
 
 nvcabcAPI nvc::InputGeomCache* nvcabcAlembicToInputGeomCache(const char *path_to_abc, const nvcabc::ImportOptions& options)
 {
-    aiContext* ctx = aiContextCreate(1);
-    aiContextSetConfig(ctx, (const aiConfig*)&options);
-    if (!aiContextLoad(ctx, path_to_abc)) {
-        aiContextDestroy(ctx);
+    nvcabc::ImportContext ic;
+    if (!ic.open(path_to_abc, options)) {
         return false;
     }
-
-    nvcabc::ImportContext ic(ctx);
     ic.gatherTimes();
     ic.gatherMeshes();
     auto ret = ic.gatherSamples();
-
-    aiContextDestroy(ctx);
     return ret;
+}
+
+
+nvcabcAPI nvcabc::ImportContext* nvcabcCreateContext()
+{
+    return new nvcabc::ImportContext();
+}
+nvcabcAPI void nvcabcReleaseContext(nvcabc::ImportContext *self)
+{
+    delete self;
+}
+nvcabcAPI int nvcabcOpen(nvcabc::ImportContext *self, const char *path_to_abc, const nvcabc::ImportOptions* options)
+{
+    if (self) {
+        return self->open(path_to_abc, *options);
+    }
+    return false;
+}
+
+// convert and export to file
+nvcabcAPI int nvcabcExportNVC(nvcabc::ImportContext *self, const char *path_to_nvc, const nvcabc::ExportOptions* options)
+{
+    if (self) {
+        // todo
+    }
+    return false;
+}
+
+nvcabcAPI int nvcabcGetNodeCount(nvcabc::ImportContext *self)
+{
+    if (self) {
+        return  (int)self->m_abc_nodes.size();
+    }
+    return 0;
+}
+nvcabcAPI const char* nvcabcGetNodeName(nvcabc::ImportContext *self, int i)
+{
+    if (self) {
+        return aiObjectGetName(self->m_abc_nodes[i]);
+    }
+    return "";
+}
+nvcabcAPI const char* nvcabcGetNodePath(nvcabc::ImportContext *self, int i)
+{
+    if (self) {
+        return aiObjectGetFullName(self->m_abc_nodes[i]);
+    }
+    return "";
+}
+nvcabcAPI nvcabc::NodeType nvcabcGetNodeType(nvcabc::ImportContext *self, int i)
+{
+    if (self) {
+        auto obj = self->m_abc_nodes[i];
+        if (aiObjectAsXform(obj)) { return nvcabc::NodeType::Xform; }
+        if (aiObjectAsCamera(obj)) { return nvcabc::NodeType::Camera; }
+        if (aiObjectAsPolyMesh(obj)) { return nvcabc::NodeType::Mesh; }
+        if (aiObjectAsPoints(obj)) { return nvcabc::NodeType::Points; }
+    }
+    return nvcabc::NodeType::Unknwon;
+}
+nvcabcAPI int nvcabcGetSampleCount(nvcabc::ImportContext *self, int /*i*/)
+{
+    if (self) {
+        (int)self->m_timesamples.size();
+    }
+    return 0;
+}
+nvcabcAPI int nvcabcFillXformSamples(nvcabc::ImportContext *self, int i, nvcabc::XformData *dst)
+{
+    if (self) {
+        auto obj = self->m_abc_nodes[i];
+        // todo
+    }
+    return false;
+}
+nvcabcAPI int nvcabcFillCameraSamples(nvcabc::ImportContext *self, int i, nvcabc::CameraData *dst)
+{
+    if (self) {
+        auto obj = self->m_abc_nodes[i];
+        // todo
+    }
+    return false;
 }

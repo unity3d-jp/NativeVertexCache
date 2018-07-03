@@ -208,17 +208,4 @@ namespace NaiveVertexCache
         [DllImport("NativeVertexCache")] static extern IntPtr nvcGCGetConstantDataString(IntPtr self, int index);
         #endregion
     }
-
-
-    public static class Misc
-    {
-        public static PinnedList<byte> cstr(string s)
-        {
-            return new PinnedList<byte>(System.Text.Encoding.ASCII.GetBytes(s));
-        }
-        public static string S(IntPtr cstring)
-        {
-            return cstring == IntPtr.Zero ? "" : Marshal.PtrToStringAnsi(cstring);
-        }
-    }
 }
