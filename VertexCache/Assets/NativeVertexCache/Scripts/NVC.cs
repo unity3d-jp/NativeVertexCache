@@ -29,6 +29,12 @@ namespace NaiveVertexCache
         UNorm16x4,
     }
 
+    public enum CompressionType
+    {
+        Null,
+        Quantize,
+    };
+
     public enum Topology
     {
         Points,

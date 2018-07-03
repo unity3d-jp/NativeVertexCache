@@ -16,8 +16,6 @@
 namespace nvcabc {
 using namespace nvc;
 
-using ImportCallback = void(*)(void *userdata, nvc::InputGeomCache *igc);
-
 enum class NormalsMode
 {
     ReadFromFile,
@@ -40,9 +38,6 @@ enum NodeType
     Light,
     Mesh,
     Points,
-    FaceSets,
-    Curves,
-    SubD,
 };
 
 struct ImportOptions
@@ -114,15 +109,13 @@ nvcabcAPI nvcabc::ImportContext* nvcabcCreateContext();
 nvcabcAPI void nvcabcReleaseContext(nvcabc::ImportContext *self);
 nvcabcAPI int nvcabcOpen(nvcabc::ImportContext *self, const char *path_to_abc, const nvcabc::ImportOptions* options);
 
-// just convert to InputGeomCache.
-// ** caller must release returned object (call nvcIGCRelease()) **
-nvcabcAPI nvc::InputGeomCache* nvcabcConvertToInputGeomCache(nvcabc::ImportContext *self);
 // convert and export to file
 nvcabcAPI int nvcabcExportNVC(nvcabc::ImportContext *self, const char *path_to_nvc, const nvcabc::ExportOptions* options);
 
 nvcabcAPI int nvcabcGetNodeCount(nvcabc::ImportContext *self);
 nvcabcAPI const char* nvcabcGetNodeName(nvcabc::ImportContext *self, int i);
+nvcabcAPI const char* nvcabcGetNodePath(nvcabc::ImportContext *self, int i);
 nvcabcAPI nvcabc::NodeType nvcabcGetNodeType(nvcabc::ImportContext *self, int i);
 nvcabcAPI int nvcabcGetSampleCount(nvcabc::ImportContext *self, int i);
-nvcabcAPI int nvcabcFillXformSamples(nvcabc::ImportContext *self, nvcabc::XformData *dst);
-nvcabcAPI int nvcabcFillCameraSamples(nvcabc::ImportContext *self, nvcabc::CameraData *dst);
+nvcabcAPI int nvcabcFillXformSamples(nvcabc::ImportContext *self, int i, nvcabc::XformData *dst);
+nvcabcAPI int nvcabcFillCameraSamples(nvcabc::ImportContext *self, int i, nvcabc::CameraData *dst);
