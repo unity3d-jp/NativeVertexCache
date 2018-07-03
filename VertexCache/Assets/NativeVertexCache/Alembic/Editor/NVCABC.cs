@@ -28,6 +28,7 @@ namespace NaiveVertexCache.Alembic
         Points,
     };
 
+    [Serializable]
     public struct ImportOptions
     {
         // options for abci

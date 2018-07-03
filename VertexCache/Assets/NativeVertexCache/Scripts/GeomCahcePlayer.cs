@@ -50,52 +50,6 @@ namespace NaiveVertexCache
             m_ogc.Release();
         }
 
-        Transform FindOrCreateObjectByPath(string path, bool createIfNotExist, ref bool created)
-        {
-            var names = path.Split('/');
-            Transform t = GetComponent<Transform>();
-            foreach (var name in names)
-            {
-                if (name.Length == 0) { continue; }
-                t = FindOrCreateObjectByName(t, name, createIfNotExist, ref created);
-                if (t == null) { break; }
-            }
-            return t;
-        }
-
-        Transform FindOrCreateObjectByName(Transform parent, string name, bool createIfNotExist, ref bool created)
-        {
-            Transform ret = null;
-            if (parent == null)
-            {
-                var roots = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
-                foreach (var go in roots)
-                {
-                    if (go.name == name)
-                    {
-                        ret = go.GetComponent<Transform>();
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                ret = parent.Find(name);
-            }
-
-            if (createIfNotExist && ret == null)
-            {
-                var go = new GameObject();
-                go.name = name;
-                ret = go.GetComponent<Transform>();
-                if (parent != null)
-                    ret.SetParent(parent, false);
-                created = true;
-            }
-            return ret;
-        }
-
-
         void UpdateMesh(ref GeomMesh gm, Mesh dst)
         {
             if (dst == null)
@@ -120,7 +74,7 @@ namespace NaiveVertexCache
             for (int smi = 0; smi < gm.submeshCount; ++smi)
             {
                 m_ogc.GetSubmesh(gm.submeshOffset + smi, ref subm);
-                if(subm.topology == Topology.Triangles)
+                if (subm.topology == Topology.Triangles)
                 {
                     m_ogc.FillIndices(ref subm, m_indices);
                     dst.SetTriangles(m_indices.List, si++);
@@ -131,7 +85,7 @@ namespace NaiveVertexCache
         Mesh FindOrAddMesh(string path)
         {
             bool created = false;
-            var child = FindOrCreateObjectByPath(path, true, ref created);
+            var child = Misc.FindOrCreateObjectByPath(transform, path, true, ref created);
             if (child == null)
                 return null;
 
