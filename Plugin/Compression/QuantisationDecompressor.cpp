@@ -297,7 +297,7 @@ void QuantisationDecompressor::loadFrame(size_t frameIndex)
 			else if (_stricmp(m_Descriptor[iAttribute].semantic, nvcSEMANTIC_TANGENTS) == 0)
 			{
 				unorm16x2* packedTangents = static_cast<unorm16x2*>(vertexData);
-				float4 *unpackedTangents = static_cast<float4*>(malloc(getSizeOfDataFormat(DataFormat::Float3) * frameData.Data.vertexCount));
+				float4 *unpackedTangents = static_cast<float4*>(malloc(getSizeOfDataFormat(DataFormat::Float4) * frameData.Data.vertexCount));
 
 				for (size_t iVertex = 0; iVertex < frameData.Data.vertexCount; ++iVertex)
 				{
