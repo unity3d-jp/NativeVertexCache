@@ -39,6 +39,12 @@ enum class DataFormat : uint32_t
 	UNorm16x4,
 };
 
+enum CompressionType : uint32_t
+{
+    Null,
+    Quantize,
+};
+
 enum class Topology : uint32_t
 {
     Points,

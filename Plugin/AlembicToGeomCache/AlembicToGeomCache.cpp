@@ -36,11 +36,13 @@ public:
 class ImportContext
 {
 public:
-    ImportContext(aiContext *ctx, AlembicGeometries& result);
+    using InputGeomPtr = std::shared_ptr<nvc::InputGeomCache>;
+
+    ImportContext(aiContext *ctx);
     ~ImportContext();
     void gatherTimes();
     void gatherMeshes();
-    void gatherSamples();
+    InputGeomCache* gatherSamples();
 
 private:
     void gatherMeshes(aiObject *obj);
@@ -48,7 +50,6 @@ private:
 
     aiContext * m_ctx = nullptr;
     InputGeomCacheConstantData *m_igcconst = nullptr;
-    AlembicGeometries *m_result = nullptr;
     std::vector<MeshSegment> m_segments;
 
 public:
@@ -182,9 +183,8 @@ void MeshSegment::fillVertexBuffersEnd()
 
 
 
-ImportContext::ImportContext(aiContext * ctx, AlembicGeometries & result)
+ImportContext::ImportContext(aiContext * ctx)
     : m_ctx(ctx)
-    , m_result(&result)
 {
 }
 
@@ -212,11 +212,6 @@ void ImportContext::gatherTimes()
     m_timesamples.erase(
         std::unique(m_timesamples.begin(), m_timesamples.end()),
         m_timesamples.end());
-
-    size_t count = m_timesamples.size();
-    m_result->timesamples.resize(count);
-    for (size_t i = 0; i < count; ++i)
-        m_result->timesamples[i] = (float)m_timesamples[i];
 }
 
 
@@ -366,38 +361,31 @@ void ImportContext::gatherSamples(double time, nvc::InputGeomCache *igc)
     nvcIGCAddData(igc, (float)time, &odata);
 }
 
-void ImportContext::gatherSamples()
+InputGeomCache* ImportContext::gatherSamples()
 {
-    m_result->geometry = AlembicGeometries::GeomPtr(
-        nvcIGCCreate(m_descs.data(), m_igcconst),
-        nvcIGCRelease);
-    auto *igc = m_result->geometry.get();
+    InputGeomCache *ret = nvcIGCCreate(m_descs.data(), m_igcconst);
     for (auto ts : m_timesamples) {
-        gatherSamples(ts, igc);
+        gatherSamples(ts, ret);
     }
+    return ret;
 }
 
+} // namespace nvcabc
 
-nvcabcAPI bool AlembicToGeomCache(const char *path_to_abc, const AlembicImportOptions& options, AlembicGeometries& result)
+nvcabcAPI nvc::InputGeomCache* nvcabcAlembicToInputGeomCache(const char *path_to_abc, const nvcabc::ImportOptions& options)
 {
     aiContext* ctx = aiContextCreate(1);
-    {
-        aiConfig conf;
-        conf.async_load = options.multithreading;
-        aiContextSetConfig(ctx, &conf);
-    }
+    aiContextSetConfig(ctx, (const aiConfig*)&options);
     if (!aiContextLoad(ctx, path_to_abc)) {
         aiContextDestroy(ctx);
         return false;
     }
 
-    ImportContext ic(ctx, result);
+    nvcabc::ImportContext ic(ctx);
     ic.gatherTimes();
     ic.gatherMeshes();
-    ic.gatherSamples();
+    auto ret = ic.gatherSamples();
 
     aiContextDestroy(ctx);
-    return true;
+    return ret;
 }
-
-} // namespace nvcabc

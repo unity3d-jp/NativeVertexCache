@@ -8,13 +8,14 @@ void RunTest_Alembic()
 {
     using namespace nvcabc;
 
-    AlembicImportOptions opt;
-    AlembicGeometries result;
+    ImportOptions opt;
 
     const char *path_to_abc = "Cloth.abc";
 
-    if (AlembicToGeomCache(path_to_abc, opt, result)) {
-        printf("%s %d time samples\n", path_to_abc, (int)result.timesamples.size());
+    auto *igc = nvcabcAlembicToInputGeomCache(path_to_abc, opt);
+    if (igc) {
+        printf("%s %p time samples\n", path_to_abc, igc);
+        nvcIGCRelease(igc);
     }
     else {
         ThrowError("failed to open %s\n", path_to_abc);

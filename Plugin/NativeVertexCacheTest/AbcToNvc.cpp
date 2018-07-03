@@ -26,10 +26,9 @@ int AbcToNvc(const char* srcAbcFilename, const char* outNvcFilename, nvc::AbcToN
 
 	assert(IsFileExist(srcAbcFilename));
 
-	AlembicImportOptions opt;
-	AlembicGeometries abcGeoms;
-	const auto abcToGcResult = AlembicToGeomCache(srcAbcFilename, opt, abcGeoms);
-	assert(abcToGcResult);
+	ImportOptions opt;
+	const auto abcIgc = nvcabcAlembicToInputGeomCache(srcAbcFilename, opt);
+	assert(abcIgc);
 
     RemoveFile(outNvcFilename);
 	FileStream fs { outNvcFilename, FileStream::OpenModes::Random_ReadWrite };
@@ -39,17 +38,18 @@ int AbcToNvc(const char* srcAbcFilename, const char* outNvcFilename, nvc::AbcToN
 	case AbcToNvcCompressionMethod::Null:
 		{
 			NullCompressor nc {};
-			nc.compress(*abcGeoms.geometry, &fs);
+			nc.compress(*abcIgc, &fs);
 		}
 		break;
 	case AbcToNvcCompressionMethod::Quantisation:
 		{
 			QuantisationCompressor qc {};
-			qc.compress(*abcGeoms.geometry, &fs);
+			qc.compress(*abcIgc, &fs);
 		}
 		break;
 	}
-	return 0;
+    nvcIGCRelease(abcIgc);
+    return 0;
 }
 
 } // namespace nvc

@@ -216,18 +216,19 @@ static void test0() {
 
 	// Import -> output .nvc
 	{
-	    AlembicImportOptions opt;
-	    AlembicGeometries abcGeoms;
+	    ImportOptions opt;
 
-	    const auto abcToGcResult = AlembicToGeomCache(abcFilename, opt, abcGeoms);
-	    assert(abcToGcResult);
+	    const auto abcIgc = nvcabcAlembicToInputGeomCache(abcFilename, opt);
+	    assert(abcIgc);
 
 //		dump(*abcGeoms.geometry);
 
 	    FileStream fs { nvcFilename, FileStream::OpenModes::Random_ReadWrite };
 	    Compressor nc {};
-	    nc.compress(*abcGeoms.geometry, &fs);
-	}
+	    nc.compress(*abcIgc, &fs);
+
+        nvcIGCRelease(abcIgc);
+    }
 
 	// read .nvc
 	{
@@ -260,18 +261,19 @@ static void test1() {
 
 	// Import -> output .nvc
 	{
-	    AlembicImportOptions opt;
-	    AlembicGeometries abcGeoms;
+	    ImportOptions opt;
 
-	    const auto abcToGcResult = AlembicToGeomCache(abcFilename, opt, abcGeoms);
-	    assert(abcToGcResult);
+	    const auto abcIgc = nvcabcAlembicToInputGeomCache(abcFilename, opt);
+	    assert(abcIgc);
 
 //		dump(*abcGeoms.geometry);
 
 	    FileStream fs { nvcFilename, FileStream::OpenModes::Random_ReadWrite };
 	    Compressor nc {};
-	    nc.compress(*abcGeoms.geometry, &fs);
-	}
+	    nc.compress(*abcIgc, &fs);
+
+        nvcIGCRelease(abcIgc);
+    }
 
 	// read .nvc
 	{
@@ -311,18 +313,19 @@ static void test2() {
 
 	// Import -> output .nvc
 	{
-	    AlembicImportOptions opt;
-	    AlembicGeometries abcGeoms;
+	    ImportOptions opt;
 
-	    const auto abcToGcResult = AlembicToGeomCache(abcFilename, opt, abcGeoms);
-	    assert(abcToGcResult);
+	    const auto abcIgc = nvcabcAlembicToInputGeomCache(abcFilename, opt);
+	    assert(abcIgc);
 
 //		dump(*abcGeoms.geometry);
 
 	    FileStream fs { nvcFilename, FileStream::OpenModes::Random_ReadWrite };
 	    Compressor nc {};
-	    nc.compress(*abcGeoms.geometry, &fs);
-	}
+	    nc.compress(*abcIgc, &fs);
+
+        nvcIGCRelease(abcIgc);
+    }
 
 	// read .nvc
 	{
@@ -375,17 +378,18 @@ static void test3() {
 
 	// Import -> output .nvc
 	{
-	    AlembicImportOptions opt;
-	    AlembicGeometries abcGeoms;
+	    ImportOptions opt;
 
-	    const auto abcToGcResult = AlembicToGeomCache(abcFilename, opt, abcGeoms);
-	    assert(abcToGcResult);
+	    const auto abcIgc = nvcabcAlembicToInputGeomCache(abcFilename, opt);
+	    assert(abcIgc);
 
 //		dump(*abcGeoms.geometry);
 
 	    FileStream fs { nvcFilename, FileStream::OpenModes::Random_ReadWrite };
 	    Compressor nc {};
-	    nc.compress(*abcGeoms.geometry, &fs);
+	    nc.compress(*abcIgc, &fs);
+
+        nvcIGCRelease(abcIgc);
 	}
 
 	// read .nvc
