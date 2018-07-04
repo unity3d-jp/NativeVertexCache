@@ -19,6 +19,13 @@ nvcAPI void nvcIGCAddData(nvc::InputGeomCache * self, float time, const nvc::Geo
         self->addData(time, data);
     }
 }
+nvcAPI void nvcIGCAClearData(nvc::InputGeomCache * self)
+{
+    if (self) {
+        self->clearData();
+    }
+}
+
 nvcAPI nvc::InputGeomCacheConstantData* nvcIGCCreateConstantData()
 {
     return new nvc::InputGeomCacheConstantData();

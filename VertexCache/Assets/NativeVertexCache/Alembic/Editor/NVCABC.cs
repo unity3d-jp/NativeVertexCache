@@ -28,13 +28,6 @@ namespace NaiveVertexCache.Alembic
         Points,
     };
 
-    public enum AspectRatioMode
-    {
-        CurrentResolution,
-        DefaultResolution,
-        CameraAperture
-    };
-
     [Serializable]
     public struct AlembicImportOptions
     {
@@ -109,27 +102,27 @@ namespace NaiveVertexCache.Alembic
 
     public struct XformData
     {
-        float time;
+        public float time;
 
-        bool visibility;
-        Vector3 translation;
-        Quaternion rotation;
-        Vector3 scale;
+        public bool visibility;
+        public Vector3 translation;
+        public Quaternion rotation;
+        public Vector3 scale;
     };
 
     public struct CameraData
     {
-        float time;
+        public float time;
 
-        Bool visibility;
-        float near_clipping_plane;
-        float far_clipping_plane;
-        float field_of_view;
-        float aspect_ratio;
+        public Bool visibility;
+        public float near_clipping_plane;
+        public float far_clipping_plane;
+        public float field_of_view;
+        public float aspect_ratio;
 
-        float focus_distance;
-        float focal_length;
-        float aperture;
+        public float focus_distance;
+        public float focal_length;
+        public float aperture;
     };
 
 

@@ -1,121 +1,82 @@
 #pragma once
 
-#include "../nvcAPI.h"
-
-#ifdef _WIN32
-    #ifdef NVCABC_IMPL
-        #define nvcabcAPI extern "C" __declspec(dllexport)
-    #else
-        #define nvcabcAPI extern "C" __declspec(dllimport)
-    #endif
-#else
-    #define nvcabcAPI extern "C"
-#endif
-
+#include "./nvcabcAPI.h"
+#include "Plugin/Foundation/RawVector.h"
+#include "External/abci/abci.h"
 
 namespace nvcabc {
+
 using namespace nvc;
-
-enum class NormalsMode
-{
-    ReadFromFile,
-    ComputeIfMissing,
-    AlwaysCompute,
-    Ignore
-};
-
-enum class TangentsMode
-{
-    None,
-    Compute,
-};
-
-enum NodeType
-{
-    Unknwon,
-    Xform,
-    Camera,
-    Light,
-    Mesh,
-    Points,
-};
-
-struct ImportOptions
-{
-    // options for abci
-    NormalsMode normals_mode = NormalsMode::ComputeIfMissing;
-    TangentsMode tangents_mode = TangentsMode::Compute;
-    float scale_factor = 1.0f;
-    float aspect_ratio = -1.0f;
-    float vertex_motion_scale = 1.0f;
-    int split_unit = 0x7fffffff;
-    bool swap_handedness = true;
-    bool swap_face_winding = false;
-    bool interpolate_samples = true;
-    bool turn_quad_edges = false;
-    bool multithreading = true;
-
-    bool import_point_polygon = true;
-    bool import_line_polygon = true;
-    bool import_triangle_polygon = true;
-
-
-    // followings are extended options for nvcabc
-    bool import_points = true;
-};
-
-struct ExportOptions
-{
-    // compression settings
-    CompressionType compression_type = CompressionType::Quantize;
-    int block_size = 30;
-};
-
-struct XformData
-{
-    float time = 0.0f;
-
-    bool visibility = true;
-    float3 translation = { 0.0f, 0.0f, 0.0f };
-    float4 rotation = { 0.0f, 0.0f, 0.0f, 1.0f }; // quaternion
-    float3 scale = { 1.0f, 1.0f, 1.0f };
-};
-
-struct CameraData
-{
-    float time = 0.0f;
-
-    bool visibility = true;
-    float near_clipping_plane = 0.3f;
-    float far_clipping_plane = 1000.0f;
-    float field_of_view = 60.0f;        // in degree. vertical one
-    float aspect_ratio = 16.0f / 9.0f;
-
-    float focus_distance = 5.0f;        // in cm
-    float focal_length = 0.0f;          // in mm
-    float aperture = 2.4f;              // in cm. vertical one
-};
 
 class ImportContext;
 
+class MeshSegment
+{
+public:
+    MeshSegment(ImportContext *ctx, aiPolyMesh *abc);
+    void onUpdateSample();
+    void getCounts(size_t& index_count, size_t& vertex_count, size_t& subm_count);
+    void setOffsets(size_t index_offset, size_t vertex_offset, size_t subm_offset);
+    void fillVertexBuffersBegin();
+    void fillVertexBuffersEnd();
+
+public:
+    ImportContext * m_ctx;
+    aiPolyMesh * m_mesh;
+    aiMeshSummary m_summary;
+    aiMeshSampleSummary m_sample_summary;
+    std::vector<aiSubmeshSummary> m_submesh_summaries;
+    std::vector<aiSubmeshData> m_submeshes;
+    aiPolyMeshData m_vdata;
+    size_t index_offset = 0;
+    size_t vertex_offset = 0;
+    size_t subm_offset = 0;
+};
+
+
+class ImportContext
+{
+public:
+    using InputGeomPtr = std::shared_ptr<nvc::InputGeomCache>;
+
+    ImportContext();
+    ~ImportContext();
+
+    void clear();
+    bool open(const char *path, const ImportOptions& opt);
+
+    void gatherTimes();
+    void gatherMeshes();
+    InputGeomCache* gatherSamples();
+
+private:
+    void gatherMeshes(aiObject *obj);
+    void gatherSamples(double time, nvc::InputGeomCache *igc);
+
+    aiContext * m_ctx = nullptr;
+    InputGeomCacheConstantData *m_igcconst = nullptr;
+    std::vector<MeshSegment> m_segments;
+
+public:
+    std::vector<aiObject*> m_abc_nodes;
+    std::vector<nvc::GeomCacheDesc> m_descs;
+    std::vector<nvc::GeomMesh> m_geomeshes;
+    std::vector<nvc::GeomSubmesh> m_geosubmeshes;
+    std::vector<void*> m_data_pointers;
+
+    RawVector<double> m_timesamples;
+    RawVector<int> m_indices;
+    RawVector<nvc::float2> m_uv0, m_uv1;
+    RawVector<nvc::float3> m_points, m_normals, m_velocities;
+    RawVector<nvc::float4> m_tangents, m_colors;
+    int m_id_points = -1,
+        m_id_velocities = -1,
+        m_id_normals = -1,
+        m_id_tangents = -1,
+        m_id_uv0 = -1,
+        m_id_uv1 = -1,
+        m_id_colors = -1;
+
+};
+
 } // namespace nvcabc
-
-// just convert alembic file to InputGeomCache.
-// ** caller must release returned object (call nvcIGCRelease()) **
-nvcabcAPI nvc::InputGeomCache* nvcabcAlembicToInputGeomCache(const char *path_to_abc, const nvcabc::ImportOptions& options);
-
-
-nvcabcAPI nvcabc::ImportContext* nvcabcCreateContext();
-nvcabcAPI void nvcabcReleaseContext(nvcabc::ImportContext *self);
-nvcabcAPI int nvcabcOpen(nvcabc::ImportContext *self, const char *path_to_abc, const nvcabc::ImportOptions* options);
-
-// convert and export to file
-nvcabcAPI int nvcabcExportNVC(nvcabc::ImportContext *self, const char *path_to_nvc, const nvcabc::ExportOptions* options);
-
-nvcabcAPI int nvcabcGetNodeCount(nvcabc::ImportContext *self);
-nvcabcAPI const char* nvcabcGetNodeName(nvcabc::ImportContext *self, int i);
-nvcabcAPI const char* nvcabcGetNodePath(nvcabc::ImportContext *self, int i);
-nvcabcAPI nvcabc::NodeType nvcabcGetNodeType(nvcabc::ImportContext *self, int i);
-nvcabcAPI int nvcabcGetSampleCount(nvcabc::ImportContext *self, int i);
-nvcabcAPI int nvcabcFillXformSamples(nvcabc::ImportContext *self, int i, nvcabc::XformData *dst);
-nvcabcAPI int nvcabcFillCameraSamples(nvcabc::ImportContext *self, int i, nvcabc::CameraData *dst);

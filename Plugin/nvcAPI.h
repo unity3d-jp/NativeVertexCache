@@ -25,6 +25,7 @@ struct InputGeomCacheConstantData;
 nvcAPI nvc::InputGeomCache* nvcIGCCreate(const nvc::GeomCacheDesc *descs, const nvc::InputGeomCacheConstantData* constants = nullptr);
 nvcAPI void nvcIGCRelease(nvc::InputGeomCache *self);
 nvcAPI void nvcIGCAddData(nvc::InputGeomCache *self, float time, const nvc::GeomCacheData *data);
+nvcAPI void nvcIGCAClearData(nvc::InputGeomCache *self);
 
 nvcAPI nvc::InputGeomCacheConstantData* nvcIGCCreateConstantData();
 nvcAPI void nvcIGCReleaseConstantData(nvc::InputGeomCacheConstantData* self);
