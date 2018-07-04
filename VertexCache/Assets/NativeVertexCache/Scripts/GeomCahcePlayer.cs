@@ -77,7 +77,7 @@ namespace NaiveVertexCache
                 if (subm.topology == Topology.Triangles)
                 {
                     m_ogc.FillIndices(ref subm, m_indices);
-                    dst.SetTriangles(m_indices.List, si++);
+                    dst.SetTriangles(m_indices.List, si++, false);
                 }
             }
         }
@@ -100,6 +100,16 @@ namespace NaiveVertexCache
             {
                 mesh = new Mesh();
                 mesh.name = cgo.name;
+#if UNITY_2017_3_OR_NEWER
+                mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+#endif
+                mesh.MarkDynamic();
+
+                // mark don't save in editor
+                int hideFlags = (int)mesh.hideFlags;
+                hideFlags |= (int)HideFlags.DontSaveInEditor;
+                mesh.hideFlags = (HideFlags)hideFlags;
+
                 mf.sharedMesh = mesh;
             }
 
