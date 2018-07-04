@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: bfc0ca44bea0b7547bba1686fb37095b
+ScriptedImporter:
+  fileIDToRecycleName: {}
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: bc1152c69937abe44a325c2627549641, type: 3}
+  settings:
+    normalsMode: 1
+    tangentsMode: 1
+    cameraAspectRatio: 2
+    scaleFactor: 0.01
+    swapHandedness: 1
+    flipFaces: 0
+    turnQuadEdges: 0
+    interpolateSamples: 1
+    importPointPolygon: 1
+    importLinePolygon: 1
+    importTrianglePolygon: 1
+    importVisibility: 1

@@ -80,6 +80,8 @@ namespace NaiveVertexCache.Alembic
     [ScriptedImporter(1, "abc", -100)]
     public class AlembicImporter : ScriptedImporter
     {
+        [SerializeField] public AlembicImportSettings settings = new AlembicImportSettings();
+
         public static string MakeShortAssetPath(string assetPath)
         {
             return Regex.Replace(assetPath, "^Assets", "");

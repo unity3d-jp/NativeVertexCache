@@ -28,8 +28,15 @@ namespace NaiveVertexCache.Alembic
         Points,
     };
 
+    public enum AspectRatioMode
+    {
+        CurrentResolution,
+        DefaultResolution,
+        CameraAperture
+    };
+
     [Serializable]
-    public struct ImportOptions
+    public struct AlembicImportOptions
     {
         // options for abci
         public NormalsMode normals_mode;
@@ -51,17 +58,21 @@ namespace NaiveVertexCache.Alembic
         // followings are extended options for nvcabc
         public Bool import_points;
 
-        public static ImportOptions default_value {
+        public static AlembicImportOptions default_value {
             get
             {
-                return new ImportOptions
+                return new AlembicImportOptions
                 {
                     normals_mode = NormalsMode.ComputeIfMissing,
                     tangents_mode = TangentsMode.Compute,
                     scale_factor = 1.0f,
                     aspect_ratio = -1.0f,
                     vertex_motion_scale = -1.0f,
+#if UNITY_2017_3_OR_NEWER
                     split_unit = 0x7fffffff,
+#else
+                    split_unit = 65000,
+#endif
                     swap_handedness = true,
                     swap_face_winding = false,
                     interpolate_samples = true,
@@ -76,17 +87,18 @@ namespace NaiveVertexCache.Alembic
         }
     };
 
-    public struct ExportOptions
+    [Serializable]
+    public struct NvcExportOptions
     {
         // compression settings
         public CompressionType compression_type;
         public int block_size;
 
-        public static ExportOptions default_value
+        public static NvcExportOptions default_value
         {
             get
             {
-                return new ExportOptions
+                return new NvcExportOptions
                 {
                     compression_type = CompressionType.Quantize,
                     block_size = 30,
@@ -129,9 +141,9 @@ namespace NaiveVertexCache.Alembic
         public static ImportContext Create() { return nvcabcCreateContext(); }
 
         public void Release() { nvcabcReleaseContext(self); self = IntPtr.Zero; }
-        public bool Open(string path_to_abc, ref ImportOptions opt) { return nvcabcOpen(self, path_to_abc, ref opt); }
+        public bool Open(string path_to_abc, ref AlembicImportOptions opt) { return nvcabcOpen(self, path_to_abc, ref opt); }
 
-        public bool ExportNVC(string path_to_nvc, ref ExportOptions opt) { return nvcabcExportNVC(self, path_to_nvc, ref opt); }
+        public bool ExportNVC(string path_to_nvc, ref NvcExportOptions opt) { return nvcabcExportNVC(self, path_to_nvc, ref opt); }
 
         public int nodeCount { get { return nvcabcGetNodeCount(self); } }
         public string GetNodeName(int i) { return Misc.S(nvcabcGetNodeName(self, i)); }
@@ -141,12 +153,12 @@ namespace NaiveVertexCache.Alembic
         public bool FillXformSamples(int i, PinnedList<XformData> dst) { return nvcabcFillXformSamples(self, i, dst); }
         public bool FillCameraSamples(int i, PinnedList<CameraData> dst) { return nvcabcFillCameraSamples(self, i, dst); }
 
-        #region internal
+#region internal
         [DllImport("AlembicToGeomCache")] static extern ImportContext nvcabcCreateContext();
         [DllImport("AlembicToGeomCache")] static extern void nvcabcReleaseContext(IntPtr self);
-        [DllImport("AlembicToGeomCache")] static extern bool nvcabcOpen(IntPtr self, string path_to_abc, ref ImportOptions opt);
+        [DllImport("AlembicToGeomCache")] static extern bool nvcabcOpen(IntPtr self, string path_to_abc, ref AlembicImportOptions opt);
 
-        [DllImport("AlembicToGeomCache")] static extern bool nvcabcExportNVC(IntPtr self, string path_to_nvc, ref ExportOptions opt);
+        [DllImport("AlembicToGeomCache")] static extern bool nvcabcExportNVC(IntPtr self, string path_to_nvc, ref NvcExportOptions opt);
 
         [DllImport("AlembicToGeomCache")] static extern int nvcabcGetNodeCount(IntPtr self);
         [DllImport("AlembicToGeomCache")] static extern IntPtr nvcabcGetNodeName(IntPtr self, int i);
@@ -155,7 +167,7 @@ namespace NaiveVertexCache.Alembic
         [DllImport("AlembicToGeomCache")] static extern int nvcabcGetSampleCount(IntPtr self, int i);
         [DllImport("AlembicToGeomCache")] static extern bool nvcabcFillXformSamples(IntPtr self, int i, IntPtr dst);
         [DllImport("AlembicToGeomCache")] static extern bool nvcabcFillCameraSamples(IntPtr self, int i, IntPtr dst);
-        #endregion
+#endregion
     }
 
 }
